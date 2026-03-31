@@ -1,20 +1,23 @@
 package UI;
 
+import file.MyFileReader;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import javax.swing.*;
 import java.awt.*;
+import java.io.File;
 
 import static UI.Checkbox.createCheckbox;
 
 public class ListingPanel {
-    private static final Dimension LISTING_PANEL = new Dimension(400, 1200);
+    private static final Dimension LISTING_PANEL = new Dimension(600, 700);
+    private static final Logger log = LogManager.getLogger(ListingPanel.class);
 
     public static JScrollPane createListing() {
-        JPanel breakpoint_panel = new JPanel();
-        breakpoint_panel.setLayout(new BoxLayout(breakpoint_panel, BoxLayout.Y_AXIS));
-        for (int i = 0; i < 25; i++) {
-            JCheckBox checkbox = createCheckbox("Zeile: " + i);
-            breakpoint_panel.add(checkbox);
-        }
+        MyFileReader reader = new MyFileReader();
+        JPanel breakpoint_panel = reader.createFilePanel(new File("C:\\Users\\Christian\\IdeaProjects\\PIC-Simulator\\src\\main\\resources\\Test1.LST"));
+
         breakpoint_panel.setPreferredSize(LISTING_PANEL);
         breakpoint_panel.setMaximumSize(LISTING_PANEL);
         breakpoint_panel.setMinimumSize(LISTING_PANEL);

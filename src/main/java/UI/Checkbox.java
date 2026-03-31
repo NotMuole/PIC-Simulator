@@ -21,6 +21,7 @@ public class Checkbox {
         checkbox.setPreferredSize(new Dimension(CHECKBOX_DIMENSION));
         Color normalColor = Color.BLACK;
         Color selectedColor = Color.RED;
+        checkbox.setFont(new Font(Font.MONOSPACED, Font.BOLD, 15));
         checkbox.addActionListener(e -> {
             checkbox.setForeground(checkbox.isSelected() ? selectedColor : normalColor);
         });
