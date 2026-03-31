@@ -16,7 +16,7 @@ public class ListingPanel {
 
     public static JScrollPane createListing() {
         MyFileReader reader = new MyFileReader();
-        JPanel breakpoint_panel = reader.createFilePanel(new File("C:\\Users\\Christian\\IdeaProjects\\PIC-Simulator\\src\\main\\resources\\Test1.LST"));
+        JPanel breakpoint_panel = reader.createFilePanel(new File("C:\\_work\\studium\\DHBW\\PIC-Simulator\\PIC-Simulator\\src\\main\\resources\\Test1.LST"));
 
         breakpoint_panel.setPreferredSize(LISTING_PANEL);
         breakpoint_panel.setMaximumSize(LISTING_PANEL);
