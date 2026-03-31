@@ -8,8 +8,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.File;
 
-import static UI.Checkbox.createCheckbox;
-
 public class ListingPanel {
     private static final Dimension LISTING_PANEL = new Dimension(600, 700);
     private static final Logger log = LogManager.getLogger(ListingPanel.class);
