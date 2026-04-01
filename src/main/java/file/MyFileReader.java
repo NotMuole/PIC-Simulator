@@ -6,10 +6,12 @@ import org.apache.logging.log4j.Logger;
 import javax.swing.*;
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
+import java.io.FileInputStream;
 import java.io.IOException;
 
 import static UI.Checkbox.createCheckbox;
+import java.io.InputStreamReader;
+import java.nio.charset.Charset;
 
 public class MyFileReader {
     private static final Logger log = LogManager.getLogger(MyFileReader.class);
@@ -18,7 +20,14 @@ public class MyFileReader {
         JPanel breakpoint_panel = new JPanel();
         breakpoint_panel.setLayout(new BoxLayout(breakpoint_panel, BoxLayout.Y_AXIS));
 
-        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+        try (
+            BufferedReader reader = new BufferedReader(
+                new InputStreamReader(
+                    new FileInputStream(file), Charset.forName("ISO-8859-1")
+                )
+            )
+
+        ) {
             String line;
 
             while ((line = reader.readLine()) != null) {
@@ -33,3 +42,5 @@ public class MyFileReader {
         return breakpoint_panel;
     }
 }
+
+Int[] programmspeicher = new Int[1024];

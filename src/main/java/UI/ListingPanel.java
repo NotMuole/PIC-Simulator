@@ -15,6 +15,7 @@ public class ListingPanel {
     public static JScrollPane createListing(String file_path) {
         MyFileReader reader = new MyFileReader();
         JPanel breakpoint_panel = reader.createFilePanel(new File(file_path));
+
         breakpoint_panel.setPreferredSize(LISTING_PANEL);
         breakpoint_panel.setMaximumSize(LISTING_PANEL);
         breakpoint_panel.setMinimumSize(LISTING_PANEL);
