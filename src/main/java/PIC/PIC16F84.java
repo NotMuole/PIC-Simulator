@@ -8,6 +8,7 @@ public class PIC16F84 {
     private int[] RAM = new int[256];
     private int[] Stack = new int[8];
     private int StackIndex = 0;
+    private int Programmcounter = 0;
 
     private static final Logger log = LogManager.getLogger(PIC16F84.class);
 
@@ -239,7 +240,6 @@ public class PIC16F84 {
         this.RAM[131] = this.RAM[131] & 254;
     }
 
-
     public int getDigitcarryFlag() {
         return (this.RAM[3] & 2) >> 1;
     }
@@ -253,4 +253,26 @@ public class PIC16F84 {
         this.RAM[3] = this.RAM[3] & 253;
         this.RAM[131] = this.RAM[131] & 253;
     }
+
+    public int getProgrammCounter() {
+        return this.RAM[2];
+    }
+
+    public void incrementProgrammCounter() {
+        if (this.Programmcounter == 8191) {
+            this.Programmcounter = 0;
+        } else {
+            this.Programmcounter += 1;
+        }
+        this.RAM[2] = this.Programmcounter & 255;
+        this.RAM[130] = this.Programmcounter & 255;
+    }
+
+    public void resetProgrammCounter() {
+        this.RAM[2] = 0;
+        this.RAM[130] = 0;
+        this.Programmcounter = 0;
+    }
+
+
 }
