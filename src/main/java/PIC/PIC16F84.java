@@ -223,4 +223,19 @@ public class PIC16F84 {
     public int getZeroFlag() {
         return (this.RAM[3] & 4) >> 2;
     }
+
+
+    public int getCarryFlag() {
+        return (this.RAM[3] & 1);
+    }
+
+    public void setCarryFlag() {
+        this.RAM[3] = this.RAM[3] | 1;
+        this.RAM[131] = this.RAM[131] | 1;
+    }
+
+    public void clearCarryFlag() {
+        this.RAM[3] = this.RAM[3] & 254;
+        this.RAM[131] = this.RAM[131] & 254;
+    }
 }
