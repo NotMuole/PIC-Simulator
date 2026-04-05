@@ -4,22 +4,22 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public class PIC16F84 {
-    private static int[] Programmstore = new int[1024];
+    private static int[] Programstore = new int[1024];
     private int[] RAM = new int[256];
     private int[] Stack = new int[8];
     private int StackIndex = 0;
-    private int Programmcounter = 0;
+    private int Programcounter = 0;
 
     private static final Logger log = LogManager.getLogger(PIC16F84.class);
 
     public PIC16F84() {};
 
-    public static void writeProgrammstore(int address, int value) {
-        Programmstore[address] = value;
+    public static void writeProgramstore(int address, int value) {
+        Programstore[address] = value;
     }
 
-    public int getProgrammstore(int address) {
-        return this.Programmstore[address];
+    public int getProgramstore(int address) {
+        return this.Programstore[address];
     }
 
     public void writeRAM(int address, int value) {
@@ -186,9 +186,9 @@ public class PIC16F84 {
            }
     }
 
-    public void readProgrammstore() {
+    public void readProgramstore() {
         for (int i = 0; i < 1024; i++) {
-            log.info(this.getProgrammstore(i));
+            log.info(this.getProgramstore(i));
         }
     }
 
@@ -254,24 +254,26 @@ public class PIC16F84 {
         this.RAM[131] = this.RAM[131] & 253;
     }
 
-    public int getProgrammCounter() {
+    public int getProgramCounter() {
         return this.RAM[2];
     }
 
-    public void incrementProgrammCounter() {
-        if (this.Programmcounter == 8191) {
-            this.Programmcounter = 0;
+    public void incrementProgramCounter() {
+        if (this.Programcounter == 1023) {
+            this.Programcounter = 0;
         } else {
-            this.Programmcounter += 1;
+            this.Programcounter += 1;
         }
-        this.RAM[2] = this.Programmcounter & 255;
-        this.RAM[130] = this.Programmcounter & 255;
+        if (getProgramCounter() < 255) {
+            this.RAM[2] += 1;
+            this.RAM[130] += 1;
+        }
     }
 
-    public void resetProgrammCounter() {
+    public void resetProgramCounter() {
         this.RAM[2] = 0;
         this.RAM[130] = 0;
-        this.Programmcounter = 0;
+        this.Programcounter = 0;
     }
 
 

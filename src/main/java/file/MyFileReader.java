@@ -39,7 +39,7 @@ public class MyFileReader {
                 String adress = line.substring(0, 4).replaceAll("\\s", "");
                 String code = line.substring(5, 9).replaceAll("\\s", "");
                 if (!adress.isEmpty()) {
-                    PIC16F84.writeProgrammstore(Integer.parseInt(adress, 16), Integer.parseInt(code, 16));
+                    PIC16F84.writeProgramstore(Integer.parseInt(adress, 16), Integer.parseInt(code, 16));
                     PIC16F84.decode(Integer.parseInt(code, 16));
                 }
                 JCheckBox checkbox = createCheckbox(line);
