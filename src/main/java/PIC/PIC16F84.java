@@ -238,4 +238,19 @@ public class PIC16F84 {
         this.RAM[3] = this.RAM[3] & 254;
         this.RAM[131] = this.RAM[131] & 254;
     }
+
+
+    public int getDigitcarryFlag() {
+        return (this.RAM[3] & 2) >> 1;
+    }
+
+    public void setDigitcarryFlag() {
+        this.RAM[3] = this.RAM[3] | 2;
+        this.RAM[131] = this.RAM[131] | 2;
+    }
+
+    public void clearDigitcarryFlag() {
+        this.RAM[3] = this.RAM[3] & 253;
+        this.RAM[131] = this.RAM[131] & 253;
+    }
 }
