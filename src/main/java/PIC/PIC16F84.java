@@ -4,15 +4,17 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public class PIC16F84 {
-    private int[] Programmstore = new int[1024];
+    private static int[] Programmstore = new int[1024];
     private int[] RAM = new int[256];
+    private int[] Stack = new int[8];
+    private int StackIndex = 0;
 
     private static final Logger log = LogManager.getLogger(PIC16F84.class);
 
     public PIC16F84() {};
 
-    public void writeProgrammstore(int address, int value) {
-        this.Programmstore[address] = value;
+    public static void writeProgrammstore(int address, int value) {
+        Programmstore[address] = value;
     }
 
     public int getProgrammstore(int address) {
@@ -27,7 +29,7 @@ public class PIC16F84 {
         return this.RAM[address];
     }
 
-    public void decode(int code) {
+    public static void decode(int code) {
            if ((code & 16128) == 1792) {
                log.info("ADDWF");
                int value = code & 127;
@@ -196,5 +198,15 @@ public class PIC16F84 {
 
         // set INCONT
         writeRAM(11, 0);
+    }
+
+    public void setStack(int addresse) {
+        this.Stack[this.StackIndex % 8] = addresse;
+        this.StackIndex += 1;
+    }
+
+    public int getStack() {
+        this.StackIndex -= 1;
+        return this.Stack[this.StackIndex];
     }
 }
