@@ -6,6 +6,7 @@ import org.apache.logging.log4j.Logger;
 import PIC.PIC16F84;
 
 import javax.swing.*;
+import java.awt.*;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -16,6 +17,7 @@ import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 
 public class MyFileReader {
+    private int numberOfLines = 0;
     private static final Logger log = LogManager.getLogger(MyFileReader.class);
 
     public JPanel createFilePanel(File file) {
@@ -25,7 +27,7 @@ public class MyFileReader {
         try (
             BufferedReader reader = new BufferedReader(
                 new InputStreamReader(
-                    new FileInputStream(file), Charset.forName("ISO-8859-1")
+                    new FileInputStream(file), Charset.forName("ISO_8859_1")
                 )
             )
 
@@ -42,6 +44,7 @@ public class MyFileReader {
                 }
                 JCheckBox checkbox = createCheckbox(line);
                 breakpoint_panel.add(checkbox);
+                this.numberOfLines += 1;
             }
 
         } catch (IOException e) {
@@ -49,4 +52,9 @@ public class MyFileReader {
         }
         return breakpoint_panel;
     }
+
+    public Dimension getDimension() {
+        return new Dimension(600, this.numberOfLines * 20);
+    }
+
 }

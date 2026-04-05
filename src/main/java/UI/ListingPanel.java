@@ -9,12 +9,12 @@ import java.awt.*;
 import java.io.File;
 
 public class ListingPanel {
-    private static final Dimension LISTING_PANEL = new Dimension(600, 700);
     private static final Logger log = LogManager.getLogger(ListingPanel.class);
 
     public static JScrollPane createListing(String file_path) {
         MyFileReader reader = new MyFileReader();
         JPanel breakpoint_panel = reader.createFilePanel(new File(file_path));
+        Dimension LISTING_PANEL = reader.getDimension();
         breakpoint_panel.setPreferredSize(LISTING_PANEL);
         breakpoint_panel.setMaximumSize(LISTING_PANEL);
         breakpoint_panel.setMinimumSize(LISTING_PANEL);
