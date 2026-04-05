@@ -75,6 +75,9 @@ public class PIC16F84 {
                log.info("MOVWF");
                int value = code & 127;
 
+           } else if ((code & 16287) == 0) {
+                log.info("NOP");
+                
            } else if ((code & 16128) == 3328) {
                log.info("RLF");
                int value = code & 127;
