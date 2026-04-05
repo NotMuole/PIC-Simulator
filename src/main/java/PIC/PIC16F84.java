@@ -209,4 +209,18 @@ public class PIC16F84 {
         this.StackIndex -= 1;
         return this.Stack[this.StackIndex];
     }
+
+    public void setZeroFlag() {
+        this.RAM[3] = this.RAM[3] | 4;
+        this.RAM[131] = this.RAM[131] | 4;
+    }
+
+    public void clearZeroFlag() {
+        this.RAM[3] = this.RAM[3] & 251;
+        this.RAM[131] = this.RAM[131] & 251;
+    }
+
+    public int getZeroFlag() {
+        return (this.RAM[3] & 4) >> 2;
+    }
 }
