@@ -4,20 +4,30 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public class PIC16F84 {
-    private static int[] Programmstore = new int[1024];
+    private int[] Programmstore = new int[1024];
+    private int[] RAM = new int[256];
+
     private static final Logger log = LogManager.getLogger(PIC16F84.class);
 
     public PIC16F84() {};
 
-    public static void writeProgrammstore(int address, int value) {
-        Programmstore[address] = value;
+    public void writeProgrammstore(int address, int value) {
+        this.Programmstore[address] = value;
     }
 
-    public static int getProgrammstore(int address) {
-        return Programmstore[address];
+    public int getProgrammstore(int address) {
+        return this.Programmstore[address];
     }
 
-    public static void decode(int code) {
+    public void writeRAM(int address, int value) {
+        this.RAM[address] = value;
+    }
+
+    public int getRAM(int address) {
+        return this.RAM[address];
+    }
+
+    public void decode(int code) {
            if ((code & 16128) == 1792) {
                log.info("ADDWF");
                int value = code & 127;
@@ -77,7 +87,7 @@ public class PIC16F84 {
 
            } else if ((code & 16287) == 0) {
                 log.info("NOP");
-                
+
            } else if ((code & 16128) == 3328) {
                log.info("RLF");
                int value = code & 127;
@@ -173,9 +183,18 @@ public class PIC16F84 {
            }
     }
 
-    public static void readProgrammstore() {
+    public void readProgrammstore() {
         for (int i = 0; i < 1024; i++) {
-            log.info(getProgrammstore(i));
+            log.info(this.getProgrammstore(i));
         }
+    }
+
+    public void reset() {
+        // set TRIS to input to avoid damage
+        writeRAM(133, 255);
+        writeRAM(134, 255);
+
+        // set INCONT
+        writeRAM(11, 0);
     }
 }
