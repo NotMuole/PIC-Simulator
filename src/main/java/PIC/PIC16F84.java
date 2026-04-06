@@ -264,11 +264,16 @@ public class PIC16F84 {
             Programcounter = 0;
         } else {
             Programcounter += 1;
+
         }
-        if (getProgramCounter() < 255) {
-            RAM[2] += 1;
-            RAM[130] += 1;
-        }
+        RAM[2] = Programcounter & 255;
+        RAM[130] = Programcounter & 255;
+    }
+
+    public static void setProgramCounter(int address) {
+        Programcounter = address & 1023;
+        RAM[2] = Programcounter & 255;
+        RAM[130] = Programcounter & 255;
     }
 
     public static void resetProgramCounter() {
@@ -424,4 +429,11 @@ public class PIC16F84 {
         log.info("XORLW");
     }
 
+    public static void executeProgram() {
+        while (true) {
+            int command = getProgramstore(Programcounter);
+            incrementProgramCounter();
+            decode(command);
+        }
+    }
 }
