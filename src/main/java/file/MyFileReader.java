@@ -35,13 +35,16 @@ public class MyFileReader {
             String line;
 
             while ((line = reader.readLine()) != null) {
-                //log.info(line);
+                boolean is_command;
                 String adress = line.substring(0, 4).replaceAll("\\s", "");
                 String code = line.substring(5, 9).replaceAll("\\s", "");
                 if (!adress.isEmpty()) {
                     PIC16F84.writeProgramstore(Integer.parseInt(adress, 16), Integer.parseInt(code, 16));
+                    is_command = true;
+                } else {
+                    is_command = false;
                 }
-                JCheckBox checkbox = createCheckbox(line);
+                JCheckBox checkbox = createCheckbox(line, is_command);
                 breakpoint_panel.add(checkbox);
                 this.numberOfLines += 1;
             }
