@@ -1,5 +1,6 @@
 package PIC;
 
+import UI.MyFrame;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -202,14 +203,18 @@ public class PIC16F84 {
         writeRAM(11, 0);
     }
 
-    public static void setStack(int addresse) {
+    public static void pushStack(int addresse) {
         Stack[StackIndex % 8] = addresse;
         StackIndex += 1;
     }
 
-    public static int getStack() {
+    public static int popStack() {
         StackIndex -= 1;
         return Stack[StackIndex];
+    }
+
+    public static int[] getStack() {
+        return Stack;
     }
 
     public static void setZeroFlag() {
@@ -387,7 +392,7 @@ public class PIC16F84 {
     }
 
     public static void CALL(int literal) {
-        setStack(Programcounter);
+        pushStack(Programcounter);
         PIC16F84.setProgramCounter(literal & 1023);
         log.info("CALL, return-address=" + (Programcounter) + ", destination-address=" + (literal & 1023));
     }
@@ -419,12 +424,12 @@ public class PIC16F84 {
 
     public static void RETLW(int literal) {
         WReg = literal;
-        Programcounter = getStack();
+        Programcounter = popStack();
         log.info("RETLW, return-address=" + Programcounter + ", W=" + Integer.toHexString(WReg) + "h");
     }
 
     public static void RETURN() {
-        Programcounter = getStack();
+        Programcounter = popStack();
         log.info("RETURN");
     }
 
@@ -456,6 +461,7 @@ public class PIC16F84 {
             int command = getProgramstore(Programcounter);
             incrementProgramCounter();
             decode(command);
+            MyFrame.updateFieldWEST();
         }
     }
 }

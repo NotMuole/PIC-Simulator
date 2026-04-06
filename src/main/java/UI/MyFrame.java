@@ -13,6 +13,7 @@ public class MyFrame extends JFrame {
         private static final Logger log = LogManager.getLogger(MyFrame.class);
         private static JFrame frame;
         private static Component currentListing;
+        private static Component currentFieldWEST;
 
         public MyFrame() {
             log.info("PIC-Simulator gestartet");
@@ -21,6 +22,8 @@ public class MyFrame extends JFrame {
             frame.setSize(DEFAULT_SIZE);
             setIcon(frame);
             frame.add(FileSelector.createFileUploader(), BorderLayout.NORTH);
+            currentFieldWEST = FieldWest.createFieldWEST();
+            frame.add(currentFieldWEST, BorderLayout.WEST);
             frame.setSize(DEFAULT_SIZE);
             frame.setVisible(true);
         }
@@ -43,5 +46,15 @@ public class MyFrame extends JFrame {
             }
             Image icon = new ImageIcon(iconUrl).getImage();
             frame.setIconImage(icon);
-    }
+        }
+
+        public static void updateFieldWEST() {
+            if (currentFieldWEST != null) {
+                frame.remove(currentFieldWEST);
+            }
+            currentFieldWEST = FieldWest.createFieldWEST();
+            frame.add(currentFieldWEST, BorderLayout.WEST);
+            frame.revalidate();
+            frame.repaint();
+        }
 }
