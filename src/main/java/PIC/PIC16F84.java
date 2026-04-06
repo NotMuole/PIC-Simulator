@@ -24,7 +24,7 @@ public class PIC16F84 {
     }
 
     public static void writeRAM(int address, int value) {
-        RAM[address] = value;
+        RAM[address] = value & 255;
     }
 
     public static int getRAM(int address) {
@@ -169,7 +169,7 @@ public class PIC16F84 {
 
            } else if ((code & 15360) == 13312) {
                int literal = code & 255;
-               RETILW(literal);
+               RETLW(literal);
 
            } else if ((code & 16383) == 8) {
                RETURN();
@@ -326,11 +326,12 @@ public class PIC16F84 {
     }
 
     public static void MOVWF(int value) {
-        log.info("MOVWF");
+
+        log.info("MOVWF, WReg: " + Integer.toHexString(WReg) + "h, C=" + getCarryFlag() + ", DC=" + getDigitcarryFlag() + ", Z=" + getZeroFlag());
     }
 
     public static void NOP() {
-        log.info("NOP");
+        log.info("NOP, WReg: " + Integer.toHexString(WReg) + "h, C=" + getCarryFlag() + ", DC=" + getDigitcarryFlag() + ", Z=" + getZeroFlag());
     }
 
     public static void RLF(int value, int destination) {
@@ -386,7 +387,9 @@ public class PIC16F84 {
     }
 
     public static void CALL(int literal) {
-        log.info("CALL");
+        setStack(Programcounter);
+        PIC16F84.setProgramCounter(literal & 1023);
+        log.info("CALL, return-address=" + (Programcounter) + ", destination-address=" + (literal & 1023));
     }
 
     public static void CLRWDT() {
@@ -394,8 +397,8 @@ public class PIC16F84 {
     }
 
     public static void GOTO(int literal) {
-        log.info("GOTO");
         PIC16F84.setProgramCounter(literal);
+        log.info("GOTO, destination-address=" + (literal & 1023));
     }
 
     public static void IORLW(int literal) {
@@ -414,11 +417,14 @@ public class PIC16F84 {
         log.info("RETFIE");
     }
 
-    public static void RETILW(int literal) {
-        log.info("RETILW");
+    public static void RETLW(int literal) {
+        WReg = literal;
+        Programcounter = getStack();
+        log.info("RETLW, return-address=" + Programcounter + ", W=" + Integer.toHexString(WReg) + "h");
     }
 
     public static void RETURN() {
+        Programcounter = getStack();
         log.info("RETURN");
     }
 
@@ -443,7 +449,10 @@ public class PIC16F84 {
     }
 
     public static void executeProgram() {
-        for (int i = 0; i < 20; i ++) {
+        // TODO: Command loop
+        //while (true) {
+        for (int i=0; i < 100; i++) {
+            log.info(Programcounter);
             int command = getProgramstore(Programcounter);
             incrementProgramCounter();
             decode(command);
