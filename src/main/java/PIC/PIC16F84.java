@@ -418,9 +418,7 @@ public class PIC16F84 {
     }
 
     public static void RETLW(int literal) {
-        WReg = literal;
-        Programcounter = getStack();
-        log.info("RETLW, return-address=" + Programcounter + ", W=" + Integer.toHexString(WReg) + "h");
+        log.info("RETLW");
     }
 
     public static void RETURN() {
