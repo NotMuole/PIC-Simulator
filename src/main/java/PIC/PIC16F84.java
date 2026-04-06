@@ -226,7 +226,6 @@ public class PIC16F84 {
         return (RAM[3] & 4) >> 2;
     }
 
-
     public static int getCarryFlag() {
         return (RAM[3] & 1);
     }
@@ -371,14 +370,19 @@ public class PIC16F84 {
     }
 
     public static void ADDLW(int value) {
-        log.info("ADDLW");
+        int new_value = value + WReg;
+        if (value == 0) setZeroFlag(); else clearZeroFlag();
+        if (new_value > 255) setCarryFlag(); else clearCarryFlag();
+        if ((value & 15) + (WReg & 15) > 15) setDigitcarryFlag(); else clearDigitcarryFlag();
+        WReg = new_value;
+        log.info("ADDLW, WReg: " + Integer.toHexString(WReg) + "h, C=" + getCarryFlag() + ", DC=" + getDigitcarryFlag() + ", Z=" + getZeroFlag());
     }
 
     public static void ANDLW(int literal) {
         int value = WReg & literal;
-        if (value == 0) setZeroFlag();
+        if (value == 0) setZeroFlag(); else clearZeroFlag();
         WReg = value;
-        log.info("ANDLW, WReg: " + WReg);
+        log.info("ANDLW, WReg: " + Integer.toHexString(WReg) + "h, C=" + getCarryFlag() + ", DC=" + getDigitcarryFlag() + ", Z=" + getZeroFlag());
     }
 
     public static void CALL(int literal) {
@@ -391,18 +395,19 @@ public class PIC16F84 {
 
     public static void GOTO(int literal) {
         log.info("GOTO");
+        PIC16F84.setProgramCounter(literal);
     }
 
     public static void IORLW(int literal) {
-        int value = WReg ^ literal;
-        if (value == 0 ) setZeroFlag();
+        int value = WReg | literal;
+        if (value == 0 ) setZeroFlag(); else clearZeroFlag();
         WReg = value;
-        log.info("IORLW, WReg: " + WReg);
+        log.info("IORLW, WReg: " + Integer.toHexString(WReg) + "h, C=" + getCarryFlag() + ", DC=" + getDigitcarryFlag() + ", Z=" + getZeroFlag());
     }
 
     public static void MOVLW(int literal) {
         WReg = literal;
-        log.info("MOVLW, WReg: " + WReg);
+        log.info("MOVLW, WReg: " + Integer.toHexString(WReg) + "h, C=" + getCarryFlag() + ", DC=" + getDigitcarryFlag() + ", Z=" + getZeroFlag());
     }
 
     public static void RETFIE() {
@@ -422,15 +427,23 @@ public class PIC16F84 {
     }
 
     public static void SUBLW(int literal) {
-        log.info("SUBLW");
+        int value = literal - WReg;
+        if (value == 0) setZeroFlag(); else clearZeroFlag();
+        if (literal >= WReg) setCarryFlag(); else clearCarryFlag();
+        if ((literal & 15) >= (WReg & 15)) setDigitcarryFlag(); else clearDigitcarryFlag();
+        WReg = value;
+        log.info("SUBLW, WReg: " + Integer.toHexString(WReg) + "h, C=" + getCarryFlag() + ", DC=" + getDigitcarryFlag() + ", Z=" + getZeroFlag());
     }
 
     public static void XORLW(int literal) {
-        log.info("XORLW");
+        int value = literal ^ WReg;
+        if (value == 0) setZeroFlag(); else clearZeroFlag();
+        WReg = value;
+        log.info("XORLW, WReg: " + Integer.toHexString(WReg) + "h, C=" + getCarryFlag() + ", DC=" + getDigitcarryFlag() + ", Z=" + getZeroFlag());
     }
 
     public static void executeProgram() {
-        while (true) {
+        for (int i = 0; i < 20; i ++) {
             int command = getProgramstore(Programcounter);
             incrementProgramCounter();
             decode(command);
