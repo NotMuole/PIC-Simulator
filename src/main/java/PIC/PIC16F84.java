@@ -5,10 +5,11 @@ import org.apache.logging.log4j.Logger;
 
 public class PIC16F84 {
     private static int[] Programstore = new int[1024];
-    private int[] RAM = new int[256];
-    private int[] Stack = new int[8];
-    private int StackIndex = 0;
-    private int Programcounter = 0;
+    private static int[] RAM = new int[256];
+    private static int[] Stack = new int[8];
+    private static int StackIndex = 0;
+    private static int Programcounter = 0;
+    private static int WReg = 0;
 
     private static final Logger log = LogManager.getLogger(PIC16F84.class);
 
@@ -18,16 +19,16 @@ public class PIC16F84 {
         Programstore[address] = value;
     }
 
-    public int getProgramstore(int address) {
-        return this.Programstore[address];
+    public static int getProgramstore(int address) {
+        return Programstore[address];
     }
 
-    public void writeRAM(int address, int value) {
-        this.RAM[address] = value;
+    public static void writeRAM(int address, int value) {
+        RAM[address] = value;
     }
 
-    public int getRAM(int address) {
-        return this.RAM[address];
+    public static int getRAM(int address) {
+        return RAM[address];
     }
 
     public static void decode(int code) {
@@ -186,13 +187,13 @@ public class PIC16F84 {
            }
     }
 
-    public void readProgramstore() {
+    public static void readProgramstore() {
         for (int i = 0; i < 1024; i++) {
-            log.info(this.getProgramstore(i));
+            log.info(getProgramstore(i));
         }
     }
 
-    public void reset() {
+    public static void reset() {
         // set TRIS to input to avoid damage
         writeRAM(133, 255);
         writeRAM(134, 255);
@@ -201,79 +202,79 @@ public class PIC16F84 {
         writeRAM(11, 0);
     }
 
-    public void setStack(int addresse) {
-        this.Stack[this.StackIndex % 8] = addresse;
-        this.StackIndex += 1;
+    public static void setStack(int addresse) {
+        Stack[StackIndex % 8] = addresse;
+        StackIndex += 1;
     }
 
-    public int getStack() {
-        this.StackIndex -= 1;
-        return this.Stack[this.StackIndex];
+    public static int getStack() {
+        StackIndex -= 1;
+        return Stack[StackIndex];
     }
 
-    public void setZeroFlag() {
-        this.RAM[3] = this.RAM[3] | 4;
-        this.RAM[131] = this.RAM[131] | 4;
+    public static void setZeroFlag() {
+        RAM[3] = RAM[3] | 4;
+        RAM[131] = RAM[131] | 4;
     }
 
-    public void clearZeroFlag() {
-        this.RAM[3] = this.RAM[3] & 251;
-        this.RAM[131] = this.RAM[131] & 251;
+    public static void clearZeroFlag() {
+        RAM[3] = RAM[3] & 251;
+        RAM[131] = RAM[131] & 251;
     }
 
-    public int getZeroFlag() {
-        return (this.RAM[3] & 4) >> 2;
+    public static int getZeroFlag() {
+        return (RAM[3] & 4) >> 2;
     }
 
 
-    public int getCarryFlag() {
-        return (this.RAM[3] & 1);
+    public static int getCarryFlag() {
+        return (RAM[3] & 1);
     }
 
-    public void setCarryFlag() {
-        this.RAM[3] = this.RAM[3] | 1;
-        this.RAM[131] = this.RAM[131] | 1;
+    public static void setCarryFlag() {
+        RAM[3] = RAM[3] | 1;
+        RAM[131] = RAM[131] | 1;
     }
 
-    public void clearCarryFlag() {
-        this.RAM[3] = this.RAM[3] & 254;
-        this.RAM[131] = this.RAM[131] & 254;
+    public static void clearCarryFlag() {
+        RAM[3] = RAM[3] & 254;
+        RAM[131] = RAM[131] & 254;
     }
 
-    public int getDigitcarryFlag() {
-        return (this.RAM[3] & 2) >> 1;
+    public static int getDigitcarryFlag() {
+        return (RAM[3] & 2) >> 1;
     }
 
-    public void setDigitcarryFlag() {
-        this.RAM[3] = this.RAM[3] | 2;
-        this.RAM[131] = this.RAM[131] | 2;
+    public static void setDigitcarryFlag() {
+        RAM[3] = RAM[3] | 2;
+        RAM[131] = RAM[131] | 2;
     }
 
-    public void clearDigitcarryFlag() {
-        this.RAM[3] = this.RAM[3] & 253;
-        this.RAM[131] = this.RAM[131] & 253;
+    public static void clearDigitcarryFlag() {
+        RAM[3] = RAM[3] & 253;
+        RAM[131] = RAM[131] & 253;
     }
 
-    public int getProgramCounter() {
-        return this.RAM[2];
+    public static int getProgramCounter() {
+        return RAM[2];
     }
 
-    public void incrementProgramCounter() {
-        if (this.Programcounter == 1023) {
-            this.Programcounter = 0;
+    public static void incrementProgramCounter() {
+        if (Programcounter == 1023) {
+            Programcounter = 0;
         } else {
-            this.Programcounter += 1;
+            Programcounter += 1;
         }
         if (getProgramCounter() < 255) {
-            this.RAM[2] += 1;
-            this.RAM[130] += 1;
+            RAM[2] += 1;
+            RAM[130] += 1;
         }
     }
 
-    public void resetProgramCounter() {
-        this.RAM[2] = 0;
-        this.RAM[130] = 0;
-        this.Programcounter = 0;
+    public static void resetProgramCounter() {
+        RAM[2] = 0;
+        RAM[130] = 0;
+        Programcounter = 0;
     }
 
     public static void ADDWF(int value, int destination) {
@@ -369,7 +370,10 @@ public class PIC16F84 {
     }
 
     public static void ANDLW(int literal) {
-        log.info("ANDLW");
+        int value = WReg & literal;
+        if (value == 0) setZeroFlag();
+        WReg = value;
+        log.info("ANDLW, WReg: " + WReg);
     }
 
     public static void CALL(int literal) {
@@ -385,11 +389,15 @@ public class PIC16F84 {
     }
 
     public static void IORLW(int literal) {
-        log.info("IORLW");
+        int value = WReg ^ literal;
+        if (value == 0 ) setZeroFlag();
+        WReg = value;
+        log.info("IORLW, WReg: " + WReg);
     }
 
     public static void MOVLW(int literal) {
-        log.info("MOVLW");
+        WReg = literal;
+        log.info("MOVLW, WReg: " + WReg);
     }
 
     public static void RETFIE() {
