@@ -282,11 +282,34 @@ public class PIC16F84 {
     }
 
     public static void ADDWF(int value, int destination) {
-        log.info("ADDWF");
+        int new_value = WReg + getRAM(value);
+        if (new_value == 0) setZeroFlag(); else clearZeroFlag();
+        if (new_value > 255) setCarryFlag(); else clearCarryFlag();
+        if ((getRAM(value) & 15) + (WReg & 15) > 15) setDigitcarryFlag(); else clearDigitcarryFlag();
+
+        if (destination == 0) {
+            WReg = new_value;
+
+        } else {
+            writeRAM(value, new_value);
+        }
+        WReg = new_value;
+        log.info("ADDWF, WReg: \" + Integer.toHexString(WReg) + \"h, C=\" + getCarryFlag() + \", DC=\" + getDigitcarryFlag() + \", Z=\" + getZeroFlag()");
     }
 
     public static void ANDWF(int value, int destination) {
-        log.info("ANDWF");
+        int new_value = WReg & getRAM(value);
+        if (new_value == 0) setZeroFlag(); else clearZeroFlag();
+        if (new_value > 255) setCarryFlag(); else clearCarryFlag();
+        if ((getRAM(value) & 15) + (WReg & 15) > 15) setDigitcarryFlag(); else clearDigitcarryFlag();
+
+        if (destination == 0) {
+            WReg = new_value;
+
+        } else {
+            writeRAM(value, new_value);
+        }
+        log.info("ANDWF, WReg: \" + Integer.toHexString(WReg) + \"h, C=\" + getCarryFlag() + \", DC=\" + getDigitcarryFlag() + \", Z=\" + getZeroFlag()");
     }
 
     public static void CLRF(int value) {
@@ -372,7 +395,7 @@ public class PIC16F84 {
 
     public static void ADDLW(int value) {
         int new_value = value + WReg;
-        if (value == 0) setZeroFlag(); else clearZeroFlag();
+        if (new_value == 0) setZeroFlag(); else clearZeroFlag();
         if (new_value > 255) setCarryFlag(); else clearCarryFlag();
         if ((value & 15) + (WReg & 15) > 15) setDigitcarryFlag(); else clearDigitcarryFlag();
         WReg = new_value;
