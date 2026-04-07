@@ -17,6 +17,7 @@ public class PIC16F84 {
 
     public PIC16F84() {};
 
+    // TODO: write WReg and ensure 8 bit number
     public static int getWReg() {
         return WReg;
     }
@@ -47,159 +48,158 @@ public class PIC16F84 {
     }
 
     public static void decode(int code) {
-        if ((code & 16128) == 1792) {
-            int value = code & 127;
-            int destination = ((code & 128) >> 7);
-            ADDWF(value, destination);
+           if ((code & 16128) == 1792) {
+               int file_address = code & 127;
+               int destination = ((code & 128) >> 7);
+               ADDWF(file_address, destination);
 
-        } else if ((code & 16128) == 1280) {
-            int value = code & 127;
-            int destination = ((code & 128) >> 7);
-            ANDWF(value, destination);
+           } else if ((code & 16128) == 1280) {
+               int file_address = code & 127;
+               int destination = ((code & 128) >> 7);
+               ANDWF(file_address, destination);
 
-        } else if ((code & 16256) == 384) {
-            int value = code & 127;
-            CLRF(value);
+           } else if ((code & 16256) == 384) {
+               int file_address = code & 127;
+               CLRF(file_address);
 
-        } else if ((code & 16256) == 256) {
-            int value_x = code & 127;
-            CLRW(value_x);
+           } else if ((code & 16256) == 256) {
+               CLRW();
 
-        } else if ((code & 16128) == 2304) {
-            int value = code & 127;
-            int destination = ((code & 128) >> 7);
-            COMF(value, destination);
+           } else if ((code & 16128) == 2304) {
+               int file_address = code & 127;
+               int destination = ((code & 128) >> 7);
+               COMF(file_address, destination);
 
-        } else if ((code & 16128) == 768) {
-            int value = code & 127;
-            int destination = ((code & 128) >> 7);
-            DECF(value, destination);
+           } else if ((code & 16128) == 768) {
+               int file_address = code & 127;
+               int destination = ((code & 128) >> 7);
+               DECF(file_address, destination);
 
-        } else if ((code & 16128) == 2816) {
-            int value = code & 127;
-            int destination = ((code & 128) >> 7);
-            DECFSZ(value, destination);
+           } else if ((code & 16128) == 2816) {
+               int file_address = code & 127;
+               int destination = ((code & 128) >> 7);
+               DECFSZ(file_address, destination);
 
-        } else if ((code & 16128) == 2560) {
-            int value = code & 127;
-            int destination = ((code & 128) >> 7);
-            INCF(value, destination);
+           } else if ((code & 16128) == 2560) {
+               int file_address = code & 127;
+               int destination = ((code & 128) >> 7);
+               INCF(file_address, destination);
 
-        } else if ((code & 16128) == 3840) {
-            int value = code & 127;
-            int destination = ((code & 128) >> 7);
-            INCFSZ(value, destination);
+           } else if ((code & 16128) == 3840) {
+               int file_address = code & 127;
+               int destination = ((code & 128) >> 7);
+               INCFSZ(file_address, destination);
 
-        } else if ((code & 16128) == 1024) {
-            int value = code & 127;
-            int destination = ((code & 128) >> 7);
-            IORWF(value, destination);
+           } else if ((code & 16128) == 1024) {
+               int file_address = code & 127;
+               int destination = ((code & 128) >> 7);
+               IORWF(file_address, destination);
 
-        } else if ((code & 16128) == 2048) {
-            int value = code & 127;
-            int destination = ((code & 128) >> 7);
-            MOVF(value, destination);
+           } else if ((code & 16128) == 2048) {
+               int file_address = code & 127;
+               int destination = ((code & 128) >> 7);
+               MOVF(file_address, destination);
 
-        } else if ((code & 16256) == 128) {
-            int value = code & 127;
-            MOVWF(value);
+           } else if ((code & 16256) == 128) {
+               int file_address = code & 127;
+               MOVWF(file_address);
 
-        } else if ((code & 16287) == 0) {
-            NOP();
+           } else if ((code & 16287) == 0) {
+                NOP();
 
-        } else if ((code & 16128) == 3328) {
-            int value = code & 127;
-            int destination = ((code & 128) >> 7);
-            RLF(value, destination);
+           } else if ((code & 16128) == 3328) {
+               int file_address = code & 127;
+               int destination = ((code & 128) >> 7);
+               RLF(file_address, destination);
 
-        } else if ((code & 16128) == 3072) {
-            int value = code & 127;
-            int destination = ((code & 128) >> 7);
-            RRF(value, destination);
+           } else if ((code & 16128) == 3072) {
+               int file_address = code & 127;
+               int destination = ((code & 128) >> 7);
+               RRF(file_address, destination);
 
-        } else if ((code & 16128) == 512) {
-            int value = code & 127;
-            int destination = ((code & 128) >> 7);
-            SUBWF(value, destination);
+           } else if ((code & 16128) == 512) {
+               int file_address = code & 127;
+               int destination = ((code & 128) >> 7);
+               SUBWF(file_address, destination);
 
-        } else if ((code & 16128) == 3584) {
-            int value = code & 127;
-            int destination = ((code & 128) >> 7);
-            SWAPF(value, destination);
+           } else if ((code & 16128) == 3584) {
+               int file_address = code & 127;
+               int destination = ((code & 128) >> 7);
+               SWAPF(file_address, destination);
 
-        } else if ((code & 16128) == 1536) {
-            int value = code & 127;
-            int destination = ((code & 128) >> 7);
-            XORWF(value, destination);
+           } else if ((code & 16128) == 1536) {
+               int file_address = code & 127;
+               int destination = ((code & 128) >> 7);
+               XORWF(file_address, destination);
 
-        } else if ((code & 15360) == 4096) {
-            int value = code & 127;
-            int destination = ((code & 896) >> 7);
-            BCF(value, destination);
+           } else if ((code & 15360) == 4096) {
+               int file_address = code & 127;
+               int bit = ((code & 896) >> 7);
+               BCF(file_address, bit);
 
-        } else if ((code & 15360) == 5120) {
-            int value = code & 127;
-            int destination = ((code & 896) >> 7);
-            BSF(value, destination);
+           } else if ((code & 15360) == 5120) {
+               int file_address = code & 127;
+               int bit = ((code & 896) >> 7);
+               BSF(file_address, bit);
 
-        } else if ((code & 15360) == 6144) {
-            int value = code & 127;
-            int destination = ((code & 896) >> 7);
-            BTFSC(value, destination);
+           } else if ((code & 15360) == 6144) {
+               int file_address = code & 127;
+               int bit = ((code & 896) >> 7);
+               BTFSC(file_address, bit);
 
-        } else if ((code & 15360) == 7168) {
-            int value = code & 127;
-            int destination = ((code & 896) >> 7);
-            BTFSS(value, destination);
+           } else if ((code & 15360) == 7168) {
+               int file_address = code & 127;
+               int bit = ((code & 896) >> 7);
+               BTFSS(file_address, bit);
 
-        } else if ((code & 15872) == 15872) {
-            int value = code & 255;
-            ADDLW(value);
+           } else if ((code & 15872) == 15872) {
+               int literal = code & 255;
+               ADDLW(literal);
 
-        } else if ((code & 16128) == 14592) {
-            int literal = code & 255;
-            ANDLW(literal);
+           } else if ((code & 16128) == 14592) {
+               int literal = code & 255;
+               ANDLW(literal);
 
-        } else if ((code & 14336) == 8192) {
-            int literal = code & 2047;
-            CALL(literal);
+           } else if ((code & 14336) == 8192) {
+               int address = code & 2047;
+               CALL(address);
 
-        } else if ((code & 16383) == 100) {
-            CLRWDT();
+           } else if ((code & 16383) == 100) {
+               CLRWDT();
 
-        } else if ((code & 14336) == 10240) {
-            int literal = code & 2047;
-            GOTO(literal);
+           } else if ((code & 14336) == 10240) {
+               int address = code & 2047;
+               GOTO(address);
 
-        } else if ((code & 16128) == 14336) {
-            int literal = code & 255;
-            IORLW(literal);
+           } else if ((code & 16128) == 14336) {
+               int literal = code & 255;
+               IORLW(literal);
 
-        } else if ((code & 15360) == 12288) {
-            int literal = code & 255;
-            MOVLW(literal);
+           } else if ((code & 15360) == 12288) {
+               int literal = code & 255;
+               MOVLW(literal);
 
-        } else if ((code & 16383) == 9) {
-            RETFIE();
+           } else if ((code & 16383) == 9) {
+               RETFIE();
 
-        } else if ((code & 15360) == 13312) {
-            int literal = code & 255;
-            RETLW(literal);
+           } else if ((code & 15360) == 13312) {
+               int literal = code & 255;
+               RETLW(literal);
 
-        } else if ((code & 16383) == 8) {
-            RETURN();
+           } else if ((code & 16383) == 8) {
+               RETURN();
 
-        } else if ((code & 16383) == 99) {
-            SLEEP();
+           } else if ((code & 16383) == 99) {
+               SLEEP();
 
-        } else if ((code & 15872) == 15360) {
-            int literal = code & 255;
-            SUBLW(literal);
+           } else if ((code & 15872) == 15360) {
+               int literal = code & 255;
+               SUBLW(literal);
 
-        } else if ((code & 16128) == 14848) {
-            int literal = code & 255;
-            XORLW(literal);
-        }
+           } else if ((code & 16128) == 14848) {
+               int literal = code & 255;
+               XORLW(literal);
+           }
     }
 
     public static void readProgramstore() {
@@ -304,52 +304,134 @@ public class PIC16F84 {
         Programcounter = 0;
     }
 
-    public static void ADDWF(int value, int destination) {
-        log.info("ADDWF");
+    public static void ADDWF(int file_address, int destination) {
+        int value = WReg + getRAM(file_address);
+        if (value == 0) setZeroFlag(); else clearZeroFlag();
+        if (value > 255) setCarryFlag(); else clearCarryFlag();
+        if ((getRAM(file_address) & 15) + (WReg & 15) > 15) setDigitcarryFlag(); else clearDigitcarryFlag();
+        if (destination == 0) {
+            WReg = value;
+
+        } else {
+            writeRAM(file_address, value);
+        }
+        log.info("ADDWF, WReg: \" + Integer.toHexString(WReg) + \"h, C=\" + getCarryFlag() + \", DC=\" + getDigitcarryFlag() + \", Z=\" + getZeroFlag()");
     }
 
-    public static void ANDWF(int value, int destination) {
-        log.info("ANDWF");
+    public static void ANDWF(int file_address, int destination) {
+        int value = WReg & getRAM(file_address);
+        if (value == 0) setZeroFlag(); else clearZeroFlag();
+        if (destination == 0) {
+            WReg = value;
+
+        } else {
+            writeRAM(file_address, value);
+        }
+        log.info("ANDWF, WReg: \" + Integer.toHexString(WReg) + \"h, C=\" + getCarryFlag() + \", DC=\" + getDigitcarryFlag() + \", Z=\" + getZeroFlag()");
     }
 
-    public static void CLRF(int value) {
+    public static void CLRF(int file_address) {
+        writeProgramstore(file_address, 0);
+        setZeroFlag();
         log.info("CLRF");
     }
 
-    public static void CLRW(int value) {
+    public static void CLRW() {
+        WReg = 0;
+        setZeroFlag();
         log.info("CLRW");
     }
 
-    public static void COMF(int value, int destination) {
+    public static void COMF(int file_address, int destination) {
+        int value = getRAM(file_address) ^ 255;
+        if (value == 0) setZeroFlag(); else clearZeroFlag();
+        if (destination == 0) {
+            WReg = value;
+        } else {
+            writeRAM(file_address, value);
+        }
         log.info("COMF");
     }
 
-    public static void DECF(int value, int destination) {
+    public static void DECF(int file_address, int destination) {
+        int value = getRAM(file_address) - 1;
+        if (value == 0) setZeroFlag(); else clearZeroFlag();
+        if (destination == 0) {
+            WReg = value;
+        } else {
+            writeRAM(file_address, value);
+        }
         log.info("DECF");
     }
 
-    public static void DECFSZ(int value, int destination) {
+    public static void DECFSZ(int file_address, int destination) {
+        int value = getRAM(file_address) - 1;
+        if (destination == 0) {
+            WReg = value;
+        } else {
+            writeRAM(file_address, value);
+        }
+
+        if (value == 0) { 
+            NOP();
+            incrementProgramCounter();
+        }
         log.info("DECFSZ");
     }
 
-    public static void INCF(int value, int destination) {
+    public static void INCF(int file_address, int destination) {
+        int value = getRAM(file_address) + 1;
+        if (value > 255) setZeroFlag(); else clearZeroFlag();
+        if (destination == 0) {
+            WReg = value;
+        } else {
+            writeRAM(file_address, value);
+        }
         log.info("INCF");
     }
 
-    public static void INCFSZ(int value, int destination) {
+    public static void INCFSZ(int file_address, int destination) {
+        int value = getRAM(file_address) + 1;
+        if (destination == 0) {
+            WReg = value;
+        } else {
+            writeRAM(file_address, value);
+        }
+
+        if (value > 255) {
+            NOP();
+            incrementProgramCounter();
+        }
         log.info("INCFSZ");
     }
 
-    public static void IORWF(int value, int destination) {
+    public static void IORWF(int file_address, int destination) {
+        int value = WReg | getRAM(file_address);
+        if (destination == 0) {
+            WReg = value;
+        } else {
+            writeRAM(file_address, value);
+        }
+
+        if (value == 0) setZeroFlag(); else clearZeroFlag();
         log.info("IORWF");
     }
 
-    public static void MOVF(int value, int destination) {
+    public static void MOVF(int file_address, int destination) {
+        int value = getRAM(file_address);
+        if (value == 0) setZeroFlag(); else clearZeroFlag();
+
+        if (destination == 0) {
+            WReg = value;
+        } else {
+            writeRAM(file_address, value);
+        }
         log.info("MOVF");
     }
 
-    public static void MOVWF(int value) {
-
+    public static void MOVWF(int file_address) {
+        int value = getWReg();
+        writeRAM(file_address, value);
         log.info("MOVWF, WReg: " + Integer.toHexString(WReg) + "h, C=" + getCarryFlag() + ", DC=" + getDigitcarryFlag() + ", Z=" + getZeroFlag());
     }
 
@@ -357,81 +439,90 @@ public class PIC16F84 {
         log.info("NOP, WReg: " + Integer.toHexString(WReg) + "h, C=" + getCarryFlag() + ", DC=" + getDigitcarryFlag() + ", Z=" + getZeroFlag());
     }
 
-    public static void RLF(int value, int destination) {
+    public static void RLF(int file_address, int destination) {
         log.info("RLF");
     }
 
-    public static void RRF(int value, int destination) {
+    public static void RRF(int file_address, int destination) {
         log.info("RRF");
     }
 
-    public static void SUBWF(int value, int destination) {
+    public static void SUBWF(int file_address, int destination) {
         log.info("SUBWF");
     }
 
-    public static void SWAPF(int value, int destination) {
+    public static void SWAPF(int file_address, int destination) {
         log.info("SWAPF");
     }
 
-    public static void XORWF(int value, int destination) {
+    public static void XORWF(int file_address, int destination) {
         log.info("XORWF");
     }
 
-    public static void BCF(int value, int destination) {
+    public static void BCF(int file_address, int bit) {
+        int value = getRAM(file_address)&~(1 << bit);
+        writeRAM(file_address, value);
         log.info("BCF");
     }
 
-    public static void BSF(int value, int destination) {
+    public static void BSF(int file_address, int bit) {
+        int value = getRAM(file_address)|(1 << bit);
+        writeRAM(file_address, value);
         log.info("BSF");
     }
 
-    public static void BTFSC(int value, int destination) {
+    public static void BTFSC(int file_address, int bit) {
+        int value = (getRAM(file_address)&~(1 << bit)) >> bit;
+        if (value == 0) {
+            NOP();
+            incrementProgramCounter();
+        }
         log.info("BTFSC");
     }
 
-    public static void BTFSS(int value, int destination) {
+    public static void BTFSS(int file_address, int bit) {
+                int value = (getRAM(file_address)&~(1 << bit)) >> bit;
+        if (value == 1) {
+            NOP();
+            incrementProgramCounter();
+        }
         log.info("BTFSS");
     }
 
-    public static void ADDLW(int value) {
-        int new_value = value + WReg;
-        if (value == 0) setZeroFlag();
-        else clearZeroFlag();
-        if (new_value > 255) setCarryFlag();
-        else clearCarryFlag();
-        if ((value & 15) + (WReg & 15) > 15) setDigitcarryFlag();
-        else clearDigitcarryFlag();
-        WReg = new_value;
+    public static void ADDLW(int literal) {
+        int value = literal + WReg;
+        if (value == 0) setZeroFlag(); else clearZeroFlag();
+        if (value > 255) setCarryFlag(); else clearCarryFlag();
+        if ((literal & 15) + (WReg & 15) > 15) setDigitcarryFlag(); else clearDigitcarryFlag();
+        WReg = value;
         log.info("ADDLW, WReg: " + Integer.toHexString(WReg) + "h, C=" + getCarryFlag() + ", DC=" + getDigitcarryFlag() + ", Z=" + getZeroFlag());
     }
 
     public static void ANDLW(int literal) {
         int value = WReg & literal;
-        if (value == 0) setZeroFlag();
-        else clearZeroFlag();
+        if (value == 0) setZeroFlag(); else clearZeroFlag();
         WReg = value;
         log.info("ANDLW, WReg: " + Integer.toHexString(WReg) + "h, C=" + getCarryFlag() + ", DC=" + getDigitcarryFlag() + ", Z=" + getZeroFlag());
     }
 
-    public static void CALL(int literal) {
+    public static void CALL(int address) {
         pushStack(Programcounter);
-        PIC16F84.setProgramCounter(literal & 1023);
-        log.info("CALL, return-address=" + (Programcounter) + ", destination-address=" + (literal & 1023));
+        PIC16F84.setProgramCounter(address & 1023);
+        log.info("CALL, return-address=" + (Programcounter) + ", destination-address=" + (address & 1023));
     }
 
     public static void CLRWDT() {
-        log.info("CLRWDT");
+        log.info("TODO: CLRWDT");
     }
 
-    public static void GOTO(int literal) {
-        PIC16F84.setProgramCounter(literal);
-        log.info("GOTO, destination-address=" + (literal & 1023));
+    public static void GOTO(int address) {
+        PIC16F84.setProgramCounter(address);
+        log.info("GOTO, destination-address=" + (address & 1023));
     }
 
     public static void IORLW(int literal) {
         int value = WReg | literal;
-        if (value == 0) setZeroFlag();
-        else clearZeroFlag();
+        if (value == 0 ) setZeroFlag(); else clearZeroFlag();
         WReg = value;
         log.info("IORLW, WReg: " + Integer.toHexString(WReg) + "h, C=" + getCarryFlag() + ", DC=" + getDigitcarryFlag() + ", Z=" + getZeroFlag());
     }
@@ -442,7 +533,7 @@ public class PIC16F84 {
     }
 
     public static void RETFIE() {
-        log.info("RETFIE");
+        log.info("TODO: RETFIE");
     }
 
     public static void RETLW(int literal) {
@@ -462,20 +553,16 @@ public class PIC16F84 {
 
     public static void SUBLW(int literal) {
         int value = literal - WReg;
-        if (value == 0) setZeroFlag();
-        else clearZeroFlag();
-        if (literal >= WReg) setCarryFlag();
-        else clearCarryFlag();
-        if ((literal & 15) >= (WReg & 15)) setDigitcarryFlag();
-        else clearDigitcarryFlag();
+        if (value == 0) setZeroFlag(); else clearZeroFlag();
+        if (literal >= WReg) setCarryFlag(); else clearCarryFlag();
+        if ((literal & 15) >= (WReg & 15)) setDigitcarryFlag(); else clearDigitcarryFlag();
         WReg = value;
         log.info("SUBLW, WReg: " + Integer.toHexString(WReg) + "h, C=" + getCarryFlag() + ", DC=" + getDigitcarryFlag() + ", Z=" + getZeroFlag());
     }
 
     public static void XORLW(int literal) {
         int value = literal ^ WReg;
-        if (value == 0) setZeroFlag();
-        else clearZeroFlag();
+        if (value == 0) setZeroFlag(); else clearZeroFlag();
         WReg = value;
         log.info("XORLW, WReg: " + Integer.toHexString(WReg) + "h, C=" + getCarryFlag() + ", DC=" + getDigitcarryFlag() + ", Z=" + getZeroFlag());
     }
