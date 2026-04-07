@@ -61,7 +61,6 @@ public class MyFrame extends JFrame {
         }
 
         public static void updateListing() {
-            log.info("updateListing");
             JPanel new_listing = MyFileReader.updateFilePanel();
             frame.remove(currentListing);
             frame.add(new_listing);

@@ -40,18 +40,21 @@ public class MyFileReader {
             while ((line = reader.readLine()) != null) {
                 boolean is_command;
                 boolean is_background = false;
+                int intAddress;
                 String address = line.substring(0, 4).replaceAll("\\s", "");
                 String code = line.substring(5, 9).replaceAll("\\s", "");
                 if (!address.isEmpty()) {
                     PIC16F84.writeProgramstore(Integer.parseInt(address, 16), Integer.parseInt(code, 16));
                     is_command = true;
+                    intAddress = Integer.parseInt(address);
                     if (Integer.parseInt(address, 16) == PIC16F84.getActualProgramCounter()) {
                         is_background = true;
                     }
                 } else {
                     is_command = false;
+                    intAddress = -1;
                 }
-                JCheckBox checkbox = createCheckbox(line, is_command, is_background);
+                JCheckBox checkbox = createCheckbox(line, is_command, is_background, intAddress);
                 breakpoint_panel.add(checkbox);
                 Checkbox.program[numberOfLines] = line;
                 this.numberOfLines += 1;
@@ -72,16 +75,19 @@ public class MyFileReader {
             }
             boolean is_background = false;
             boolean is_command;
+            int intAddress;
             String address = program[i].substring(0, 4).replaceAll("\\s", "");
             if (!address.isEmpty()) {
                 is_command = true;
+                intAddress = Integer.parseInt(address);
                 if (Integer.parseInt(address, 16) == PIC16F84.getActualProgramCounter()) {
                     is_background = true;
                 }
             } else {
                 is_command = false;
+                intAddress = -1;
             }
-            JCheckBox checkbox = createCheckbox(program[i], is_command, is_background);
+            JCheckBox checkbox = createCheckbox(program[i], is_command, is_background, intAddress);
             breakpoint_panel.add(checkbox);
         }
         return breakpoint_panel;

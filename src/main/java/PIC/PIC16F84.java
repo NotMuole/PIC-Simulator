@@ -1,5 +1,6 @@
 package PIC;
 
+import UI.Checkbox;
 import UI.MyFrame;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -578,6 +579,9 @@ public class PIC16F84 {
                 Thread.sleep(100);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
+            }
+            if (Checkbox.getBreakpoint(Programcounter)) {
+                toggleIsPaused();
             }
         }
     }
