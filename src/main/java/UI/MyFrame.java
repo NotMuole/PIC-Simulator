@@ -3,6 +3,8 @@ package UI;
 import javax.swing.*;
 import java.awt.*;
 import java.net.URL;
+
+import file.MyFileReader;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -12,7 +14,7 @@ public class MyFrame extends JFrame {
         private static final String ICON_PATH = "/processor_icon.png";
         private static final Logger log = LogManager.getLogger(MyFrame.class);
         private static JFrame frame;
-        private static Component currentListing;
+        public static Component currentListing;
         private static Component currentFieldWEST;
 
         public MyFrame() {
@@ -54,6 +56,16 @@ public class MyFrame extends JFrame {
             }
             currentFieldWEST = FieldWest.createFieldWEST();
             frame.add(currentFieldWEST, BorderLayout.WEST);
+            frame.revalidate();
+            frame.repaint();
+        }
+
+        public static void updateListing() {
+            log.info("updateListing");
+            JPanel new_listing = MyFileReader.updateFilePanel();
+            frame.remove(currentListing);
+            frame.add(new_listing);
+            currentListing = new_listing;
             frame.revalidate();
             frame.repaint();
         }

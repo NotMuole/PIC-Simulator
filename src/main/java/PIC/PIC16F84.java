@@ -573,6 +573,7 @@ public class PIC16F84 {
             incrementProgramCounter();
             decode(command);
             MyFrame.updateFieldWEST();
+            MyFrame.updateListing();
             try {
                 Thread.sleep(100);
             } catch (InterruptedException e) {
@@ -586,6 +587,7 @@ public class PIC16F84 {
         incrementProgramCounter();
         decode(command);
         MyFrame.updateFieldWEST();
+        MyFrame.updateListing();
     }
 
 }

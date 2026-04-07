@@ -154,7 +154,7 @@ public class FieldWest {
     private static JButton createStepButton() {
         JButton button = new JButton("next Step ⏭");
         button.addActionListener(e -> {
-            if (PIC16F84.getIsPaused() == true) {
+            if (PIC16F84.getIsPaused()) {
                 PIC16F84.stepProgram();
             }
         });
