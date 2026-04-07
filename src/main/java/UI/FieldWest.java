@@ -3,31 +3,54 @@ package UI;
 import PIC.PIC16F84;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.core.pattern.ProcessIdPatternConverter;
 
 import javax.swing.*;
-import javax.swing.border.Border;
 import java.awt.*;
 
 public class FieldWest {
     private static final Logger log = LogManager.getLogger(FieldWest.class);
-
+    private static final Dimension parentFieldDim = new Dimension(250, 400);
+    private static final Dimension subFieldDim = new Dimension(250, 300);
+    private static final Dimension subField2Dim = new Dimension(250, 100);
 
     public static JPanel createFieldWEST() {
         JPanel outer = new JPanel();
-        outer.setPreferredSize(new Dimension(300, 500));
-        outer.add(createVisibleList());
-        outer.add(createInvisibleList());
-        outer.add(createStackList());
-        outer.add(createFlagList());
-        outer.setBorder(BorderFactory.createTitledBorder(
-                BorderFactory.createLineBorder(Color.GRAY, 1),
-                "Spezialfunktionsregister"
-        ));
+        outer.setLayout(new BoxLayout(outer, BoxLayout.Y_AXIS));
+        outer.add(createSubField1WEST());
+        outer.add(createSubField2WEST());
+        outer.setPreferredSize(parentFieldDim);
         return outer;
     }
 
-    public static JList<String> createStackList() {
+    private static JPanel createSubField1WEST() {
+        JPanel inner1 = new JPanel();
+        inner1.add(createVisibleList());
+        inner1.add(createInvisibleList());
+        inner1.add(createStackList());
+        inner1.add(createFlagList());
+        inner1.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(Color.GRAY, 1),
+                "Spezialfunktionsregister"
+        ));
+        inner1.setMaximumSize(subFieldDim);
+        return inner1;
+    }
+
+    private static JPanel createSubField2WEST() {
+        JPanel inner2 = new JPanel();
+        inner2.add(createButton("Start/Pause ⏯"));
+        inner2.add(createButton("Reset ↻"));
+        inner2.add(createButton("next Step ⏭"));
+        inner2.add(createButton("previous Step ⏮"));
+        inner2.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(Color.GRAY, 1),
+                "Steuerpult"
+        ));
+        inner2.setMaximumSize(subField2Dim);
+        return inner2;
+    }
+
+    private static JList<String> createStackList() {
         DefaultListModel<String> model = new DefaultListModel<>();
         int[] stack = PIC16F84.getStack();
         for (int element : stack) {
@@ -39,58 +62,83 @@ public class FieldWest {
                 "Stack"
         ));
         StackList.setPreferredSize(new Dimension(50, 170));
+        StackList = disableSelection(StackList);
         return StackList;
     }
 
-    public static JList<String> createFlagList() {
+    private static JList<String> createFlagList() {
         DefaultListModel<String> model = new DefaultListModel<>();
         JList<String> FlagList = new JList<>(model);
+        int zeroFlag = PIC16F84.getZeroFlag();
+        int digitCarryFlag = PIC16F84.getDigitcarryFlag();
+        int carryFlag = PIC16F84.getCarryFlag();
         FlagList.setFont(new Font("Monospaced", Font.PLAIN, 14));
-        model.addElement(String.format("%-20s %s", "IRP RP  RP0 TO PD Z DC C", ""));
-        model.addElement(String.format("%-20s %s", "0   0   0   0  0  0 0  0", ""));
-
+        model.addElement("IRP RP RP0 TO PD Z DC C");
+        model.addElement(String.format("0   0  0   0  0  %01d %01d  %01d", zeroFlag, digitCarryFlag, carryFlag));
         FlagList.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(Color.GRAY, 1),
                 "Flags"
         ));
-        FlagList.setPreferredSize(new Dimension(215, 70));
+        FlagList.setPreferredSize(new Dimension(230, 70));
+        FlagList = disableSelection(FlagList);
         return FlagList;
     }
 
-    public static JList<String> createVisibleList() {
+    private static JList<String> createVisibleList() {
         DefaultListModel<String> model = new DefaultListModel<>();
         int test = 0;
-        model.addElement(String.format("W-Reg  %02d", test));
-        model.addElement(String.format("FSR    %02d", test));
-        model.addElement(String.format("PCL    %02d", test));
-        model.addElement(String.format("PCLATH %02d", test));
-        model.addElement(String.format("Status %02d", test));
+        int wReg = PIC16F84.getWReg();
+        int PCL = PIC16F84.getProgramCounter();
+        int Status = PIC16F84.getRAM(3);
+        model.addElement(String.format("W-Reg   %02d", wReg));
+        model.addElement(String.format("FSR     %02d", test));
+        model.addElement(String.format("PCL     %02d", PCL));
+        model.addElement(String.format("PCLATH  %02d", test));
+        model.addElement(String.format("Status  %02d", Status));
 
         JList<String> VisibleList = new JList<>(model);
         VisibleList.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(Color.GRAY, 1),
                 "sichtbar"
         ));
-        VisibleList.setPreferredSize(new Dimension(80, 110));
+        VisibleList.setPreferredSize(new Dimension(90, 110));
+        VisibleList = disableSelection(VisibleList);
         return VisibleList;
     }
 
-    public static JList<String> createInvisibleList() {
+    private static JList<String> createInvisibleList() {
         DefaultListModel<String> model = new DefaultListModel<>();
         int test = 0;
-        model.addElement(String.format("PC     %04d", test));
+        int programCounter = PIC16F84.getActualProgramCounter();
+        model.addElement(String.format("PC     %04d", programCounter));
         model.addElement(String.format("Stackpointer %d", test));
         model.addElement(String.format("VT     %02X", test));
         model.addElement("WDT aktiv");
         model.addElement("WDT 0.0ms");
 
-        JList<String> VisibleList = new JList<>(model);
-        VisibleList.setBorder(BorderFactory.createTitledBorder(
+        JList<String> InvisibleList = new JList<>(model);
+        InvisibleList.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(Color.GRAY, 1),
                 "versteckt"
         ));
-        VisibleList.setPreferredSize(new Dimension(80, 110));
-        return VisibleList;
+        InvisibleList.setPreferredSize(new Dimension(80, 110));
+        InvisibleList = disableSelection(InvisibleList);
+        return InvisibleList;
+    }
+
+    private static JList<String> disableSelection(JList<String> list) {
+        list.setSelectionModel(new DefaultListSelectionModel() {
+            @Override public void setSelectionInterval(int index0, int index1) { /* no-op */ }
+            @Override public void addSelectionInterval(int index0, int index1) { /* no-op */ }
+        });
+        return list;
+    }
+
+    private static JButton createButton(String text) {
+        JButton button = new JButton(text);
+        button.addActionListener(e -> {
+        });
+        return button;
     }
 
 }

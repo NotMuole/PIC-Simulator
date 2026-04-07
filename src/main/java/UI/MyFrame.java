@@ -8,7 +8,7 @@ import org.apache.logging.log4j.Logger;
 
 public class MyFrame extends JFrame {
         private static final String TITLE = "PIC Simulator";
-        private static final Dimension DEFAULT_SIZE = new Dimension(430, 300);
+        private static final Dimension DEFAULT_SIZE = new Dimension(800, 600);
         private static final String ICON_PATH = "/processor_icon.png";
         private static final Logger log = LogManager.getLogger(MyFrame.class);
         private static JFrame frame;

@@ -5,7 +5,6 @@ import org.apache.logging.log4j.Logger;
 
 import javax.swing.*;
 import java.awt.*;
-import java.net.URL;
 
 public class Checkbox {
     private static final Dimension CHECKBOX_DIMENSION = new Dimension(0, 0);
@@ -26,5 +25,4 @@ public class Checkbox {
         checkbox.setText(text);
         return checkbox;
     }
-
 }

@@ -11,10 +11,15 @@ public class PIC16F84 {
     private static int StackIndex = 0;
     private static int Programcounter = 0;
     private static int WReg = 0;
+    private static boolean is_paused = true;
 
     private static final Logger log = LogManager.getLogger(PIC16F84.class);
 
     public PIC16F84() {};
+
+    public static int getWReg() {
+        return WReg;
+    }
 
     public static void writeProgramstore(int address, int value) {
         Programstore[address] = value;
@@ -33,159 +38,159 @@ public class PIC16F84 {
     }
 
     public static void decode(int code) {
-           if ((code & 16128) == 1792) {
-               int value = code & 127;
-               int destination = ((code & 128) >> 7);
-               ADDWF(value, destination);
+        if ((code & 16128) == 1792) {
+            int value = code & 127;
+            int destination = ((code & 128) >> 7);
+            ADDWF(value, destination);
 
-           } else if ((code & 16128) == 1280) {
-               int value = code & 127;
-               int destination = ((code & 128) >> 7);
-               ANDWF(value, destination);
+        } else if ((code & 16128) == 1280) {
+            int value = code & 127;
+            int destination = ((code & 128) >> 7);
+            ANDWF(value, destination);
 
-           } else if ((code & 16256) == 384) {
-               int value = code & 127;
-               CLRF(value);
+        } else if ((code & 16256) == 384) {
+            int value = code & 127;
+            CLRF(value);
 
-           } else if ((code & 16256) == 256) {
-               int value_x = code & 127;
-               CLRW(value_x);
+        } else if ((code & 16256) == 256) {
+            int value_x = code & 127;
+            CLRW(value_x);
 
-           } else if ((code & 16128) == 2304) {
-               int value = code & 127;
-               int destination = ((code & 128) >> 7);
-               COMF(value, destination);
+        } else if ((code & 16128) == 2304) {
+            int value = code & 127;
+            int destination = ((code & 128) >> 7);
+            COMF(value, destination);
 
-           } else if ((code & 16128) == 768) {
-               int value = code & 127;
-               int destination = ((code & 128) >> 7);
-               DECF(value, destination);
+        } else if ((code & 16128) == 768) {
+            int value = code & 127;
+            int destination = ((code & 128) >> 7);
+            DECF(value, destination);
 
-           } else if ((code & 16128) == 2816) {
-               int value = code & 127;
-               int destination = ((code & 128) >> 7);
-               DECFSZ(value, destination);
+        } else if ((code & 16128) == 2816) {
+            int value = code & 127;
+            int destination = ((code & 128) >> 7);
+            DECFSZ(value, destination);
 
-           } else if ((code & 16128) == 2560) {
-               int value = code & 127;
-               int destination = ((code & 128) >> 7);
-               INCF(value, destination);
+        } else if ((code & 16128) == 2560) {
+            int value = code & 127;
+            int destination = ((code & 128) >> 7);
+            INCF(value, destination);
 
-           } else if ((code & 16128) == 3840) {
-               int value = code & 127;
-               int destination = ((code & 128) >> 7);
-               INCFSZ(value, destination);
+        } else if ((code & 16128) == 3840) {
+            int value = code & 127;
+            int destination = ((code & 128) >> 7);
+            INCFSZ(value, destination);
 
-           } else if ((code & 16128) == 1024) {
-               int value = code & 127;
-               int destination = ((code & 128) >> 7);
-               IORWF(value, destination);
+        } else if ((code & 16128) == 1024) {
+            int value = code & 127;
+            int destination = ((code & 128) >> 7);
+            IORWF(value, destination);
 
-           } else if ((code & 16128) == 2048) {
-               int value = code & 127;
-               int destination = ((code & 128) >> 7);
-               MOVF(value, destination);
+        } else if ((code & 16128) == 2048) {
+            int value = code & 127;
+            int destination = ((code & 128) >> 7);
+            MOVF(value, destination);
 
-           } else if ((code & 16256) == 128) {
-               int value = code & 127;
-               MOVWF(value);
+        } else if ((code & 16256) == 128) {
+            int value = code & 127;
+            MOVWF(value);
 
-           } else if ((code & 16287) == 0) {
-                NOP();
+        } else if ((code & 16287) == 0) {
+            NOP();
 
-           } else if ((code & 16128) == 3328) {
-               int value = code & 127;
-               int destination = ((code & 128) >> 7);
-               RLF(value, destination);
+        } else if ((code & 16128) == 3328) {
+            int value = code & 127;
+            int destination = ((code & 128) >> 7);
+            RLF(value, destination);
 
-           } else if ((code & 16128) == 3072) {
-               int value = code & 127;
-               int destination = ((code & 128) >> 7);
-               RRF(value, destination);
+        } else if ((code & 16128) == 3072) {
+            int value = code & 127;
+            int destination = ((code & 128) >> 7);
+            RRF(value, destination);
 
-           } else if ((code & 16128) == 512) {
-               int value = code & 127;
-               int destination = ((code & 128) >> 7);
-               SUBWF(value, destination);
+        } else if ((code & 16128) == 512) {
+            int value = code & 127;
+            int destination = ((code & 128) >> 7);
+            SUBWF(value, destination);
 
-           } else if ((code & 16128) == 3584) {
-               int value = code & 127;
-               int destination = ((code & 128) >> 7);
-               SWAPF(value, destination);
+        } else if ((code & 16128) == 3584) {
+            int value = code & 127;
+            int destination = ((code & 128) >> 7);
+            SWAPF(value, destination);
 
-           } else if ((code & 16128) == 1536) {
-               int value = code & 127;
-               int destination = ((code & 128) >> 7);
-               XORWF(value, destination);
+        } else if ((code & 16128) == 1536) {
+            int value = code & 127;
+            int destination = ((code & 128) >> 7);
+            XORWF(value, destination);
 
-           } else if ((code & 15360) == 4096) {
-               int value = code & 127;
-               int destination = ((code & 896) >> 7);
-               BCF(value, destination);
+        } else if ((code & 15360) == 4096) {
+            int value = code & 127;
+            int destination = ((code & 896) >> 7);
+            BCF(value, destination);
 
-           } else if ((code & 15360) == 5120) {
-               int value = code & 127;
-               int destination = ((code & 896) >> 7);
-               BSF(value, destination);
+        } else if ((code & 15360) == 5120) {
+            int value = code & 127;
+            int destination = ((code & 896) >> 7);
+            BSF(value, destination);
 
-           } else if ((code & 15360) == 6144) {
-               int value = code & 127;
-               int destination = ((code & 896) >> 7);
-               BTFSC(value, destination);
+        } else if ((code & 15360) == 6144) {
+            int value = code & 127;
+            int destination = ((code & 896) >> 7);
+            BTFSC(value, destination);
 
-           } else if ((code & 15360) == 7168) {
-               int value = code & 127;
-               int destination = ((code & 896) >> 7);
-               BTFSS(value, destination);
+        } else if ((code & 15360) == 7168) {
+            int value = code & 127;
+            int destination = ((code & 896) >> 7);
+            BTFSS(value, destination);
 
-           } else if ((code & 15872) == 15872) {
-               int value = code & 255;
-               ADDLW(value);
+        } else if ((code & 15872) == 15872) {
+            int value = code & 255;
+            ADDLW(value);
 
-           } else if ((code & 16128) == 14592) {
-               int literal = code & 255;
-               ANDLW(literal);
+        } else if ((code & 16128) == 14592) {
+            int literal = code & 255;
+            ANDLW(literal);
 
-           } else if ((code & 14336) == 8192) {
-               int literal = code & 2047;
-               CALL(literal);
+        } else if ((code & 14336) == 8192) {
+            int literal = code & 2047;
+            CALL(literal);
 
-           } else if ((code & 16383) == 100) {
-               CLRWDT();
+        } else if ((code & 16383) == 100) {
+            CLRWDT();
 
-           } else if ((code & 14336) == 10240) {
-               int literal = code & 2047;
-               GOTO(literal);
+        } else if ((code & 14336) == 10240) {
+            int literal = code & 2047;
+            GOTO(literal);
 
-           } else if ((code & 16128) == 14336) {
-               int literal = code & 255;
-               IORLW(literal);
+        } else if ((code & 16128) == 14336) {
+            int literal = code & 255;
+            IORLW(literal);
 
-           } else if ((code & 15360) == 12288) {
-               int literal = code & 255;
-               MOVLW(literal);
+        } else if ((code & 15360) == 12288) {
+            int literal = code & 255;
+            MOVLW(literal);
 
-           } else if ((code & 16383) == 9) {
-               RETFIE();
+        } else if ((code & 16383) == 9) {
+            RETFIE();
 
-           } else if ((code & 15360) == 13312) {
-               int literal = code & 255;
-               RETLW(literal);
+        } else if ((code & 15360) == 13312) {
+            int literal = code & 255;
+            RETLW(literal);
 
-           } else if ((code & 16383) == 8) {
-               RETURN();
+        } else if ((code & 16383) == 8) {
+            RETURN();
 
-           } else if ((code & 16383) == 99) {
-               SLEEP();
+        } else if ((code & 16383) == 99) {
+            SLEEP();
 
-           } else if ((code & 15872) == 15360) {
-               int literal = code & 255;
-               SUBLW(literal);
+        } else if ((code & 15872) == 15360) {
+            int literal = code & 255;
+            SUBLW(literal);
 
-           } else if ((code & 16128) == 14848) {
-               int literal = code & 255;
-               XORLW(literal);
-           }
+        } else if ((code & 16128) == 14848) {
+            int literal = code & 255;
+            XORLW(literal);
+        }
     }
 
     public static void readProgramstore() {
@@ -257,6 +262,10 @@ public class PIC16F84 {
     public static void clearDigitcarryFlag() {
         RAM[3] = RAM[3] & 253;
         RAM[131] = RAM[131] & 253;
+    }
+
+    public static int getActualProgramCounter() {
+        return Programcounter;
     }
 
     public static int getProgramCounter() {
@@ -377,16 +386,20 @@ public class PIC16F84 {
 
     public static void ADDLW(int value) {
         int new_value = value + WReg;
-        if (value == 0) setZeroFlag(); else clearZeroFlag();
-        if (new_value > 255) setCarryFlag(); else clearCarryFlag();
-        if ((value & 15) + (WReg & 15) > 15) setDigitcarryFlag(); else clearDigitcarryFlag();
+        if (value == 0) setZeroFlag();
+        else clearZeroFlag();
+        if (new_value > 255) setCarryFlag();
+        else clearCarryFlag();
+        if ((value & 15) + (WReg & 15) > 15) setDigitcarryFlag();
+        else clearDigitcarryFlag();
         WReg = new_value;
         log.info("ADDLW, WReg: " + Integer.toHexString(WReg) + "h, C=" + getCarryFlag() + ", DC=" + getDigitcarryFlag() + ", Z=" + getZeroFlag());
     }
 
     public static void ANDLW(int literal) {
         int value = WReg & literal;
-        if (value == 0) setZeroFlag(); else clearZeroFlag();
+        if (value == 0) setZeroFlag();
+        else clearZeroFlag();
         WReg = value;
         log.info("ANDLW, WReg: " + Integer.toHexString(WReg) + "h, C=" + getCarryFlag() + ", DC=" + getDigitcarryFlag() + ", Z=" + getZeroFlag());
     }
@@ -408,7 +421,8 @@ public class PIC16F84 {
 
     public static void IORLW(int literal) {
         int value = WReg | literal;
-        if (value == 0 ) setZeroFlag(); else clearZeroFlag();
+        if (value == 0) setZeroFlag();
+        else clearZeroFlag();
         WReg = value;
         log.info("IORLW, WReg: " + Integer.toHexString(WReg) + "h, C=" + getCarryFlag() + ", DC=" + getDigitcarryFlag() + ", Z=" + getZeroFlag());
     }
@@ -439,25 +453,26 @@ public class PIC16F84 {
 
     public static void SUBLW(int literal) {
         int value = literal - WReg;
-        if (value == 0) setZeroFlag(); else clearZeroFlag();
-        if (literal >= WReg) setCarryFlag(); else clearCarryFlag();
-        if ((literal & 15) >= (WReg & 15)) setDigitcarryFlag(); else clearDigitcarryFlag();
+        if (value == 0) setZeroFlag();
+        else clearZeroFlag();
+        if (literal >= WReg) setCarryFlag();
+        else clearCarryFlag();
+        if ((literal & 15) >= (WReg & 15)) setDigitcarryFlag();
+        else clearDigitcarryFlag();
         WReg = value;
         log.info("SUBLW, WReg: " + Integer.toHexString(WReg) + "h, C=" + getCarryFlag() + ", DC=" + getDigitcarryFlag() + ", Z=" + getZeroFlag());
     }
 
     public static void XORLW(int literal) {
         int value = literal ^ WReg;
-        if (value == 0) setZeroFlag(); else clearZeroFlag();
+        if (value == 0) setZeroFlag();
+        else clearZeroFlag();
         WReg = value;
         log.info("XORLW, WReg: " + Integer.toHexString(WReg) + "h, C=" + getCarryFlag() + ", DC=" + getDigitcarryFlag() + ", Z=" + getZeroFlag());
     }
 
     public static void executeProgram() {
-        // TODO: Command loop
-        //while (true) {
-        for (int i=0; i < 100; i++) {
-            log.info(Programcounter);
+        for (int i = 0; i < 100; i++) {
             int command = getProgramstore(Programcounter);
             incrementProgramCounter();
             decode(command);
