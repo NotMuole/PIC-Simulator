@@ -44,10 +44,11 @@ public class FieldWest {
         if (currentStartButton == null) {
             currentStartButton = createStartButton();
             currentStepButton = createStepButton();
+            currentResetButton = createResetButton();
         }
         inner2.add(currentStartButton);
         inner2.add(currentStepButton);
-        //inner2.add(createResetButton("Reset ↻"));
+        inner2.add(currentResetButton);
         inner2.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(Color.GRAY, 1),
                 "Steuerpult"
@@ -156,14 +157,16 @@ public class FieldWest {
         button.addActionListener(e -> {
             if (PIC16F84.getIsPaused()) {
                 PIC16F84.stepProgram();
+                log.info(PIC16F84.getActualProgramCounter());
             }
         });
         return button;
     }
 
     private static JButton createResetButton() {
-        JButton button = new JButton("Start/Pause ⏯");
+        JButton button = new JButton("Reset ↻");
         button.addActionListener(e -> {
+            PIC16F84.resetProgram();
         });
         return button;
     }
