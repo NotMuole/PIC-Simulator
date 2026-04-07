@@ -9,8 +9,8 @@ import java.awt.*;
 
 public class RAM {
     private static final Logger log = LogManager.getLogger(RAM.class);
-    private static final Dimension parentFieldDim = new Dimension(310, 500);
-    private static final Dimension subFieldDim = new Dimension(310, 400);
+    private static final Dimension parentFieldDim = new Dimension(500, 500);
+    private static final Dimension subFieldDim = new Dimension(500, 500);
 
     public static JPanel createFieldEAST() {
         JPanel outer = new JPanel();
@@ -32,12 +32,30 @@ public class RAM {
 
     private static JList<String> createRAM() {
         DefaultListModel<String> model = new DefaultListModel<>();
+        JList<String> RAMList = new JList<>(model);
         int test = 0;
         int wReg = PIC16F84.getWReg();
         int PCL = PIC16F84.getProgramCounter();
         int Status = PIC16F84.getRAM(3);
         int counter = 0;
-        model.addElement("     0   1   2    3   4   5   6    7   8   9   A   B   C   D   E   F");
+        model.addElement(String.format("%01X  %01X  %01X  %01X  %01X  %01X  %01X  %01X  %01X  %01X  %01X  %01X  %01X  %01X  %01X  %01X  %01X",
+                counter,
+                counter,
+                counter+1,
+                counter+2,
+                counter+3,
+                counter+4,
+                counter+5,
+                counter+6,
+                counter+7,
+                counter+8,
+                counter+9,
+                counter+10,
+                counter+11,
+                counter+12,
+                counter+13,
+                counter+14,
+                counter+15));
         for (int i=0; i<255; i += 16) {
             model.addElement(String.format("%01X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X",
                     counter,
@@ -60,13 +78,12 @@ public class RAM {
                     ));
             counter ++;
         }
-
-        JList<String> RAMList = new JList<>(model);
+        RAMList.setFont(new Font("Monospaced", Font.PLAIN, 14));
         RAMList.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(Color.GRAY, 1),
                 "RAM"
         ));
-        RAMList.setPreferredSize(new Dimension(310, 330));
+        RAMList.setPreferredSize(new Dimension(500, 500));
         RAMList.setSelectionModel(new DefaultListSelectionModel() {
             @Override public void setSelectionInterval(int index0, int index1) { /* no-op */ }
             @Override public void addSelectionInterval(int index0, int index1) { /* no-op */ }
