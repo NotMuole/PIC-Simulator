@@ -2,6 +2,7 @@ package PIC;
 
 import UI.Checkbox;
 import UI.MyFrame;
+import file.MyFileReader;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -16,7 +17,7 @@ public class PIC16F84 {
 
     private static final Logger log = LogManager.getLogger(PIC16F84.class);
 
-    public PIC16F84() {};
+    public PIC16F84() {}
 
     // TODO: write WReg and ensure 8 bit number
     public static int getWReg() {
@@ -575,6 +576,7 @@ public class PIC16F84 {
             decode(command);
             MyFrame.updateFieldWEST();
             MyFrame.updateListing();
+            MyFrame.updateFieldEAST();
             try {
                 Thread.sleep(100);
             } catch (InterruptedException e) {
@@ -588,10 +590,27 @@ public class PIC16F84 {
 
     public static void stepProgram() {
         int command = getProgramstore(Programcounter);
+        log.info("command");
         incrementProgramCounter();
         decode(command);
         MyFrame.updateFieldWEST();
         MyFrame.updateListing();
+        MyFrame.updateFieldEAST();
+    }
+
+    public static void resetProgram() {
+        reset();
+        Programstore = new int[1024];
+        RAM = new int[256];
+        Stack = new int[8];
+        StackIndex = 0;
+        Programcounter = 0;
+        WReg = 0;
+        is_paused = true;
+        MyFileReader.resetProgram();
+        MyFrame.updateFieldWEST();
+        MyFrame.createListing(MyFrame.uploaded_file_path);
+        log.info("RESET -----");
     }
 
 }

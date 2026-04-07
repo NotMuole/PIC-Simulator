@@ -14,14 +14,14 @@ import java.io.FileInputStream;
 import java.io.IOException;
 
 import static UI.Checkbox.createCheckbox;
-import static UI.Checkbox.program;
 
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 
 public class MyFileReader {
-    private int numberOfLines = 0;
+    private static int numberOfLines = 0;
     private static final Logger log = LogManager.getLogger(MyFileReader.class);
+    private static String[] program = new String[1024];
 
     public JPanel createFilePanel(File file) {
         JPanel breakpoint_panel = new JPanel();
@@ -36,7 +36,6 @@ public class MyFileReader {
 
         ) {
             String line;
-
             while ((line = reader.readLine()) != null) {
                 boolean is_command;
                 boolean is_background = false;
@@ -46,7 +45,7 @@ public class MyFileReader {
                 if (!address.isEmpty()) {
                     PIC16F84.writeProgramstore(Integer.parseInt(address, 16), Integer.parseInt(code, 16));
                     is_command = true;
-                    intAddress = Integer.parseInt(address);
+                    intAddress = Integer.parseInt(address, 16);
                     if (Integer.parseInt(address, 16) == PIC16F84.getActualProgramCounter()) {
                         is_background = true;
                     }
@@ -56,8 +55,8 @@ public class MyFileReader {
                 }
                 JCheckBox checkbox = createCheckbox(line, is_command, is_background, intAddress);
                 breakpoint_panel.add(checkbox);
-                Checkbox.program[numberOfLines] = line;
-                this.numberOfLines += 1;
+                program[numberOfLines] = line;
+                numberOfLines += 1;
                 }
         } catch (IOException e) {
             log.error("Error reading file: " + e.getMessage());
@@ -69,7 +68,7 @@ public class MyFileReader {
         JPanel breakpoint_panel = new JPanel();
         breakpoint_panel.setLayout(new BoxLayout(breakpoint_panel, BoxLayout.Y_AXIS));
 
-        for (int i = 0; i < Checkbox.program.length; i++) {
+        for (int i = 0; i < program.length; i++) {
             if (program[i] == null) {
                 continue;
             }
@@ -77,9 +76,10 @@ public class MyFileReader {
             boolean is_command;
             int intAddress;
             String address = program[i].substring(0, 4).replaceAll("\\s", "");
+            String code = program[i].substring(5, 9).replaceAll("\\s", "");
             if (!address.isEmpty()) {
                 is_command = true;
-                intAddress = Integer.parseInt(address);
+                intAddress = Integer.parseInt(address, 16);
                 if (Integer.parseInt(address, 16) == PIC16F84.getActualProgramCounter()) {
                     is_background = true;
                 }
@@ -94,7 +94,11 @@ public class MyFileReader {
     }
 
     public Dimension getDimension () {
-        return new Dimension(600, this.numberOfLines * 20);
+        return new Dimension(600, numberOfLines * 20);
     }
 
+    public static void resetProgram() {
+        numberOfLines = 0;
+        program = new String[1024];
+    }
 }

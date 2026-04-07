@@ -1,5 +1,6 @@
 package UI;
 
+import PIC.PIC16F84;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -15,12 +16,13 @@ public class FileSelector {
             JFileChooser file_upload = new JFileChooser();
             int response = file_upload.showOpenDialog(null);
             if(response == JFileChooser.APPROVE_OPTION) {
+                Checkbox.resetBreakpoints();
                 String file_path = file_upload.getSelectedFile().getAbsolutePath();
                 log.info("FileSelector: " + file_path);
-                MyFrame.setListing(file_path);
+                MyFrame.createListing(file_path);
+                PIC16F84.resetProgram();
             }
         });
         return upload_button;
     }
-
 }

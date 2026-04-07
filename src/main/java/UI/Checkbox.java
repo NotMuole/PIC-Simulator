@@ -1,6 +1,5 @@
 package UI;
 
-import PIC.PIC16F84;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -10,8 +9,7 @@ import java.awt.*;
 public class Checkbox {
     private static final Dimension CHECKBOX_DIMENSION = new Dimension(0, 0);
     private static final Logger log = LogManager.getLogger(Checkbox.class);
-    public static final String[] program = new String[1024];
-    public static final boolean[] breakpoints = new boolean[10];
+    private static boolean[] breakpoints = new boolean[1024];
     private static final Color normalColor = Color.BLACK;
     private static final Color selectedColor = Color.RED;
 
@@ -29,7 +27,11 @@ public class Checkbox {
             if (breakpoints[number]) {
                 checkbox.setSelected(true);
                 checkbox.setForeground(selectedColor);
-        }
+            } else {
+                checkbox.setSelected(false);
+                checkbox.setForeground(normalColor);
+            }
+
             checkbox.addActionListener(e -> {
                 if (checkbox.isSelected()) {
                     checkbox.setForeground(selectedColor);
@@ -42,11 +44,18 @@ public class Checkbox {
         } else {
             checkbox.setEnabled(false);
         }
-
         return checkbox;
     }
 
     public static boolean getBreakpoint(int programCounter) {
         return breakpoints[programCounter];
+    }
+
+    public static void resetBreakpoints() {
+        breakpoints = new boolean[1024];
+        log.info("breakpoints resettet!");
+        for (boolean wert : breakpoints) {
+            System.out.println(wert);
+        }
     }
 }
