@@ -26,6 +26,10 @@ public class PIC16F84 {
         log.info("pausiert? " + is_paused);
     }
 
+    public static boolean getIsPaused() {
+        return is_paused;
+    }
+
     public static void writeProgramstore(int address, int value) {
         Programstore[address] = value;
     }
