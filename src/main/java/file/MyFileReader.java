@@ -49,8 +49,6 @@ public class MyFileReader {
                 this.numberOfLines += 1;
             }
 
-            PIC16F84.executeProgram();
-
         } catch (IOException e) {
             log.error("Error reading file: " + e.getMessage());
         }

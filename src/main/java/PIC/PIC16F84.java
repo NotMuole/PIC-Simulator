@@ -12,10 +12,19 @@ public class PIC16F84 {
     private static int Programcounter = 0;
     private static int WReg = 0;
     private static boolean is_paused = true;
+    private static boolean next_step = false;
 
     private static final Logger log = LogManager.getLogger(PIC16F84.class);
 
     public PIC16F84() {};
+
+    public static boolean getIsPaused() {
+        return is_paused;
+    }
+
+    public static void toggleIsPaused() {
+        is_paused = !is_paused;
+    }
 
     public static int getWReg() {
         return WReg;
@@ -472,7 +481,16 @@ public class PIC16F84 {
     }
 
     public static void executeProgram() {
-        for (int i = 0; i < 100; i++) {
+
+        if (next_step && is_paused) {
+                int command = getProgramstore(Programcounter);
+                incrementProgramCounter();
+                decode(command);
+                MyFrame.updateFieldWEST();
+                next_step = false;
+            }
+
+        while (!is_paused) {
             int command = getProgramstore(Programcounter);
             incrementProgramCounter();
             decode(command);
