@@ -11,7 +11,7 @@ public class PIC16F84 {
     private static int StackIndex = 0;
     private static int Programcounter = 0;
     private static int WReg = 0;
-    private static boolean is_paused = true;
+    private static volatile boolean is_paused = true;
 
     private static final Logger log = LogManager.getLogger(PIC16F84.class);
 
@@ -19,6 +19,11 @@ public class PIC16F84 {
 
     public static int getWReg() {
         return WReg;
+    }
+
+    public static void toggleIsPaused() {
+        is_paused = !is_paused;
+        log.info("pausiert? " + is_paused);
     }
 
     public static void writeProgramstore(int address, int value) {
@@ -471,12 +476,25 @@ public class PIC16F84 {
         log.info("XORLW, WReg: " + Integer.toHexString(WReg) + "h, C=" + getCarryFlag() + ", DC=" + getDigitcarryFlag() + ", Z=" + getZeroFlag());
     }
 
-    public static void executeProgram() {
-        for (int i = 0; i < 100; i++) {
+    public static void runProgram() {
+        while (!is_paused) {
             int command = getProgramstore(Programcounter);
             incrementProgramCounter();
             decode(command);
             MyFrame.updateFieldWEST();
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
         }
     }
+
+    public static void stepProgram() {
+        int command = getProgramstore(Programcounter);
+        incrementProgramCounter();
+        decode(command);
+        MyFrame.updateFieldWEST();
+    }
+
 }

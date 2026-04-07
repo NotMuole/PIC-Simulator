@@ -12,6 +12,9 @@ public class FieldWest {
     private static final Dimension parentFieldDim = new Dimension(250, 400);
     private static final Dimension subFieldDim = new Dimension(250, 300);
     private static final Dimension subField2Dim = new Dimension(250, 100);
+    private static Component currentStartButton;
+    private static Component currentStepButton;
+    private static Component currentResetButton;
 
     public static JPanel createFieldWEST() {
         JPanel outer = new JPanel();
@@ -38,10 +41,13 @@ public class FieldWest {
 
     private static JPanel createSubField2WEST() {
         JPanel inner2 = new JPanel();
-        inner2.add(createButton("Start/Pause ⏯"));
-        inner2.add(createButton("Reset ↻"));
-        inner2.add(createButton("next Step ⏭"));
-        inner2.add(createButton("previous Step ⏮"));
+        if (currentStartButton == null) {
+            currentStartButton = createStartButton();
+            currentStepButton = createStepButton();
+        }
+        inner2.add(currentStartButton);
+        inner2.add(currentStepButton);
+        //inner2.add(createResetButton("Reset ↻"));
         inner2.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(Color.GRAY, 1),
                 "Steuerpult"
@@ -134,8 +140,27 @@ public class FieldWest {
         return list;
     }
 
-    private static JButton createButton(String text) {
-        JButton button = new JButton(text);
+    private static JButton createStartButton() {
+        JButton button = new JButton("Start/Pause ⏯");
+        button.addActionListener(e -> {
+            PIC16F84.toggleIsPaused();
+            Thread executionThread = new Thread(PIC16F84::runProgram);
+            executionThread.start();
+            log.info("Start Button gedrückt");
+        });
+        return button;
+    }
+
+    private static JButton createStepButton() {
+        JButton button = new JButton("next Step ⏭");
+        button.addActionListener(e -> {
+            PIC16F84.stepProgram();
+        });
+        return button;
+    }
+
+    private static JButton createResetButton() {
+        JButton button = new JButton("Start/Pause ⏯");
         button.addActionListener(e -> {
         });
         return button;
