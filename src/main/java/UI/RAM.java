@@ -9,8 +9,8 @@ import java.awt.*;
 
 public class RAM {
     private static final Logger log = LogManager.getLogger(RAM.class);
-    private static final Dimension parentFieldDim = new Dimension(500, 500);
-    private static final Dimension subFieldDim = new Dimension(500, 500);
+    private static final Dimension parentFieldDim = new Dimension(450, 500);
+    private static final Dimension subFieldDim = new Dimension(450, 500);
 
     public static JPanel createFieldEAST() {
         JPanel outer = new JPanel();
@@ -83,7 +83,7 @@ public class RAM {
                 BorderFactory.createLineBorder(Color.GRAY, 1),
                 "RAM"
         ));
-        RAMList.setPreferredSize(new Dimension(500, 500));
+        RAMList.setPreferredSize(new Dimension(450, 450));
         RAMList.setSelectionModel(new DefaultListSelectionModel() {
             @Override public void setSelectionInterval(int index0, int index1) { /* no-op */ }
             @Override public void addSelectionInterval(int index0, int index1) { /* no-op */ }
