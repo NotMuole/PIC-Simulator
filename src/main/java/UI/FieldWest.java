@@ -9,8 +9,8 @@ import java.awt.*;
 
 public class FieldWest {
     private static final Logger log = LogManager.getLogger(FieldWest.class);
-    private static final Dimension parentFieldDim = new Dimension(250, 400);
-    private static final Dimension subFieldDim = new Dimension(250, 300);
+    private static final Dimension parentFieldDim = new Dimension(250, 450);
+    private static final Dimension subFieldDim = new Dimension(250, 350);
     private static final Dimension subField2Dim = new Dimension(250, 100);
     private static Component currentStartButton;
     private static Component currentStepButton;
@@ -31,6 +31,8 @@ public class FieldWest {
         inner1.add(createInvisibleList());
         inner1.add(createStackList());
         inner1.add(createFlagList());
+        inner1.add(createTimeList());
+        inner1.add(createClockRateList());
         inner1.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(Color.GRAY, 1),
                 "Spezialfunktionsregister"
@@ -131,6 +133,36 @@ public class FieldWest {
         InvisibleList.setPreferredSize(new Dimension(80, 110));
         InvisibleList = disableSelection(InvisibleList);
         return InvisibleList;
+    }
+
+    private static JList<String> createTimeList() {
+        DefaultListModel<String> model = new DefaultListModel<>();
+        JList<String> TimeList = new JList<>(model);
+        double timePassed = PIC16F84.getTimePassed();
+        TimeList.setFont(new Font("Monospaced", Font.PLAIN, 14));
+        model.addElement(String.format("%.1f uS", timePassed));
+        TimeList.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(Color.GRAY, 1),
+                "Laufzeit"
+        ));
+        TimeList.setPreferredSize(new Dimension(115, 50));
+        TimeList = disableSelection(TimeList);
+        return TimeList;
+    }
+
+    private static JList<String> createClockRateList() {
+        DefaultListModel<String> model = new DefaultListModel<>();
+        JList<String> ClockRateList = new JList<>(model);
+        double clockRate = (PIC16F84.getClockRate()/1000000);
+        ClockRateList.setFont(new Font("Monospaced", Font.PLAIN, 14));
+        model.addElement(String.format("%.1f MHz", clockRate));
+        ClockRateList.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(Color.GRAY, 1),
+                "Quarzfrequenz"
+        ));
+        ClockRateList.setPreferredSize(new Dimension(115, 50));
+        ClockRateList = disableSelection(ClockRateList);
+        return ClockRateList;
     }
 
     private static JList<String> disableSelection(JList<String> list) {

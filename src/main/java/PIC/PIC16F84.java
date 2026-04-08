@@ -14,7 +14,10 @@ public class PIC16F84 {
     private static int Programcounter = 0;
     private static int WReg = 0;
     private static volatile boolean is_paused = true;
-
+    private static double clockRate = 1000000.0;
+    private static double timePerCycleSec = 1.0 / clockRate;
+    private static double timePerCycleUs  = timePerCycleSec * 1_000_000.0;
+    private static double timePassed = 0;
     private static final Logger log = LogManager.getLogger(PIC16F84.class);
 
     public PIC16F84() {}
@@ -37,6 +40,14 @@ public class PIC16F84 {
 
     public static boolean getIsPaused() {
         return is_paused;
+    }
+
+    public static double getTimePassed() {
+        return timePassed;
+    }
+
+    public static double getClockRate() {
+        return clockRate;
     }
 
     public static void writeProgramstore(int address, int value) {
@@ -323,6 +334,7 @@ public class PIC16F84 {
         } else {
             writeRAM(file_address, value);
         }
+        updateTime(1);
         //log.info("ADDWF, WReg: \" + Integer.toHexString(WReg) + \"h, C=\" + getCarryFlag() + \", DC=\" + getDigitcarryFlag() + \", Z=\" + getZeroFlag()");
     }
 
@@ -335,18 +347,21 @@ public class PIC16F84 {
         } else {
             writeRAM(file_address, value);
         }
+        updateTime(1);
         //log.info("ANDWF, WReg: \" + Integer.toHexString(WReg) + \"h, C=\" + getCarryFlag() + \", DC=\" + getDigitcarryFlag() + \", Z=\" + getZeroFlag()");
     }
 
     public static void CLRF(int file_address) {
         writeRAM(file_address, 0);
         setZeroFlag();
+        updateTime(1);
         //log.info("CLRF");
     }
 
     public static void CLRW() {
         writeWReg(0);
         setZeroFlag();
+        updateTime(1);
         //log.info("CLRW");
     }
 
@@ -358,6 +373,7 @@ public class PIC16F84 {
         } else {
             writeRAM(file_address, value);
         }
+        updateTime(1);
         //log.info("COMF");
     }
 
@@ -369,6 +385,7 @@ public class PIC16F84 {
         } else {
             writeRAM(file_address, value);
         }
+        updateTime(1);
         //log.info("DECF");
     }
 
@@ -384,6 +401,7 @@ public class PIC16F84 {
             NOP();
             incrementProgramCounter();
         }
+        updateTime(1);
         //log.info("DECFSZ");
     }
 
@@ -395,6 +413,7 @@ public class PIC16F84 {
         } else {
             writeRAM(file_address, value);
         }
+        updateTime(1);
         //log.info("INCF");
     }
 
@@ -410,6 +429,7 @@ public class PIC16F84 {
             NOP();
             incrementProgramCounter();
         }
+        updateTime(1);
         //log.info("INCFSZ");
     }
 
@@ -422,6 +442,7 @@ public class PIC16F84 {
         }
 
         if (value == 0) setZeroFlag(); else clearZeroFlag();
+        updateTime(1);
         //log.info("IORWF");
     }
 
@@ -434,16 +455,19 @@ public class PIC16F84 {
         } else {
             writeRAM(file_address, value);
         }
+        updateTime(1);
         //log.info("MOVF");
     }
 
     public static void MOVWF(int file_address) {
         int value = getWReg();
         writeRAM(file_address, value);
+        updateTime(1);
         //log.info("MOVWF, WReg: " + Integer.toHexString(WReg) + "h, C=" + getCarryFlag() + ", DC=" + getDigitcarryFlag() + ", Z=" + getZeroFlag());
     }
 
     public static void NOP() {
+        updateTime(1);
         //log.info("NOP, WReg: " + Integer.toHexString(WReg) + "h, C=" + getCarryFlag() + ", DC=" + getDigitcarryFlag() + ", Z=" + getZeroFlag());
     }
 
@@ -457,6 +481,7 @@ public class PIC16F84 {
         } else {
             writeRAM(file_address, value);
         }
+        updateTime(1);
         //log.info("RLF");
     }
 
@@ -470,6 +495,7 @@ public class PIC16F84 {
         } else {
             writeRAM(file_address, value);
         }
+        updateTime(1);
         //log.info("RRF");
     }
 
@@ -484,6 +510,7 @@ public class PIC16F84 {
         } else {
             writeRAM(file_address, value);
         }
+        updateTime(1);
         //log.info("SUBWF");
     }
 
@@ -496,6 +523,7 @@ public class PIC16F84 {
         } else {
             writeRAM(file_address, value);
         }
+        updateTime(1);
         //log.info("SWAPF");
     }
 
@@ -508,12 +536,14 @@ public class PIC16F84 {
         } else {
             writeRAM(file_address, value);
         }
+        updateTime(1);
         //log.info("XORWF");
     }
 
     public static void BCF(int file_address, int bit) {
         int value = getRAM(file_address)&~(1 << bit);
         writeRAM(file_address, value);
+        updateTime(1);
         //log.info("BCF");
     }
 
@@ -521,6 +551,7 @@ public class PIC16F84 {
         int value = getRAM(file_address)|(1 << bit);
         writeRAM(file_address, value);
         //log.info("BSF");
+        updateTime(1);
     }
 
     public static void BTFSC(int file_address, int bit) {
@@ -529,6 +560,7 @@ public class PIC16F84 {
             NOP();
             incrementProgramCounter();
         }
+        updateTime(1);
         //log.info("BTFSC");
     }
 
@@ -538,6 +570,7 @@ public class PIC16F84 {
             NOP();
             incrementProgramCounter();
         }
+        updateTime(1);
         //log.info("BTFSS");
     }
 
@@ -547,6 +580,7 @@ public class PIC16F84 {
         if (value > 255) setCarryFlag(); else clearCarryFlag();
         if ((literal & 15) + (WReg & 15) > 15) setDigitcarryFlag(); else clearDigitcarryFlag();
         writeWReg(value);
+        updateTime(1);
         //log.info("ADDLW, WReg: " + Integer.toHexString(WReg) + "h, C=" + getCarryFlag() + ", DC=" + getDigitcarryFlag() + ", Z=" + getZeroFlag());
     }
 
@@ -554,21 +588,25 @@ public class PIC16F84 {
         int value = WReg & literal;
         if (value == 0) setZeroFlag(); else clearZeroFlag();
         writeWReg(value);
+        updateTime(1);
         //log.info("ANDLW, WReg: " + Integer.toHexString(WReg) + "h, C=" + getCarryFlag() + ", DC=" + getDigitcarryFlag() + ", Z=" + getZeroFlag());
     }
 
     public static void CALL(int address) {
         pushStack(Programcounter);
         PIC16F84.setProgramCounter(address & 1023);
+        updateTime(2);
         //log.info("CALL, return-address=" + (Programcounter) + ", destination-address=" + (address & 1023));
     }
 
     public static void CLRWDT() {
+        updateTime(1);
         //log.info("TODO: CLRWDT");
     }
 
     public static void GOTO(int address) {
         PIC16F84.setProgramCounter(address);
+        updateTime(2);
         //log.info("GOTO, destination-address=" + (address & 1023));
     }
 
@@ -576,30 +614,36 @@ public class PIC16F84 {
         int value = WReg | literal;
         if (value == 0 ) setZeroFlag(); else clearZeroFlag();
         writeWReg(value);
+        updateTime(1);
         //log.info("IORLW, WReg: " + Integer.toHexString(WReg) + "h, C=" + getCarryFlag() + ", DC=" + getDigitcarryFlag() + ", Z=" + getZeroFlag());
     }
 
     public static void MOVLW(int literal) {
         writeWReg(literal);
+        updateTime(1);
         //log.info("MOVLW, WReg: " + Integer.toHexString(WReg) + "h, C=" + getCarryFlag() + ", DC=" + getDigitcarryFlag() + ", Z=" + getZeroFlag());
     }
 
     public static void RETFIE() {
+        updateTime(2);
         //log.info("TODO: RETFIE");
     }
 
     public static void RETLW(int literal) {
         writeWReg(literal);
         Programcounter = popStack();
+        updateTime(2);
         //log.info("RETLW, return-address=" + Programcounter + ", W=" + Integer.toHexString(WReg) + "h");
     }
 
     public static void RETURN() {
         Programcounter = popStack();
+        updateTime(2);
         //log.info("RETURN");
     }
 
     public static void SLEEP() {
+        updateTime(1);
         //log.info("TODO: SLEEP");
     }
 
@@ -609,6 +653,7 @@ public class PIC16F84 {
         if (literal >= WReg) setCarryFlag(); else clearCarryFlag();
         if ((literal & 15) >= (WReg & 15)) setDigitcarryFlag(); else clearDigitcarryFlag();
         writeWReg(value);
+        updateTime(1);
         //log.info("SUBLW, WReg: " + Integer.toHexString(WReg) + "h, C=" + getCarryFlag() + ", DC=" + getDigitcarryFlag() + ", Z=" + getZeroFlag());
     }
 
@@ -616,17 +661,19 @@ public class PIC16F84 {
         int value = literal ^ WReg;
         if (value == 0) setZeroFlag(); else clearZeroFlag();
         writeWReg(value);
+        updateTime(1);
         //log.info("XORLW, WReg: " + Integer.toHexString(WReg) + "h, C=" + getCarryFlag() + ", DC=" + getDigitcarryFlag() + ", Z=" + getZeroFlag());
+    }
+
+    public static void updateTime(int anzahl) {
+        for (int i=0; i<anzahl; i++) {
+            timePassed += timePerCycleUs;
+        }
     }
 
     public static void runProgram() {
         while (!is_paused) {
-            int command = getProgramstore(Programcounter);
-            incrementProgramCounter();
-            decode(command);
-            MyFrame.updateFieldWEST();
-            MyFrame.updateListing();
-            MyFrame.updateFieldEAST();
+            executeProgram();
             if (Checkbox.getBreakpoint(Programcounter)) {
                 toggleIsPaused();
             }
@@ -639,6 +686,10 @@ public class PIC16F84 {
     }
 
     public static void stepProgram() {
+        executeProgram();
+    }
+
+    private static void executeProgram() {
         int command = getProgramstore(Programcounter);
         incrementProgramCounter();
         decode(command);
@@ -655,6 +706,7 @@ public class PIC16F84 {
         Stack = new int[8];
         StackIndex = 0;
         Programcounter = 0;
+        timePassed = 0;
         writeWReg(0);
         MyFileReader.resetProgram();
         MyFrame.updateFieldWEST();
