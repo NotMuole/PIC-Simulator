@@ -19,7 +19,10 @@ public class PIC16F84 {
 
     public PIC16F84() {}
 
-    // TODO: write WReg and ensure 8 bit number
+    public static void writeWReg(int value) {
+        WReg = value & 255;
+    }
+
     public static int getWReg() {
         return WReg;
     }
@@ -312,7 +315,7 @@ public class PIC16F84 {
         if (value > 255) setCarryFlag(); else clearCarryFlag();
         if ((getRAM(file_address) & 15) + (WReg & 15) > 15) setDigitcarryFlag(); else clearDigitcarryFlag();
         if (destination == 0) {
-            WReg = value;
+            writeWReg(value);
 
         } else {
             writeRAM(file_address, value);
@@ -324,7 +327,7 @@ public class PIC16F84 {
         int value = WReg & getRAM(file_address);
         if (value == 0) setZeroFlag(); else clearZeroFlag();
         if (destination == 0) {
-            WReg = value;
+            writeWReg(value);
 
         } else {
             writeRAM(file_address, value);
@@ -333,13 +336,13 @@ public class PIC16F84 {
     }
 
     public static void CLRF(int file_address) {
-        writeProgramstore(file_address, 0);
+        writeRAM(file_address, 0);
         setZeroFlag();
         log.info("CLRF");
     }
 
     public static void CLRW() {
-        WReg = 0;
+        writeWReg(0);
         setZeroFlag();
         log.info("CLRW");
     }
@@ -348,7 +351,7 @@ public class PIC16F84 {
         int value = getRAM(file_address) ^ 255;
         if (value == 0) setZeroFlag(); else clearZeroFlag();
         if (destination == 0) {
-            WReg = value;
+            writeWReg(value);
         } else {
             writeRAM(file_address, value);
         }
@@ -359,7 +362,7 @@ public class PIC16F84 {
         int value = getRAM(file_address) - 1;
         if (value == 0) setZeroFlag(); else clearZeroFlag();
         if (destination == 0) {
-            WReg = value;
+            writeWReg(value);
         } else {
             writeRAM(file_address, value);
         }
@@ -369,7 +372,7 @@ public class PIC16F84 {
     public static void DECFSZ(int file_address, int destination) {
         int value = getRAM(file_address) - 1;
         if (destination == 0) {
-            WReg = value;
+            writeWReg(value);
         } else {
             writeRAM(file_address, value);
         }
@@ -385,7 +388,7 @@ public class PIC16F84 {
         int value = getRAM(file_address) + 1;
         if (value > 255) setZeroFlag(); else clearZeroFlag();
         if (destination == 0) {
-            WReg = value;
+            writeWReg(value);
         } else {
             writeRAM(file_address, value);
         }
@@ -395,7 +398,7 @@ public class PIC16F84 {
     public static void INCFSZ(int file_address, int destination) {
         int value = getRAM(file_address) + 1;
         if (destination == 0) {
-            WReg = value;
+            writeWReg(value);
         } else {
             writeRAM(file_address, value);
         }
@@ -410,7 +413,7 @@ public class PIC16F84 {
     public static void IORWF(int file_address, int destination) {
         int value = WReg | getRAM(file_address);
         if (destination == 0) {
-            WReg = value;
+            writeWReg(value);
         } else {
             writeRAM(file_address, value);
         }
@@ -424,7 +427,7 @@ public class PIC16F84 {
         if (value == 0) setZeroFlag(); else clearZeroFlag();
 
         if (destination == 0) {
-            WReg = value;
+            writeWReg(value);
         } else {
             writeRAM(file_address, value);
         }
@@ -442,22 +445,66 @@ public class PIC16F84 {
     }
 
     public static void RLF(int file_address, int destination) {
+        int carry = getRAM(file_address) & 256;
+        int value = getRAM(file_address) << 1;
+        if (carry == 1) setCarryFlag(); else clearCarryFlag();
+
+        if (destination == 0) {
+            writeWReg(value);
+        } else {
+            writeRAM(file_address, value);
+        }
         log.info("RLF");
     }
 
     public static void RRF(int file_address, int destination) {
+        int carry = getRAM(file_address) & 256;
+        int value = getRAM(file_address) >> 1;
+        if (carry == 1) setCarryFlag(); else clearCarryFlag();
+
+        if (destination == 0) {
+            writeWReg(value);
+        } else {
+            writeRAM(file_address, value);
+        }
         log.info("RRF");
     }
 
     public static void SUBWF(int file_address, int destination) {
+        int value = getRAM(file_address) - WReg;
+        if (value == 0) setZeroFlag(); else clearZeroFlag();
+        if (getRAM(file_address) >= WReg) setCarryFlag(); else clearCarryFlag();
+        if ((getRAM(file_address) & 15) >= (WReg & 15)) setDigitcarryFlag(); else clearDigitcarryFlag();
+
+        if (destination == 0) {
+            writeWReg(value);
+        } else {
+            writeRAM(file_address, value);
+        }
         log.info("SUBWF");
     }
 
     public static void SWAPF(int file_address, int destination) {
+        int topNibbles = (getRAM(file_address) & 240) >> 4;
+        int value = (getRAM(file_address) << 4) + topNibbles;
+
+        if (destination == 0) {
+            writeWReg(value);
+        } else {
+            writeRAM(file_address, value);
+        }
         log.info("SWAPF");
     }
 
     public static void XORWF(int file_address, int destination) {
+        int value = WReg ^ getRAM(file_address);
+        if (value == 0) setZeroFlag(); else clearZeroFlag();
+
+        if (destination == 0) {
+            writeWReg(value);
+        } else {
+            writeRAM(file_address, value);
+        }
         log.info("XORWF");
     }
 
@@ -483,7 +530,7 @@ public class PIC16F84 {
     }
 
     public static void BTFSS(int file_address, int bit) {
-                int value = (getRAM(file_address)&~(1 << bit)) >> bit;
+        int value = (getRAM(file_address)&~(1 << bit)) >> bit;
         if (value == 1) {
             NOP();
             incrementProgramCounter();
@@ -496,14 +543,14 @@ public class PIC16F84 {
         if (value == 0) setZeroFlag(); else clearZeroFlag();
         if (value > 255) setCarryFlag(); else clearCarryFlag();
         if ((literal & 15) + (WReg & 15) > 15) setDigitcarryFlag(); else clearDigitcarryFlag();
-        WReg = value;
+        writeWReg(value);
         log.info("ADDLW, WReg: " + Integer.toHexString(WReg) + "h, C=" + getCarryFlag() + ", DC=" + getDigitcarryFlag() + ", Z=" + getZeroFlag());
     }
 
     public static void ANDLW(int literal) {
         int value = WReg & literal;
         if (value == 0) setZeroFlag(); else clearZeroFlag();
-        WReg = value;
+        writeWReg(value);
         log.info("ANDLW, WReg: " + Integer.toHexString(WReg) + "h, C=" + getCarryFlag() + ", DC=" + getDigitcarryFlag() + ", Z=" + getZeroFlag());
     }
 
@@ -525,12 +572,12 @@ public class PIC16F84 {
     public static void IORLW(int literal) {
         int value = WReg | literal;
         if (value == 0 ) setZeroFlag(); else clearZeroFlag();
-        WReg = value;
+        writeWReg(value);
         log.info("IORLW, WReg: " + Integer.toHexString(WReg) + "h, C=" + getCarryFlag() + ", DC=" + getDigitcarryFlag() + ", Z=" + getZeroFlag());
     }
 
     public static void MOVLW(int literal) {
-        WReg = literal;
+        writeWReg(literal);
         log.info("MOVLW, WReg: " + Integer.toHexString(WReg) + "h, C=" + getCarryFlag() + ", DC=" + getDigitcarryFlag() + ", Z=" + getZeroFlag());
     }
 
@@ -539,7 +586,7 @@ public class PIC16F84 {
     }
 
     public static void RETLW(int literal) {
-        WReg = literal;
+        writeWReg(literal);
         Programcounter = popStack();
         log.info("RETLW, return-address=" + Programcounter + ", W=" + Integer.toHexString(WReg) + "h");
     }
@@ -550,7 +597,7 @@ public class PIC16F84 {
     }
 
     public static void SLEEP() {
-        log.info("SLEEP");
+        log.info("TODO: SLEEP");
     }
 
     public static void SUBLW(int literal) {
@@ -558,14 +605,14 @@ public class PIC16F84 {
         if (value == 0) setZeroFlag(); else clearZeroFlag();
         if (literal >= WReg) setCarryFlag(); else clearCarryFlag();
         if ((literal & 15) >= (WReg & 15)) setDigitcarryFlag(); else clearDigitcarryFlag();
-        WReg = value;
+        writeWReg(value);
         log.info("SUBLW, WReg: " + Integer.toHexString(WReg) + "h, C=" + getCarryFlag() + ", DC=" + getDigitcarryFlag() + ", Z=" + getZeroFlag());
     }
 
     public static void XORLW(int literal) {
         int value = literal ^ WReg;
         if (value == 0) setZeroFlag(); else clearZeroFlag();
-        WReg = value;
+        writeWReg(value);
         log.info("XORLW, WReg: " + Integer.toHexString(WReg) + "h, C=" + getCarryFlag() + ", DC=" + getDigitcarryFlag() + ", Z=" + getZeroFlag());
     }
 
@@ -605,7 +652,7 @@ public class PIC16F84 {
         Stack = new int[8];
         StackIndex = 0;
         Programcounter = 0;
-        WReg = 0;
+        writeWReg(0);
         is_paused = true;
         MyFileReader.resetProgram();
         MyFrame.updateFieldWEST();
