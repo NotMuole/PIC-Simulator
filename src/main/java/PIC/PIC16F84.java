@@ -5,8 +5,13 @@ import UI.MyFrame;
 import file.MyFileReader;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import java.util.Map;
 
 public class PIC16F84 {
+    static Map<Integer, Integer> mirrowAddress = Map.of(
+        0, 4
+    );
+
     private static int[] Programstore = new int[1024];
     private static int[] RAM = new int[256];
     private static int[] Stack = new int[8];
@@ -68,11 +73,13 @@ public class PIC16F84 {
     }
 
     public static void writeRAM(int address, int value) {
-        RAM[address] = value & 255;
+        int actual_address = mirrowAddress.containsKey(address) ? mirrowAddress.get(address) : address;
+        RAM[actual_address] = value & 255;
     }
 
     public static int getRAM(int address) {
-        return RAM[address];
+        int actual_address = mirrowAddress.containsKey(address) ? mirrowAddress.get(address) : address;
+        return RAM[actual_address];
     }
 
     public static void decode(int code) {
@@ -333,6 +340,9 @@ public class PIC16F84 {
     }
 
     public static void ADDWF(int file_address, int destination) {
+        if (file_address == 0) {
+            file_address = getRAM(0);
+        }
         int value = WReg + getRAM(file_address);
         if (value == 0) setZeroFlag(); else clearZeroFlag();
         if (value > 255) setCarryFlag(); else clearCarryFlag();
@@ -348,6 +358,9 @@ public class PIC16F84 {
     }
 
     public static void ANDWF(int file_address, int destination) {
+        if (file_address == 0) {
+            file_address = getRAM(0);
+        }
         int value = WReg & getRAM(file_address);
         if (value == 0) setZeroFlag(); else clearZeroFlag();
         if (destination == 0) {
@@ -361,6 +374,9 @@ public class PIC16F84 {
     }
 
     public static void CLRF(int file_address) {
+        if (file_address == 0) {
+            file_address = getRAM(0);
+        }
         writeRAM(file_address, 0);
         setZeroFlag();
         updateTime(1);
@@ -375,6 +391,9 @@ public class PIC16F84 {
     }
 
     public static void COMF(int file_address, int destination) {
+        if (file_address == 0) {
+            file_address = getRAM(0);
+        }
         int value = getRAM(file_address) ^ 255;
         if (value == 0) setZeroFlag(); else clearZeroFlag();
         if (destination == 0) {
@@ -387,6 +406,9 @@ public class PIC16F84 {
     }
 
     public static void DECF(int file_address, int destination) {
+        if (file_address == 0) {
+            file_address = getRAM(0);
+        }
         int value = getRAM(file_address) - 1;
         if (value == 0) setZeroFlag(); else clearZeroFlag();
         if (destination == 0) {
@@ -399,6 +421,9 @@ public class PIC16F84 {
     }
 
     public static void DECFSZ(int file_address, int destination) {
+        if (file_address == 0) {
+            file_address = getRAM(0);
+        }
         int value = getRAM(file_address) - 1;
         if (destination == 0) {
             writeWReg(value);
@@ -415,6 +440,9 @@ public class PIC16F84 {
     }
 
     public static void INCF(int file_address, int destination) {
+        if (file_address == 0) {
+            file_address = getRAM(0);
+        }
         int value = getRAM(file_address) + 1;
         if (value > 255) setZeroFlag(); else clearZeroFlag();
         if (destination == 0) {
@@ -427,6 +455,9 @@ public class PIC16F84 {
     }
 
     public static void INCFSZ(int file_address, int destination) {
+        if (file_address == 0) {
+            file_address = getRAM(0);
+        }
         int value = getRAM(file_address) + 1;
         if (destination == 0) {
             writeWReg(value);
@@ -443,6 +474,9 @@ public class PIC16F84 {
     }
 
     public static void IORWF(int file_address, int destination) {
+        if (file_address == 0) {
+            file_address = getRAM(0);
+        }
         int value = WReg | getRAM(file_address);
         if (destination == 0) {
             writeWReg(value);
@@ -456,6 +490,9 @@ public class PIC16F84 {
     }
 
     public static void MOVF(int file_address, int destination) {
+        if (file_address == 0) {
+            file_address = getRAM(0);
+        }
         int value = getRAM(file_address);
         if (value == 0) setZeroFlag(); else clearZeroFlag();
 
@@ -469,6 +506,9 @@ public class PIC16F84 {
     }
 
     public static void MOVWF(int file_address) {
+        if (file_address == 0) {
+            file_address = getRAM(0);
+        }
         int value = getWReg();
         writeRAM(file_address, value);
         updateTime(1);
@@ -481,8 +521,14 @@ public class PIC16F84 {
     }
 
     public static void RLF(int file_address, int destination) {
-        int carry = getRAM(file_address) & 256;
-        int value = getRAM(file_address) << 1;
+        if (file_address == 0) {
+            file_address = getRAM(0);
+        }
+        log.info("Wert: " + getRAM(file_address));
+        int carry = (getRAM(file_address) & 128) >> 7;
+        log.info("Carry: " + carry);
+        int value = (getRAM(file_address) << 1) + getCarryFlag();
+        log.info("Wert nach shift: " + value);
         if (carry == 1) setCarryFlag(); else clearCarryFlag();
 
         if (destination == 0) {
@@ -495,8 +541,11 @@ public class PIC16F84 {
     }
 
     public static void RRF(int file_address, int destination) {
-        int carry = getRAM(file_address) & 256;
-        int value = getRAM(file_address) >> 1;
+        if (file_address == 0) {
+            file_address = getRAM(0);
+        }
+        int carry = (getRAM(file_address) & 1);
+        int value = (getRAM(file_address) >> 1) + (getCarryFlag() << 7);
         if (carry == 1) setCarryFlag(); else clearCarryFlag();
 
         if (destination == 0) {
@@ -509,6 +558,9 @@ public class PIC16F84 {
     }
 
     public static void SUBWF(int file_address, int destination) {
+        if (file_address == 0) {
+            file_address = getRAM(0);
+        }
         int value = getRAM(file_address) - WReg;
         if (value == 0) setZeroFlag(); else clearZeroFlag();
         if (getRAM(file_address) >= WReg) setCarryFlag(); else clearCarryFlag();
@@ -524,6 +576,9 @@ public class PIC16F84 {
     }
 
     public static void SWAPF(int file_address, int destination) {
+        if (file_address == 0) {
+            file_address = getRAM(0);
+        }
         int topNibbles = (getRAM(file_address) & 240) >> 4;
         int value = (getRAM(file_address) << 4) + topNibbles;
 
@@ -537,6 +592,9 @@ public class PIC16F84 {
     }
 
     public static void XORWF(int file_address, int destination) {
+        if (file_address == 0) {
+            file_address = getRAM(0);
+        }
         int value = WReg ^ getRAM(file_address);
         if (value == 0) setZeroFlag(); else clearZeroFlag();
 
@@ -550,6 +608,9 @@ public class PIC16F84 {
     }
 
     public static void BCF(int file_address, int bit) {
+        if (file_address == 0) {
+            file_address = getRAM(0);
+        }
         int value = getRAM(file_address)&~(1 << bit);
         writeRAM(file_address, value);
         updateTime(1);
@@ -557,6 +618,9 @@ public class PIC16F84 {
     }
 
     public static void BSF(int file_address, int bit) {
+        if (file_address == 0) {
+            file_address = getRAM(0);
+        }
         int value = getRAM(file_address)|(1 << bit);
         writeRAM(file_address, value);
         //log.info("BSF");
@@ -564,7 +628,10 @@ public class PIC16F84 {
     }
 
     public static void BTFSC(int file_address, int bit) {
-        int value = (getRAM(file_address)&~(1 << bit)) >> bit;
+        if (file_address == 0) {
+            file_address = getRAM(0);
+        }
+        int value = (getRAM(file_address)&(1 << bit)) >> bit;
         if (value == 0) {
             NOP();
             incrementProgramCounter();
@@ -574,7 +641,10 @@ public class PIC16F84 {
     }
 
     public static void BTFSS(int file_address, int bit) {
-        int value = (getRAM(file_address)&~(1 << bit)) >> bit;
+        if (file_address == 0) {
+            file_address = getRAM(0);
+        }
+        int value = (getRAM(file_address)&(1 << bit)) >> bit;
         if (value == 1) {
             NOP();
             incrementProgramCounter();

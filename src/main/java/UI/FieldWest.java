@@ -98,14 +98,14 @@ public class FieldWest {
 
     private static JList<String> createVisibleList() {
         DefaultListModel<String> model = new DefaultListModel<>();
-        int test = 0;
         int wReg = PIC16F84.getWReg();
         int PCL = PIC16F84.getProgramCounter();
         int Status = PIC16F84.getRAM(3);
-        model.addElement(String.format("W-Reg   %02d", wReg));
-        model.addElement(String.format("FSR     %02d", test));
+        int FSR = PIC16F84.getRAM(4);
+        model.addElement(String.format("W-Reg   %02X", wReg));
+        model.addElement(String.format("FSR     %02X", FSR));
         model.addElement(String.format("PCL     %02d", PCL));
-        model.addElement(String.format("PCLATH  %02d", test));
+        model.addElement(String.format("PCLATH  %02d", 0));
         model.addElement(String.format("Status  %02d", Status));
 
         JList<String> VisibleList = new JList<>(model);
