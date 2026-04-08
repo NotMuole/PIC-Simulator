@@ -15,6 +15,7 @@ public class FieldWest {
     private static Component currentStartButton;
     private static Component currentStepButton;
     private static Component currentResetButton;
+    private static Component currentTimeButton;
 
     public static JPanel createFieldWEST() {
         JPanel outer = new JPanel();
@@ -47,10 +48,12 @@ public class FieldWest {
             currentStartButton = createStartButton();
             currentStepButton = createStepButton();
             currentResetButton = createResetButton();
+            currentTimeButton = createSelectClockRateButton();
         }
         inner2.add(currentStartButton);
         inner2.add(currentStepButton);
         inner2.add(currentResetButton);
+        inner2.add(currentTimeButton);
         inner2.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(Color.GRAY, 1),
                 "Steuerpult"
@@ -140,12 +143,12 @@ public class FieldWest {
         JList<String> TimeList = new JList<>(model);
         double timePassed = PIC16F84.getTimePassed();
         TimeList.setFont(new Font("Monospaced", Font.PLAIN, 14));
-        model.addElement(String.format("%.1f uS", timePassed));
+        model.addElement(String.format("%.1f µs", timePassed));
         TimeList.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(Color.GRAY, 1),
                 "Laufzeit"
         ));
-        TimeList.setPreferredSize(new Dimension(115, 50));
+        TimeList.setPreferredSize(new Dimension(90, 50));
         TimeList = disableSelection(TimeList);
         return TimeList;
     }
@@ -153,14 +156,15 @@ public class FieldWest {
     private static JList<String> createClockRateList() {
         DefaultListModel<String> model = new DefaultListModel<>();
         JList<String> ClockRateList = new JList<>(model);
-        double clockRate = (PIC16F84.getClockRate()/1000000);
+        double clockRate = (PIC16F84.getClockRate());
+        double microSecsPerCycle = (PIC16F84.getTimePerCycleUs());
         ClockRateList.setFont(new Font("Monospaced", Font.PLAIN, 14));
-        model.addElement(String.format("%.1f MHz", clockRate));
+        model.addElement(String.format("%.1f MHz (%.1f µs)", clockRate, microSecsPerCycle));
         ClockRateList.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(Color.GRAY, 1),
                 "Quarzfrequenz"
         ));
-        ClockRateList.setPreferredSize(new Dimension(115, 50));
+        ClockRateList.setPreferredSize(new Dimension(140, 50));
         ClockRateList = disableSelection(ClockRateList);
         return ClockRateList;
     }
@@ -202,6 +206,58 @@ public class FieldWest {
                 log.info("Reset!");
                 PIC16F84.resetProgram();
             }
+        });
+        return button;
+    }
+
+    private static JButton createSelectClockRateButton() {
+        JButton button = new JButton("Set Clockrate ⏱");
+        JPopupMenu menu = new JPopupMenu();
+
+        JMenuItem mhz05 = new JMenuItem("0.5 MHz");
+        JMenuItem mhz10 = new JMenuItem("1.0 MHz");
+        JMenuItem mhz20 = new JMenuItem("2.0 MHz");
+        JMenuItem mhz40 = new JMenuItem("4.0 MHz");
+        JMenuItem mhz60 = new JMenuItem("6.0 MHz");
+        JMenuItem mhz80 = new JMenuItem("8.0 MHz");
+        JMenuItem mhz800 = new JMenuItem("80 MHz");
+        menu.add(mhz05);
+        menu.add(mhz10);
+        menu.add(mhz20);
+        menu.add(mhz40);
+        menu.add(mhz60);
+        menu.add(mhz80);
+        menu.add(mhz800);
+
+        button.addActionListener(e -> menu.show(button, 0, button.getHeight()));
+        mhz05.addActionListener(e -> {
+            PIC16F84.setClockRate(0.5);
+            MyFrame.updateFieldWEST();
+        });
+        mhz10.addActionListener(e -> {
+            PIC16F84.setClockRate(1.0);
+            MyFrame.updateFieldWEST();
+
+        });
+        mhz20.addActionListener(e -> {
+            PIC16F84.setClockRate(2);
+            MyFrame.updateFieldWEST();
+        });
+        mhz40.addActionListener(e -> {
+            PIC16F84.setClockRate(4);
+            MyFrame.updateFieldWEST();
+        });
+        mhz60.addActionListener(e -> {
+            PIC16F84.setClockRate(6);
+            MyFrame.updateFieldWEST();
+        });
+        mhz80.addActionListener(e -> {
+            PIC16F84.setClockRate(8);
+            MyFrame.updateFieldWEST();
+        });
+        mhz800.addActionListener(e -> {
+            PIC16F84.setClockRate(80);
+            MyFrame.updateFieldWEST();
         });
         return button;
     }

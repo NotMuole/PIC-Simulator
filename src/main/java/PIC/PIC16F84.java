@@ -14,10 +14,10 @@ public class PIC16F84 {
     private static int Programcounter = 0;
     private static int WReg = 0;
     private static volatile boolean is_paused = true;
-    private static double clockRate = 1000000.0;
-    private static double timePerCycleSec = 1.0 / clockRate;
-    private static double timePerCycleUs  = timePerCycleSec * 1_000_000.0;
+    private static double clockRate = 4.0;
+    private static double timePerCycleUs = 4 / clockRate;
     private static double timePassed = 0;
+    private static double delay = 300 / clockRate;
     private static final Logger log = LogManager.getLogger(PIC16F84.class);
 
     public PIC16F84() {}
@@ -46,8 +46,17 @@ public class PIC16F84 {
         return timePassed;
     }
 
+    public static void setClockRate(double value) {
+        clockRate = value;
+        timePerCycleUs = 4 / clockRate;
+        delay = 300 / clockRate;
+    }
     public static double getClockRate() {
         return clockRate;
+    }
+
+    public static double getTimePerCycleUs() {
+        return timePerCycleUs;
     }
 
     public static void writeProgramstore(int address, int value) {
@@ -678,7 +687,7 @@ public class PIC16F84 {
                 toggleIsPaused();
             }
             try {
-                Thread.sleep(150);
+                Thread.sleep((long) delay);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
