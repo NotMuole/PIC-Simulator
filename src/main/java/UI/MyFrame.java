@@ -4,7 +4,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.net.URL;
 
-import file.MyFileReader;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -57,29 +56,29 @@ public class MyFrame extends JFrame {
         frame.repaint();
     }
 
-        private static void setIcon(JFrame frame) {
-            URL iconUrl = MyFrame.class.getResource(ICON_PATH);
-            if (iconUrl == null) {
-                log.error(ICON_PATH + "konnte nicht geladen werden");
-                return;
-            }
-            Image icon = new ImageIcon(iconUrl).getImage();
-            frame.setIconImage(icon);
+    private static void setIcon(JFrame frame) {
+        URL iconUrl = MyFrame.class.getResource(ICON_PATH);
+        if (iconUrl == null) {
+            log.error(ICON_PATH + "konnte nicht geladen werden");
+            return;
         }
+        Image icon = new ImageIcon(iconUrl).getImage();
+        frame.setIconImage(icon);
+    }
 
-        public static void updateFieldWEST() {
-            frame.remove(currentFieldWEST);
-            currentFieldWEST = FieldWest.createFieldWEST();
-            frame.add(currentFieldWEST, BorderLayout.WEST);
-            frame.revalidate();
-            frame.repaint();
-        }
+    public static void updateFieldWEST() {
+        JPanel new_panel = FieldWest.createFieldWEST();
+        frame.remove(currentFieldWEST);
+        currentFieldWEST = new_panel;
+        frame.add(currentFieldWEST, BorderLayout.WEST);
+        frame.revalidate();
+        frame.repaint();
+    }
 
     public static void updateFieldEAST() {
-        if (currentRAM != null) {
-            frame.remove(currentRAM);
-        }
-        currentRAM = RAM.createFieldEAST();
+        JPanel new_panel = RAM.createFieldEAST();
+        frame.remove(currentRAM);
+        currentRAM = new_panel;
         frame.add(currentRAM, BorderLayout.EAST);
         frame.revalidate();
         frame.repaint();

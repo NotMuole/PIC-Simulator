@@ -32,9 +32,24 @@ public class ListingPanel {
         breakpoint_panel.setMaximumSize(LISTING_PANEL);
         breakpoint_panel.setMinimumSize(LISTING_PANEL);
 
-        return new JScrollPane(
+        JScrollPane scrollPane = new JScrollPane(
                 breakpoint_panel,
                 ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
-                ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+                ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED
+        );
+
+        int newValue = MyFileReader.getNumberOfCurrentLine()*20-150;
+        int maxValue = MyFileReader.getNumberOfLines()*20;
+
+        SwingUtilities.invokeLater(() -> {
+            //log.info("max: " + maxValue + "new: " + newValue);
+            JScrollBar bar = scrollPane.getVerticalScrollBar();
+            if (newValue < maxValue) {
+                bar.setMaximum(maxValue);
+                bar.setValue(newValue);
+            }
+        });
+
+        return scrollPane;
     }
 }

@@ -148,7 +148,6 @@ public class FieldWest {
                 PIC16F84.toggleIsPaused();
                 Thread executionThread = new Thread(PIC16F84::runProgram);
                 executionThread.start();
-                log.info("Programm gestartet");
             }
         });
         return button;
@@ -168,6 +167,7 @@ public class FieldWest {
         JButton button = new JButton("Reset ↻");
         button.addActionListener(e -> {
             if (MyFrame.uploaded_file) {
+                log.info("Reset!");
                 PIC16F84.resetProgram();
             }
         });

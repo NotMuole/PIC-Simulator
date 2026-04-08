@@ -1,6 +1,5 @@
 package file;
 
-import UI.Checkbox;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -22,6 +21,7 @@ public class MyFileReader {
     private static int numberOfLines = 0;
     private static final Logger log = LogManager.getLogger(MyFileReader.class);
     private static String[] program = new String[1024];
+    private static int[] linesOfProgram = new int[1024];
 
     public JPanel createFilePanel(File file) {
         JPanel breakpoint_panel = new JPanel();
@@ -42,10 +42,12 @@ public class MyFileReader {
                 int intAddress;
                 String address = line.substring(0, 4).replaceAll("\\s", "");
                 String code = line.substring(5, 9).replaceAll("\\s", "");
+                int lineNumber = Integer.parseInt(line.substring(20, 25));
                 if (!address.isEmpty()) {
                     PIC16F84.writeProgramstore(Integer.parseInt(address, 16), Integer.parseInt(code, 16));
                     is_command = true;
                     intAddress = Integer.parseInt(address, 16);
+                    linesOfProgram[intAddress] = lineNumber;
                     if (Integer.parseInt(address, 16) == PIC16F84.getActualProgramCounter()) {
                         is_background = true;
                     }
@@ -76,7 +78,6 @@ public class MyFileReader {
             boolean is_command;
             int intAddress;
             String address = program[i].substring(0, 4).replaceAll("\\s", "");
-            String code = program[i].substring(5, 9).replaceAll("\\s", "");
             if (!address.isEmpty()) {
                 is_command = true;
                 intAddress = Integer.parseInt(address, 16);
@@ -97,8 +98,17 @@ public class MyFileReader {
         return new Dimension(1000, numberOfLines * 20);
     }
 
+    public static int getNumberOfCurrentLine() {
+        int programCounter = PIC16F84.getActualProgramCounter();
+        return linesOfProgram[programCounter];
+    }
+
+    public static int getNumberOfLines() {
+        return numberOfLines;
+    }
     public static void resetProgram() {
         numberOfLines = 0;
+        linesOfProgram = new int[1024];
         program = new String[1024];
     }
 }
