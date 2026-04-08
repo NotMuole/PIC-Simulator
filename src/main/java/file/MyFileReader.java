@@ -94,7 +94,7 @@ public class MyFileReader {
     }
 
     public Dimension getDimension () {
-        return new Dimension(600, numberOfLines * 20);
+        return new Dimension(1000, numberOfLines * 20);
     }
 
     public static void resetProgram() {

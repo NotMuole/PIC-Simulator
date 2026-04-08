@@ -18,6 +18,7 @@ public class MyFrame extends JFrame {
     private static Component currentFieldWEST;
     private static Component currentRAM;
     public static String uploaded_file_path;
+    public static boolean uploaded_file = false;
 
     public MyFrame() {
         log.info("PIC-Simulator gestartet");
@@ -36,6 +37,7 @@ public class MyFrame extends JFrame {
 
     public static void createListing(String file_path) {
         uploaded_file_path = file_path;
+        uploaded_file = true;
         JScrollPane new_listing = ListingPanel.createListing(file_path);
         if (currentListing != null) {
             frame.remove(currentListing);

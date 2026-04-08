@@ -144,10 +144,12 @@ public class FieldWest {
     private static JButton createStartButton() {
         JButton button = new JButton("Start/Pause ⏯");
         button.addActionListener(e -> {
-            PIC16F84.toggleIsPaused();
-            Thread executionThread = new Thread(PIC16F84::runProgram);
-            executionThread.start();
-            log.info("Start Button gedrückt");
+            if (MyFrame.uploaded_file) {
+                PIC16F84.toggleIsPaused();
+                Thread executionThread = new Thread(PIC16F84::runProgram);
+                executionThread.start();
+                log.info("Programm gestartet");
+            }
         });
         return button;
     }
@@ -155,9 +157,8 @@ public class FieldWest {
     private static JButton createStepButton() {
         JButton button = new JButton("next Step ⏭");
         button.addActionListener(e -> {
-            if (PIC16F84.getIsPaused()) {
+            if (PIC16F84.getIsPaused() && MyFrame.uploaded_file) {
                 PIC16F84.stepProgram();
-                log.info(PIC16F84.getActualProgramCounter());
             }
         });
         return button;
@@ -166,7 +167,9 @@ public class FieldWest {
     private static JButton createResetButton() {
         JButton button = new JButton("Reset ↻");
         button.addActionListener(e -> {
-            PIC16F84.resetProgram();
+            if (MyFrame.uploaded_file) {
+                PIC16F84.resetProgram();
+            }
         });
         return button;
     }
