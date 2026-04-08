@@ -104,9 +104,9 @@ public class FieldWest {
         int FSR = PIC16F84.getRAM(4);
         model.addElement(String.format("W-Reg   %02X", wReg));
         model.addElement(String.format("FSR     %02X", FSR));
-        model.addElement(String.format("PCL     %02d", PCL));
-        model.addElement(String.format("PCLATH  %02d", 0));
-        model.addElement(String.format("Status  %02d", Status));
+        model.addElement(String.format("PCL     %02X", PCL));
+        model.addElement(String.format("PCLATH  %02X", 0));
+        model.addElement(String.format("Status  %02X", Status));
 
         JList<String> VisibleList = new JList<>(model);
         VisibleList.setBorder(BorderFactory.createTitledBorder(
@@ -122,8 +122,9 @@ public class FieldWest {
         DefaultListModel<String> model = new DefaultListModel<>();
         int test = 0;
         int programCounter = PIC16F84.getActualProgramCounter();
-        model.addElement(String.format("PC     %04d", programCounter));
-        model.addElement(String.format("Stackpointer %d", test));
+        int stackPointer = PIC16F84.getStackIndex();
+        model.addElement(String.format("PC     %04X", programCounter));
+        model.addElement(String.format("SP %d", stackPointer));
         model.addElement(String.format("VT     %02X", test));
         model.addElement("WDT aktiv");
         model.addElement("WDT 0.0ms");
@@ -148,7 +149,7 @@ public class FieldWest {
                 BorderFactory.createLineBorder(Color.GRAY, 1),
                 "Laufzeit"
         ));
-        TimeList.setPreferredSize(new Dimension(90, 50));
+        TimeList.setPreferredSize(new Dimension(80, 50));
         TimeList = disableSelection(TimeList);
         return TimeList;
     }
@@ -164,7 +165,7 @@ public class FieldWest {
                 BorderFactory.createLineBorder(Color.GRAY, 1),
                 "Quarzfrequenz"
         ));
-        ClockRateList.setPreferredSize(new Dimension(140, 50));
+        ClockRateList.setPreferredSize(new Dimension(150, 50));
         ClockRateList = disableSelection(ClockRateList);
         return ClockRateList;
     }

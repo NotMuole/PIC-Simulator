@@ -253,17 +253,27 @@ public class PIC16F84 {
     }
 
     public static void pushStack(int addresse) {
-        Stack[StackIndex % 8] = addresse;
+        Stack[StackIndex] = addresse;
         StackIndex += 1;
+        StackIndex = StackIndex % 8;
     }
 
     public static int popStack() {
-        StackIndex -= 1;
+        if (StackIndex != 0) {
+            StackIndex -= 1;
+        } else {
+            StackIndex = 7;
+        }
+        log.info("POP: " + StackIndex);
         return Stack[StackIndex];
     }
 
     public static int[] getStack() {
         return Stack;
+    }
+
+    public static int getStackIndex() {
+        return StackIndex;
     }
 
     public static void setZeroFlag() {
