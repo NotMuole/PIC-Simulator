@@ -68,9 +68,7 @@ public class MyFrame extends JFrame {
         }
 
         public static void updateFieldWEST() {
-            if (currentFieldWEST != null) {
-                frame.remove(currentFieldWEST);
-            }
+            frame.remove(currentFieldWEST);
             currentFieldWEST = FieldWest.createFieldWEST();
             frame.add(currentFieldWEST, BorderLayout.WEST);
             frame.revalidate();

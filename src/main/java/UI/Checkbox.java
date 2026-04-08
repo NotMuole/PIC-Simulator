@@ -53,9 +53,5 @@ public class Checkbox {
 
     public static void resetBreakpoints() {
         breakpoints = new boolean[1024];
-        log.info("breakpoints resettet!");
-        for (boolean wert : breakpoints) {
-            System.out.println(wert);
-        }
     }
 }

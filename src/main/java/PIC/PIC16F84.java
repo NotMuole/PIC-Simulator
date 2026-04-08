@@ -32,6 +32,10 @@ public class PIC16F84 {
         log.info("pausiert? " + is_paused);
     }
 
+    public static void setPaused(boolean bool) {
+        is_paused = bool;
+    }
+
     public static boolean getIsPaused() {
         return is_paused;
     }
@@ -647,15 +651,16 @@ public class PIC16F84 {
 
     public static void resetProgram() {
         reset();
+        is_paused = true;
         Programstore = new int[1024];
         RAM = new int[256];
         Stack = new int[8];
         StackIndex = 0;
         Programcounter = 0;
         writeWReg(0);
-        is_paused = true;
         MyFileReader.resetProgram();
         MyFrame.updateFieldWEST();
+        MyFrame.updateFieldEAST();
         MyFrame.createListing(MyFrame.uploaded_file_path);
         log.info("RESET -----");
     }

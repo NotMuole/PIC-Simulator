@@ -5,12 +5,15 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.JTableHeader;
+import javax.swing.table.TableColumn;
 import java.awt.*;
 
 public class RAM {
     private static final Logger log = LogManager.getLogger(RAM.class);
-    private static final Dimension parentFieldDim = new Dimension(450, 500);
-    private static final Dimension subFieldDim = new Dimension(450, 500);
+    private static final Dimension parentFieldDim = new Dimension(400, 500);
+    private static final Dimension subFieldDim = new Dimension(374, 255);
 
     public static JPanel createFieldEAST() {
         JPanel outer = new JPanel();
@@ -20,8 +23,9 @@ public class RAM {
     }
 
     private static JPanel createSubFieldEAST() {
-        JPanel inner1 = new JPanel();
-        inner1.add(createRAM());
+        JPanel inner1 = new JPanel(new BorderLayout());
+        JTable table = createRAM();
+        inner1.add(table, BorderLayout.CENTER);
         inner1.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(Color.GRAY, 1),
                 "RAM"
@@ -30,64 +34,38 @@ public class RAM {
         return inner1;
     }
 
-    private static JList<String> createRAM() {
-        DefaultListModel<String> model = new DefaultListModel<>();
-        JList<String> RAMList = new JList<>(model);
-        int test = 0;
-        int wReg = PIC16F84.getWReg();
-        int PCL = PIC16F84.getProgramCounter();
-        int Status = PIC16F84.getRAM(3);
-        int counter = 0;
-        model.addElement(String.format("%01X  %01X  %01X  %01X  %01X  %01X  %01X  %01X  %01X  %01X  %01X  %01X  %01X  %01X  %01X  %01X  %01X",
-                counter,
-                counter,
-                counter+1,
-                counter+2,
-                counter+3,
-                counter+4,
-                counter+5,
-                counter+6,
-                counter+7,
-                counter+8,
-                counter+9,
-                counter+10,
-                counter+11,
-                counter+12,
-                counter+13,
-                counter+14,
-                counter+15));
-        for (int i=0; i<255; i += 16) {
-            model.addElement(String.format("%01X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X",
-                    counter,
-                    PIC16F84.getRAM(i),
-                    PIC16F84.getRAM(i+1),
-                    PIC16F84.getRAM(i+2),
-                    PIC16F84.getRAM(i+3),
-                    PIC16F84.getRAM(i+4),
-                    PIC16F84.getRAM(i+5),
-                    PIC16F84.getRAM(i+6),
-                    PIC16F84.getRAM(i+7),
-                    PIC16F84.getRAM(i+8),
-                    PIC16F84.getRAM(i+9),
-                    PIC16F84.getRAM(i+10),
-                    PIC16F84.getRAM(i+11),
-                    PIC16F84.getRAM(i+12),
-                    PIC16F84.getRAM(i+13),
-                    PIC16F84.getRAM(i+14),
-                    PIC16F84.getRAM(i+15)
-                    ));
-            counter ++;
+    private static JTable createRAM() {
+        DefaultTableModel model = new DefaultTableModel(0, 17) {
+            @Override public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+        Object header[] = {"", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F"};
+        model.addRow(header);
+        String[][] table = new String[16][17];
+        for (int i=0; i<16; i++) {
+            table[i][0] = String.format("%01X", i);
+           for (int j=1; j<17; j++) {
+               table[i][j] = String.format("%02X", PIC16F84.getRAM(16*i+(j-1)));
+           }
+            model.addRow(table[i]);
         }
-        RAMList.setFont(new Font("Monospaced", Font.PLAIN, 14));
-        RAMList.setBorder(BorderFactory.createTitledBorder(
-                BorderFactory.createLineBorder(Color.GRAY, 1),
-                "RAM"
-        ));
-        RAMList.setPreferredSize(new Dimension(450, 450));
-        RAMList.setSelectionModel(new DefaultListSelectionModel() {
-            @Override public void setSelectionInterval(int index0, int index1) { /* no-op */ }
-            @Override public void addSelectionInterval(int index0, int index1) { /* no-op */ }
-        });
+        JTable RAMList = new JTable(model);
+        RAMList.setTableHeader(null);
+        RAMList.setFont(new Font("Monospaced", Font.PLAIN, 10));
+        RAMList.setPreferredSize(new Dimension(subFieldDim));
+        RAMList.setRowHeight(15);
+        RAMList.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+        for (int c = 0; c < RAMList.getColumnCount(); c++) {
+            TableColumn col = RAMList.getColumnModel().getColumn(c);
+            col.setMinWidth(22);
+            col.setMaxWidth(22);
+            col.setPreferredWidth(22);
+        }
+        RAMList.setCellSelectionEnabled(false);
+        RAMList.setFocusable(false);
+        RAMList.setColumnSelectionAllowed(false);
+        RAMList.setRowSelectionAllowed(false);
         return RAMList;
     }
 
