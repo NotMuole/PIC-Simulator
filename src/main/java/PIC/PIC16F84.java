@@ -5,87 +5,11 @@ import UI.MyFrame;
 import file.MyFileReader;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import java.util.Map;
+
+import java.util.List;
+import java.util.ArrayList;
 
 public class PIC16F84 {
-
-    static Map<Integer, Integer> mirrorAddress = Map.ofEntries(
-    Map.entry(0, 4),
-    Map.entry(128, 4),
-    Map.entry(130, 2),
-    Map.entry(131, 3),
-    Map.entry(84, 4),
-    Map.entry(138, 10),
-    Map.entry(139, 11),
-    Map.entry(140, 12),
-    Map.entry(141, 13),
-    Map.entry(142, 14),
-    Map.entry(143, 15),
-    Map.entry(144, 16),
-    Map.entry(145, 17),
-    Map.entry(146, 18),
-    Map.entry(147, 19),
-    Map.entry(148, 20),
-    Map.entry(149, 21),
-    Map.entry(150, 22),
-    Map.entry(151, 23),
-    Map.entry(152, 24),
-    Map.entry(153, 25),
-    Map.entry(154, 26),
-    Map.entry(155, 27),
-    Map.entry(156, 28),
-    Map.entry(157, 29),
-    Map.entry(158, 30),
-    Map.entry(159, 31),
-    Map.entry(160, 32),
-    Map.entry(161, 33),
-    Map.entry(162, 34),
-    Map.entry(163, 35),
-    Map.entry(164, 36),
-    Map.entry(165, 37),
-    Map.entry(166, 38),
-    Map.entry(167, 39),
-    Map.entry(168, 40),
-    Map.entry(169, 41),
-    Map.entry(170, 42),
-    Map.entry(171, 43),
-    Map.entry(172, 44),
-    Map.entry(173, 45),
-    Map.entry(174, 46),
-    Map.entry(175, 47),
-    Map.entry(176, 48),
-    Map.entry(177, 49),
-    Map.entry(178, 50),
-    Map.entry(179, 51),
-    Map.entry(180, 52),
-    Map.entry(181, 53),
-    Map.entry(182, 54),
-    Map.entry(183, 55),
-    Map.entry(184, 56),
-    Map.entry(185, 57),
-    Map.entry(186, 58),
-    Map.entry(187, 59),
-    Map.entry(188, 60),
-    Map.entry(189, 61),
-    Map.entry(190, 62),
-    Map.entry(191, 63),
-    Map.entry(192, 64),
-    Map.entry(193, 65),
-    Map.entry(194, 66),
-    Map.entry(195, 67),
-    Map.entry(196, 68),
-    Map.entry(197, 69),
-    Map.entry(198, 70),
-    Map.entry(199, 71),
-    Map.entry(200, 72),
-    Map.entry(201, 73),
-    Map.entry(202, 74),
-    Map.entry(203, 75),
-    Map.entry(204, 76),
-    Map.entry(205, 77),
-    Map.entry(206, 78),
-    Map.entry(207, 79)
-);
 
     private static int[] Programstore = new int[1024];
     private static int[] RAM = new int[256];
@@ -93,15 +17,66 @@ public class PIC16F84 {
     private static int StackIndex = 0;
     private static int Programcounter = 0;
     private static int WReg = 0;
+    private static int rp0 = 0;
+    private static int ind = 0;
     private static volatile boolean is_paused = true;
     private static double clockRate = 4.0;
     private static double timePerCycleUs = 4 / clockRate;
     private static double timePassed = 0;
     private static double delay = 300 / clockRate;
     private static final Logger log = LogManager.getLogger(PIC16F84.class);
-    private static int rp0 = 0;
 
     public PIC16F84() {}
+
+    public static List<Integer> decodeAddress(int address) {
+        if (rp0 == 1 && address < 128) address += 128;
+
+        List<Integer> addresses = new ArrayList<>();
+
+        // indirect
+        if (address == 0 || address == 128) {
+            addresses.add(ind);
+
+        // pcl
+        } else if (address == 2 || address == 130) {
+            addresses.add(2);
+            addresses.add(130);
+        
+        // status
+        } else if (address == 3 || address == 131) {
+            addresses.add(3);
+            addresses.add(131);
+
+        // fsr
+        } else if (address == 4 || address == 132) {
+            addresses.add(4);
+            addresses.add(132);
+
+        // pclath
+        } else if (address == 10 || address == 138) {
+            addresses.add(10);
+            addresses.add(138);
+
+        // intcon
+        } else if (address == 11 || address == 139) {
+            addresses.add(11);
+            addresses.add(139);
+
+        // general purpose register
+        } else if (address > 11 && address < 80) {
+            addresses.add(address);
+            addresses.add(address + 128);
+        
+        // mapped genereal purpose register
+        } else if (address > 139 && address < 208) {
+            addresses.add(address);
+            addresses.add(address - 128);
+
+        } else {
+            addresses.add(address);
+        }
+        return addresses;
+    }
 
     public static void writeWReg(int value) {
         WReg = value & 255;
@@ -149,19 +124,19 @@ public class PIC16F84 {
     }
 
     public static void writeRAM(int address, int value) {
-        if (address == 3) {
+        if (address == 3 || address == 131) {
             rp0 = (value&32)>>5;
         }
-        if ((rp0 == 1) && (address < 127)) {
-            address += 128;
-        }
-        if (address == 7 || (address < 128 && address > 79)) {
+
+        if (address == 7 || (address < 128 && address > 79) || address == 135) {
             value = 0;
         }
-        if (mirrorAddress.containsKey(address)) {
-            RAM[mirrorAddress.get(address)] = value & 255;
+
+        List<Integer> addresses = decodeAddress(address);
+        for (int i = 0; i < addresses.size(); i++) {
+            address = addresses.get(i);
+            RAM[address] = value & 255;
         }
-        RAM[address] = value & 255;
     }
 
     public static int getVisualizedRAM(int address) {
