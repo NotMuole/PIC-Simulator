@@ -17,7 +17,6 @@ public class PIC16F84 {
     Map.entry(84, 4),
     Map.entry(138, 10),
     Map.entry(139, 11),
-
     Map.entry(140, 12),
     Map.entry(141, 13),
     Map.entry(142, 14),
@@ -100,6 +99,7 @@ public class PIC16F84 {
     private static double timePassed = 0;
     private static double delay = 300 / clockRate;
     private static final Logger log = LogManager.getLogger(PIC16F84.class);
+    private static int rp0 = 0;
 
     public PIC16F84() {}
 
@@ -149,16 +149,30 @@ public class PIC16F84 {
     }
 
     public static void writeRAM(int address, int value) {
-        if (address == 7 || (address < 11 && address > 79)) {
+        if (address == 3) {
+            rp0 = (value&32)>>5;
+        }
+        if ((rp0 == 1) && (address < 127)) {
+            address += 128;
+        }
+        if (address == 7 || (address < 128 && address > 79)) {
             value = 0;
         }
-        int actual_address = mirrorAddress.containsKey(address) ? mirrorAddress.get(address) : address;
-        RAM[actual_address] = value & 255;
+        if (mirrorAddress.containsKey(address)) {
+            RAM[mirrorAddress.get(address)] = value & 255;
+        }
+        RAM[address] = value & 255;
+    }
+
+    public static int getVisualizedRAM(int address) {
+        return RAM[address];
     }
 
     public static int getRAM(int address) {
-        int actual_address = mirrorAddress.containsKey(address) ? mirrorAddress.get(address) : address;
-        return RAM[actual_address];
+        if ((rp0 == 1) && (address < 127)) {
+            address += 128;
+        }
+        return RAM[address];
     }
 
     public static void decode(int code) {
@@ -329,6 +343,12 @@ public class PIC16F84 {
 
         // set INCONT
         writeRAM(11, 0);
+
+        // set OPTION
+        writeRAM(129, 255);
+
+        // set STATUS
+        writeRAM(3, 24);
     }
 
     public static void pushStack(int addresse) {
@@ -343,7 +363,6 @@ public class PIC16F84 {
         } else {
             StackIndex = 7;
         }
-        log.info("POP: " + StackIndex);
         return Stack[StackIndex];
     }
 
@@ -613,11 +632,8 @@ public class PIC16F84 {
         if (file_address == 0) {
             file_address = getRAM(0);
         }
-        log.info("Wert: " + getRAM(file_address));
         int carry = (getRAM(file_address) & 128) >> 7;
-        log.info("Carry: " + carry);
         int value = (getRAM(file_address) << 1) + getCarryFlag();
-        log.info("Wert nach shift: " + value);
         if (carry == 1) setCarryFlag(); else clearCarryFlag();
 
         if (destination == 0) {
@@ -712,8 +728,8 @@ public class PIC16F84 {
         }
         int value = getRAM(file_address)|(1 << bit);
         writeRAM(file_address, value);
-        //log.info("BSF");
         updateTime(1);
+        //log.info("BSF");
     }
 
     public static void BTFSC(int file_address, int bit) {
@@ -867,10 +883,10 @@ public class PIC16F84 {
     }
 
     public static void resetProgram() {
+        RAM = new int[256];
         reset();
         is_paused = true;
         Programstore = new int[1024];
-        RAM = new int[256];
         Stack = new int[8];
         StackIndex = 0;
         Programcounter = 0;

@@ -42,7 +42,6 @@ public class ListingPanel {
         int maxValue = MyFileReader.getNumberOfLines()*20;
 
         SwingUtilities.invokeLater(() -> {
-            //log.info("max: " + maxValue + "new: " + newValue);
             JScrollBar bar = scrollPane.getVerticalScrollBar();
             if (newValue < maxValue) {
                 bar.setMaximum(maxValue);

@@ -84,9 +84,14 @@ public class FieldWest {
         int zeroFlag = PIC16F84.getZeroFlag();
         int digitCarryFlag = PIC16F84.getDigitcarryFlag();
         int carryFlag = PIC16F84.getCarryFlag();
+        int irp = (PIC16F84.getRAM(3) & 128) >> 7;
+        int rp = (PIC16F84.getRAM(3) & 64) >> 6;
+        int rp0 = (PIC16F84.getRAM(3) & 32) >> 5;
+        int to = (PIC16F84.getRAM(3) & 16) >> 4;
+        int pd = (PIC16F84.getRAM(3) & 8) >> 3;
         FlagList.setFont(new Font("Monospaced", Font.PLAIN, 14));
         model.addElement("IRP RP RP0 TO PD Z DC C");
-        model.addElement(String.format("0   0  0   0  0  %01d %01d  %01d", zeroFlag, digitCarryFlag, carryFlag));
+        model.addElement(String.format("%01d   %01d  %01d   %01d  %01d  %01d %01d  %01d", irp, rp, rp0, to, pd, zeroFlag, digitCarryFlag, carryFlag));
         FlagList.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(Color.GRAY, 1),
                 "Flags"
@@ -204,7 +209,6 @@ public class FieldWest {
         JButton button = new JButton("Reset ↻");
         button.addActionListener(e -> {
             if (MyFrame.uploaded_file) {
-                log.info("Reset!");
                 PIC16F84.resetProgram();
             }
         });

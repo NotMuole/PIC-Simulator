@@ -46,7 +46,7 @@ public class RAM {
 //        for (int i=0; i<16; i++) {
 //            table[i][0] = String.format("%01X", i);
 //            for (int j=1; j<17; j++) {
-//                table[i][j] = String.format("%02X", PIC16F84.getRAM(16*i+(j-1)));
+//                table[i][j] = String.format("%02X", PIC16F84.getVisualizedRAM(16*i+(j-1)));
 //            }
 //            model.addRow(table[i]);
 //        }
@@ -83,7 +83,7 @@ public class RAM {
             Object[] row = new Object[17];
             row[0] = String.format("%X", r);
             for (int c = 1; c < 17; c++) {
-                row[c] = String.format("%02X", PIC16F84.getRAM(r * 16 + (c - 1)));
+                row[c] = String.format("%02X", PIC16F84.getVisualizedRAM(r * 16 + (c - 1)));
             }
             model.addRow(row);
         }
@@ -113,7 +113,7 @@ public class RAM {
                 }
             } catch (NumberFormatException ex) {
                 internalUpdate[0] = true;
-                model.setValueAt(String.format("%02X", PIC16F84.getRAM(addr)), row, col);
+                model.setValueAt(String.format("%02X", PIC16F84.getVisualizedRAM(addr)), row, col);
                 internalUpdate[0] = false;
                 java.awt.Toolkit.getDefaultToolkit().beep();
             }
