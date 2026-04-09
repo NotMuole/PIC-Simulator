@@ -9,8 +9,8 @@ import java.awt.*;
 
 public class FieldWest {
     private static final Logger log = LogManager.getLogger(FieldWest.class);
-    private static final Dimension parentFieldDim = new Dimension(250, 450);
-    private static final Dimension subFieldDim = new Dimension(250, 350);
+    private static final Dimension parentFieldDim = new Dimension(250, 550);
+    private static final Dimension subFieldDim = new Dimension(250, 450);
     private static final Dimension subField2Dim = new Dimension(250, 100);
     private static Component currentStartButton;
     private static Component currentStepButton;
@@ -34,6 +34,7 @@ public class FieldWest {
         inner1.add(createFlagList());
         inner1.add(createTimeList());
         inner1.add(createClockRateList());
+        //inner1.add(createIndList());
         inner1.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(Color.GRAY, 1),
                 "Spezialfunktionsregister"
@@ -153,6 +154,21 @@ public class FieldWest {
         TimeList.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(Color.GRAY, 1),
                 "Laufzeit"
+        ));
+        TimeList.setPreferredSize(new Dimension(80, 50));
+        TimeList = disableSelection(TimeList);
+        return TimeList;
+    }
+
+    private static JList<String> createIndList() {
+        DefaultListModel<String> model = new DefaultListModel<>();
+        JList<String> TimeList = new JList<>(model);
+        int indirect = PIC16F84.ind;
+        TimeList.setFont(new Font("Monospaced", Font.PLAIN, 14));
+        model.addElement(String.format("%X", indirect));
+        TimeList.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(Color.GRAY, 1),
+                "Indirect"
         ));
         TimeList.setPreferredSize(new Dimension(80, 50));
         TimeList = disableSelection(TimeList);

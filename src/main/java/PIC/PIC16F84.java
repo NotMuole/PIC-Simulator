@@ -18,7 +18,7 @@ public class PIC16F84 {
     private static int Programcounter = 0;
     private static int WReg = 0;
     private static int rp0 = 0;
-    private static int ind = 0;
+    public static int ind = 0;
     private static volatile boolean is_paused = true;
     private static double clockRate = 4.0;
     private static double timePerCycleUs = 4 / clockRate;
@@ -65,11 +65,9 @@ public class PIC16F84 {
         // general purpose register
         } else if (address > 11 && address < 80) {
             addresses.add(address);
-            addresses.add(address + 128);
         
         // mapped genereal purpose register
         } else if (address > 139 && address < 208) {
-            addresses.add(address);
             addresses.add(address - 128);
 
         } else {
@@ -126,10 +124,10 @@ public class PIC16F84 {
     public static void writeRAM(int address, int value) {
         if (address == 3 || address == 131) {
             rp0 = (value&32)>>5;
-        }
-
-        if (address == 7 || (address < 128 && address > 79) || address == 135) {
+        } else if (address == 7 || (address < 128 && address > 79) || address == 135) {
             value = 0;
+        } else if (address == 4 || address == 132) {
+            ind = value;
         }
 
         List<Integer> addresses = decodeAddress(address);
@@ -424,7 +422,7 @@ public class PIC16F84 {
 
     public static void ADDWF(int file_address, int destination) {
         if (file_address == 0) {
-            file_address = getRAM(0);
+            file_address = ind;
         }
         int value = WReg + getRAM(file_address);
         if (value == 0) setZeroFlag(); else clearZeroFlag();
@@ -432,7 +430,6 @@ public class PIC16F84 {
         if ((getRAM(file_address) & 15) + (WReg & 15) > 15) setDigitcarryFlag(); else clearDigitcarryFlag();
         if (destination == 0) {
             writeWReg(value);
-
         } else {
             writeRAM(file_address, value);
         }
@@ -442,7 +439,7 @@ public class PIC16F84 {
 
     public static void ANDWF(int file_address, int destination) {
         if (file_address == 0) {
-            file_address = getRAM(0);
+            file_address = ind;
         }
         int value = WReg & getRAM(file_address);
         if (value == 0) setZeroFlag(); else clearZeroFlag();
@@ -458,7 +455,7 @@ public class PIC16F84 {
 
     public static void CLRF(int file_address) {
         if (file_address == 0) {
-            file_address = getRAM(0);
+            file_address = ind;
         }
         writeRAM(file_address, 0);
         setZeroFlag();
@@ -475,7 +472,7 @@ public class PIC16F84 {
 
     public static void COMF(int file_address, int destination) {
         if (file_address == 0) {
-            file_address = getRAM(0);
+            file_address = ind;
         }
         int value = getRAM(file_address) ^ 255;
         if (value == 0) setZeroFlag(); else clearZeroFlag();
@@ -490,7 +487,7 @@ public class PIC16F84 {
 
     public static void DECF(int file_address, int destination) {
         if (file_address == 0) {
-            file_address = getRAM(0);
+            file_address = ind;
         }
         int value = getRAM(file_address) - 1;
         if (value == 0) setZeroFlag(); else clearZeroFlag();
@@ -505,7 +502,7 @@ public class PIC16F84 {
 
     public static void DECFSZ(int file_address, int destination) {
         if (file_address == 0) {
-            file_address = getRAM(0);
+            file_address = ind;
         }
         int value = getRAM(file_address) - 1;
         if (destination == 0) {
@@ -524,7 +521,7 @@ public class PIC16F84 {
 
     public static void INCF(int file_address, int destination) {
         if (file_address == 0) {
-            file_address = getRAM(0);
+            file_address = ind;
         }
         int value = getRAM(file_address) + 1;
         if (value > 255) setZeroFlag(); else clearZeroFlag();
@@ -539,7 +536,7 @@ public class PIC16F84 {
 
     public static void INCFSZ(int file_address, int destination) {
         if (file_address == 0) {
-            file_address = getRAM(0);
+            file_address = ind;
         }
         int value = getRAM(file_address) + 1;
         if (destination == 0) {
@@ -558,7 +555,7 @@ public class PIC16F84 {
 
     public static void IORWF(int file_address, int destination) {
         if (file_address == 0) {
-            file_address = getRAM(0);
+            file_address = ind;
         }
         int value = WReg | getRAM(file_address);
         if (destination == 0) {
@@ -574,7 +571,7 @@ public class PIC16F84 {
 
     public static void MOVF(int file_address, int destination) {
         if (file_address == 0) {
-            file_address = getRAM(0);
+            file_address = ind;
         }
         int value = getRAM(file_address);
         if (value == 0) setZeroFlag(); else clearZeroFlag();
@@ -589,9 +586,6 @@ public class PIC16F84 {
     }
 
     public static void MOVWF(int file_address) {
-        if (file_address == 0) {
-            file_address = getRAM(0);
-        }
         int value = getWReg();
         writeRAM(file_address, value);
         updateTime(1);
@@ -605,7 +599,7 @@ public class PIC16F84 {
 
     public static void RLF(int file_address, int destination) {
         if (file_address == 0) {
-            file_address = getRAM(0);
+            file_address = ind;
         }
         int carry = (getRAM(file_address) & 128) >> 7;
         int value = (getRAM(file_address) << 1) + getCarryFlag();
@@ -622,7 +616,7 @@ public class PIC16F84 {
 
     public static void RRF(int file_address, int destination) {
         if (file_address == 0) {
-            file_address = getRAM(0);
+            file_address = ind;
         }
         int carry = (getRAM(file_address) & 1);
         int value = (getRAM(file_address) >> 1) + (getCarryFlag() << 7);
@@ -639,7 +633,7 @@ public class PIC16F84 {
 
     public static void SUBWF(int file_address, int destination) {
         if (file_address == 0) {
-            file_address = getRAM(0);
+            file_address = ind;
         }
         int value = getRAM(file_address) - WReg;
         if (value == 0) setZeroFlag(); else clearZeroFlag();
@@ -657,7 +651,7 @@ public class PIC16F84 {
 
     public static void SWAPF(int file_address, int destination) {
         if (file_address == 0) {
-            file_address = getRAM(0);
+            file_address = ind;
         }
         int topNibbles = (getRAM(file_address) & 240) >> 4;
         int value = (getRAM(file_address) << 4) + topNibbles;
@@ -673,7 +667,7 @@ public class PIC16F84 {
 
     public static void XORWF(int file_address, int destination) {
         if (file_address == 0) {
-            file_address = getRAM(0);
+            file_address = ind;
         }
         int value = WReg ^ getRAM(file_address);
         if (value == 0) setZeroFlag(); else clearZeroFlag();
@@ -689,7 +683,7 @@ public class PIC16F84 {
 
     public static void BCF(int file_address, int bit) {
         if (file_address == 0) {
-            file_address = getRAM(0);
+            file_address = ind;
         }
         int value = getRAM(file_address)&~(1 << bit);
         writeRAM(file_address, value);
@@ -699,7 +693,7 @@ public class PIC16F84 {
 
     public static void BSF(int file_address, int bit) {
         if (file_address == 0) {
-            file_address = getRAM(0);
+            file_address = ind;
         }
         int value = getRAM(file_address)|(1 << bit);
         writeRAM(file_address, value);
@@ -709,7 +703,7 @@ public class PIC16F84 {
 
     public static void BTFSC(int file_address, int bit) {
         if (file_address == 0) {
-            file_address = getRAM(0);
+            file_address = ind;
         }
         int value = (getRAM(file_address)&(1 << bit)) >> bit;
         if (value == 0) {
@@ -722,7 +716,7 @@ public class PIC16F84 {
 
     public static void BTFSS(int file_address, int bit) {
         if (file_address == 0) {
-            file_address = getRAM(0);
+            file_address = ind;
         }
         int value = (getRAM(file_address)&(1 << bit)) >> bit;
         if (value == 1) {
