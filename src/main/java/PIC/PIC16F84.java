@@ -8,9 +8,85 @@ import org.apache.logging.log4j.Logger;
 import java.util.Map;
 
 public class PIC16F84 {
-    static Map<Integer, Integer> mirrowAddress = Map.of(
-        0, 4
-    );
+
+    static Map<Integer, Integer> mirrorAddress = Map.ofEntries(
+    Map.entry(0, 4),
+    Map.entry(128, 4),
+    Map.entry(130, 2),
+    Map.entry(131, 3),
+    Map.entry(84, 4),
+    Map.entry(138, 10),
+    Map.entry(139, 11),
+
+    Map.entry(140, 12),
+    Map.entry(141, 13),
+    Map.entry(142, 14),
+    Map.entry(143, 15),
+    Map.entry(144, 16),
+    Map.entry(145, 17),
+    Map.entry(146, 18),
+    Map.entry(147, 19),
+    Map.entry(148, 20),
+    Map.entry(149, 21),
+    Map.entry(150, 22),
+    Map.entry(151, 23),
+    Map.entry(152, 24),
+    Map.entry(153, 25),
+    Map.entry(154, 26),
+    Map.entry(155, 27),
+    Map.entry(156, 28),
+    Map.entry(157, 29),
+    Map.entry(158, 30),
+    Map.entry(159, 31),
+    Map.entry(160, 32),
+    Map.entry(161, 33),
+    Map.entry(162, 34),
+    Map.entry(163, 35),
+    Map.entry(164, 36),
+    Map.entry(165, 37),
+    Map.entry(166, 38),
+    Map.entry(167, 39),
+    Map.entry(168, 40),
+    Map.entry(169, 41),
+    Map.entry(170, 42),
+    Map.entry(171, 43),
+    Map.entry(172, 44),
+    Map.entry(173, 45),
+    Map.entry(174, 46),
+    Map.entry(175, 47),
+    Map.entry(176, 48),
+    Map.entry(177, 49),
+    Map.entry(178, 50),
+    Map.entry(179, 51),
+    Map.entry(180, 52),
+    Map.entry(181, 53),
+    Map.entry(182, 54),
+    Map.entry(183, 55),
+    Map.entry(184, 56),
+    Map.entry(185, 57),
+    Map.entry(186, 58),
+    Map.entry(187, 59),
+    Map.entry(188, 60),
+    Map.entry(189, 61),
+    Map.entry(190, 62),
+    Map.entry(191, 63),
+    Map.entry(192, 64),
+    Map.entry(193, 65),
+    Map.entry(194, 66),
+    Map.entry(195, 67),
+    Map.entry(196, 68),
+    Map.entry(197, 69),
+    Map.entry(198, 70),
+    Map.entry(199, 71),
+    Map.entry(200, 72),
+    Map.entry(201, 73),
+    Map.entry(202, 74),
+    Map.entry(203, 75),
+    Map.entry(204, 76),
+    Map.entry(205, 77),
+    Map.entry(206, 78),
+    Map.entry(207, 79)
+);
 
     private static int[] Programstore = new int[1024];
     private static int[] RAM = new int[256];
@@ -73,12 +149,15 @@ public class PIC16F84 {
     }
 
     public static void writeRAM(int address, int value) {
-        int actual_address = mirrowAddress.containsKey(address) ? mirrowAddress.get(address) : address;
+        if (address == 7 || (address < 11 && address > 79)) {
+            value = 0;
+        }
+        int actual_address = mirrorAddress.containsKey(address) ? mirrorAddress.get(address) : address;
         RAM[actual_address] = value & 255;
     }
 
     public static int getRAM(int address) {
-        int actual_address = mirrowAddress.containsKey(address) ? mirrowAddress.get(address) : address;
+        int actual_address = mirrorAddress.containsKey(address) ? mirrorAddress.get(address) : address;
         return RAM[actual_address];
     }
 
