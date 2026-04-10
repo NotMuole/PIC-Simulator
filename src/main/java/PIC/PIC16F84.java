@@ -19,6 +19,7 @@ public class PIC16F84 {
     private static int WReg = 0;
     private static int rp0 = 0;
     public static int ind = 0;
+    private static int dataLatch = 0;
     private static volatile boolean is_paused = true;
     private static double clockRate = 4.0;
     private static double timePerCycleUs = 4 / clockRate;
@@ -129,10 +130,22 @@ public class PIC16F84 {
             value = 0;
         } else if (address == 4 || address == 132) {
             ind = value;
+        } else if (address == 5) {
+            int TRISA = RAM[133];
+            dataLatch = value & (~TRISA & 255);
+            value = value & TRISA;
+        } else if (address == 6) {
+            int TRISB = RAM[134];
+            dataLatch = value & (~TRISB & 255);
+            value = value & TRISB;
+        } else if (address == 133) {
+            int PORTA = RAM[5] + (dataLatch & RAM[133]);
+            RAM[5] = PORTA;
+        } else if (address == 134) {
+            int PORTB = RAM[6] + (dataLatch & RAM[134]);
+            RAM[6] = PORTB;
         }
-
         RAM[address] = value & 255;
-        
     }
 
     public static int getVisualizedRAM(int address) {

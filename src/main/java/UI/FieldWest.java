@@ -225,6 +225,7 @@ public class FieldWest {
         JButton button = new JButton("Reset ↻");
         button.addActionListener(e -> {
             if (MyFrame.uploaded_file) {
+                PIC16F84.setPaused(true);
                 PIC16F84.resetProgram();
             }
         });
