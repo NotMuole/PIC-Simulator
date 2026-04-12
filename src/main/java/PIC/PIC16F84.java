@@ -21,9 +21,16 @@ public class PIC16F84 {
     private static int dataLatch = 0;
     private static volatile boolean is_paused = true;
     private static double clockRate = 4.0;
+    private static double timePerClockUs = 1 / clockRate;
     private static double timePerCycleUs = 4 / clockRate;
     private static double timePassed = 0;
     private static double delay = 300 / clockRate;
+    private static int prevRA4;
+    private static int T0SE = 0;
+    private static int T0CS = 0;
+    private static int PSA = 0;
+    private static int PSA0_2 = 0;
+    private static int helperTimer = 0;
     private static final Logger log = LogManager.getLogger(PIC16F84.class);
 
     public PIC16F84() {}
@@ -103,6 +110,7 @@ public class PIC16F84 {
     public static void setClockRate(double value) {
         clockRate = value;
         timePerCycleUs = 4 / clockRate;
+        timePerClockUs = 1 / clockRate;
         delay = 300 / clockRate;
     }
 
@@ -128,7 +136,7 @@ public class PIC16F84 {
 
     public static void writeRAM(int address, int value) {
         if (address == 3 || address == 131) {
-            rp0 = (value&32)>>5;
+            rp0 = (value & 32) >> 5;
         } else if (address == 7 || (address < 128 && address > 79) || address == 135) {
             value = 0;
         } else if (address == 4 || address == 132) {
@@ -147,6 +155,11 @@ public class PIC16F84 {
         } else if (address == 134) {
             int PORTB = RAM[6] + (dataLatch & RAM[134]);
             RAM[6] = PORTB;
+        } else if (address == 129) {
+            T0CS = (value & 32) >> 5;
+            T0SE = (value & 16) >> 4;
+            PSA = (value & 8) >> 3;
+            PSA0_2 = value & 7;
         }
         RAM[address] = value & 255;
     }
@@ -415,6 +428,7 @@ public class PIC16F84 {
         }
         RAM[2] = Programcounter & 255;
         RAM[130] = Programcounter & 255;
+        incrementTMR0();
     }
 
     public static void setProgramCounter(int address) {
@@ -444,7 +458,7 @@ public class PIC16F84 {
                 writeRAM(addresses.get(i), value);
             }
         }
-        updateTime(1);
+        updateTime(4);
         //log.info("ADDWF, WReg: \" + Integer.toHexString(WReg) + \"h, C=\" + getCarryFlag() + \", DC=\" + getDigitcarryFlag() + \", Z=\" + getZeroFlag()");
     }
 
@@ -462,7 +476,7 @@ public class PIC16F84 {
                 writeRAM(addresses.get(i), value);
             }
         }
-        updateTime(1);
+        updateTime(4);
         //log.info("ANDWF, WReg: \" + Integer.toHexString(WReg) + \"h, C=\" + getCarryFlag() + \", DC=\" + getDigitcarryFlag() + \", Z=\" + getZeroFlag()");
     }
 
@@ -474,7 +488,7 @@ public class PIC16F84 {
         for (int i = 0; i < addresses.size(); i ++) {
             writeRAM(addresses.get(i), 0);
         }
-        updateTime(1);
+        updateTime(4);
         //log.info("CLRF");
     }
 
@@ -482,7 +496,7 @@ public class PIC16F84 {
         setZeroFlag();
 
         writeWReg(0);
-        updateTime(1);
+        updateTime(4);
         //log.info("CLRW");
     }
 
@@ -499,7 +513,7 @@ public class PIC16F84 {
                 writeRAM(addresses.get(i), value);
             }
         }
-        updateTime(1);
+        updateTime(4);
         //log.info("COMF");
     }
 
@@ -516,7 +530,7 @@ public class PIC16F84 {
                 writeRAM(addresses.get(i), value);
             }
         }
-        updateTime(1);
+        updateTime(4);
         //log.info("DECF");
     }
 
@@ -536,7 +550,7 @@ public class PIC16F84 {
             NOP();
             incrementProgramCounter();
         }
-        updateTime(1);
+        updateTime(4);
         //log.info("DECFSZ");
     }
 
@@ -553,7 +567,7 @@ public class PIC16F84 {
                 writeRAM(addresses.get(i), value);
             };
         }
-        updateTime(1);
+        updateTime(4);
         //log.info("INCF");
     }
 
@@ -573,7 +587,7 @@ public class PIC16F84 {
             NOP();
             incrementProgramCounter();
         }
-        updateTime(1);
+        updateTime(4);
         //log.info("INCFSZ");
     }
 
@@ -591,7 +605,7 @@ public class PIC16F84 {
             };
         }
 
-        updateTime(1);
+        updateTime(4);
         //log.info("IORWF");
     }
 
@@ -608,7 +622,7 @@ public class PIC16F84 {
                 writeRAM(addresses.get(i), value);
             };
         }
-        updateTime(1);
+        updateTime(4);
         //log.info("MOVF");
     }
 
@@ -619,12 +633,12 @@ public class PIC16F84 {
         for (int i = 0; i < addresses.size(); i ++) {
             writeRAM(addresses.get(i), value);
         };
-        updateTime(1);
+        updateTime(4);
         //log.info("MOVWF, WReg: " + Integer.toHexString(WReg) + "h, C=" + getCarryFlag() + ", DC=" + getDigitcarryFlag() + ", Z=" + getZeroFlag());
     }
 
     public static void NOP() {
-        updateTime(1);
+        updateTime(4);
         //log.info("NOP, WReg: " + Integer.toHexString(WReg) + "h, C=" + getCarryFlag() + ", DC=" + getDigitcarryFlag() + ", Z=" + getZeroFlag());
     }
 
@@ -642,7 +656,7 @@ public class PIC16F84 {
                 writeRAM(addresses.get(i), value);
             };
         }
-        updateTime(1);
+        updateTime(4);
         //log.info("RLF");
     }
 
@@ -660,7 +674,7 @@ public class PIC16F84 {
                 writeRAM(addresses.get(i), value);
             };
         }
-        updateTime(1);
+        updateTime(4);
         //log.info("RRF");
     }
 
@@ -679,7 +693,7 @@ public class PIC16F84 {
                 writeRAM(addresses.get(i), value);
             };
         }
-        updateTime(1);
+        updateTime(4);
         //log.info("SUBWF");
     }
 
@@ -695,7 +709,7 @@ public class PIC16F84 {
                 writeRAM(addresses.get(i), value);
             };
         }
-        updateTime(1);
+        updateTime(4);
         //log.info("SWAPF");
     }
 
@@ -712,7 +726,7 @@ public class PIC16F84 {
                 writeRAM(addresses.get(i), value);
             };
         }
-        updateTime(1);
+        updateTime(4);
         //log.info("XORWF");
     }
 
@@ -723,7 +737,7 @@ public class PIC16F84 {
         for (int i = 0; i < addresses.size(); i ++) {
             writeRAM(addresses.get(i), value);
         };
-        updateTime(1);
+        updateTime(4);
         //log.info("BCF");
     }
 
@@ -734,7 +748,7 @@ public class PIC16F84 {
         for (int i = 0; i < addresses.size(); i ++) {
             writeRAM(addresses.get(i), value);
         };
-        updateTime(1);
+        updateTime(4);
         //log.info("BSF");
     }
 
@@ -746,7 +760,7 @@ public class PIC16F84 {
             NOP();
             incrementProgramCounter();
         }
-        updateTime(1);
+        updateTime(4);
         //log.info("BTFSC");
     }
 
@@ -758,7 +772,7 @@ public class PIC16F84 {
             NOP();
             incrementProgramCounter();
         }
-        updateTime(1);
+        updateTime(4);
         //log.info("BTFSS");
     }
 
@@ -770,7 +784,7 @@ public class PIC16F84 {
         if ((literal & 15) + (WReg & 15) > 15) setDigitcarryFlag(); else clearDigitcarryFlag();
 
         writeWReg(value);
-        updateTime(1);
+        updateTime(4);
         //log.info("ADDLW, WReg: " + Integer.toHexString(WReg) + "h, C=" + getCarryFlag() + ", DC=" + getDigitcarryFlag() + ", Z=" + getZeroFlag());
     }
 
@@ -780,25 +794,25 @@ public class PIC16F84 {
         if (value == 0) setZeroFlag(); else clearZeroFlag();
 
         writeWReg(value);
-        updateTime(1);
+        updateTime(4);
         //log.info("ANDLW, WReg: " + Integer.toHexString(WReg) + "h, C=" + getCarryFlag() + ", DC=" + getDigitcarryFlag() + ", Z=" + getZeroFlag());
     }
 
     public static void CALL(int address) {
         pushStack(Programcounter);
         PIC16F84.setProgramCounter(address & 1023);
-        updateTime(2);
+        updateTime(8);
         //log.info("CALL, return-address=" + (Programcounter) + ", destination-address=" + (address & 1023));
     }
 
     public static void CLRWDT() {
-        updateTime(1);
+        updateTime(4);
         //log.info("TODO: CLRWDT");
     }
 
     public static void GOTO(int address) {
         PIC16F84.setProgramCounter(address);
-        updateTime(2);
+        updateTime(8);
         //log.info("GOTO, destination-address=" + (address & 1023));
     }
 
@@ -808,36 +822,36 @@ public class PIC16F84 {
         if (value == 0 ) setZeroFlag(); else clearZeroFlag();
 
         writeWReg(value);
-        updateTime(1);
+        updateTime(4);
         //log.info("IORLW, WReg: " + Integer.toHexString(WReg) + "h, C=" + getCarryFlag() + ", DC=" + getDigitcarryFlag() + ", Z=" + getZeroFlag());
     }
 
     public static void MOVLW(int literal) {
         writeWReg(literal);
-        updateTime(1);
+        updateTime(4);
         //log.info("MOVLW, WReg: " + Integer.toHexString(WReg) + "h, C=" + getCarryFlag() + ", DC=" + getDigitcarryFlag() + ", Z=" + getZeroFlag());
     }
 
     public static void RETFIE() {
-        updateTime(2);
+        updateTime(8);
         //log.info("TODO: RETFIE");
     }
 
     public static void RETLW(int literal) {
         writeWReg(literal);
         Programcounter = popStack();
-        updateTime(2);
+        updateTime(8);
         //log.info("RETLW, return-address=" + Programcounter + ", W=" + Integer.toHexString(WReg) + "h");
     }
 
     public static void RETURN() {
         Programcounter = popStack();
-        updateTime(2);
+        updateTime(8);
         //log.info("RETURN");
     }
 
     public static void SLEEP() {
-        updateTime(1);
+        updateTime(4);
         //log.info("TODO: SLEEP");
     }
 
@@ -849,7 +863,7 @@ public class PIC16F84 {
         if ((literal & 15) >= (WReg & 15)) setDigitcarryFlag(); else clearDigitcarryFlag();
 
         writeWReg(value);
-        updateTime(1);
+        updateTime(4);
         //log.info("SUBLW, WReg: " + Integer.toHexString(WReg) + "h, C=" + getCarryFlag() + ", DC=" + getDigitcarryFlag() + ", Z=" + getZeroFlag());
     }
 
@@ -859,13 +873,13 @@ public class PIC16F84 {
         if (value == 0) setZeroFlag(); else clearZeroFlag();
         
         writeWReg(value);
-        updateTime(1);
+        updateTime(4);
         //log.info("XORLW, WReg: " + Integer.toHexString(WReg) + "h, C=" + getCarryFlag() + ", DC=" + getDigitcarryFlag() + ", Z=" + getZeroFlag());
     }
 
     public static void updateTime(int anzahl) {
         for (int i=0; i<anzahl; i++) {
-            timePassed += timePerCycleUs;
+            timePassed += timePerClockUs;
         }
     }
 
@@ -899,7 +913,6 @@ public class PIC16F84 {
     public static void resetProgram() {
         reset();
         is_paused = true;
-        Programstore = new int[1024];
         Stack = new int[8];
         StackIndex = 0;
         Programcounter = 0;
@@ -908,6 +921,45 @@ public class PIC16F84 {
         MainFrame.paintWestPanel();
         MainFrame.paintEastPanel();
         MainFrame.paintListing();
+    }
+
+    public static void incrementTMR0() {
+        int source;
+        int timer = getRAM(1);
+        boolean event = false;
+
+        // erster Multiplexer, entscheidet anhand des T0CS-Bit über die Source
+        if (T0CS == 0) {
+            //source = CLKOUT TODO: verwende CLK als source
+            event = true;
+        } else if (T0CS == 1) {
+            int RA4 = ((getRAM(5) & 16) >> 4);
+            source = (T0SE ^ RA4);
+            if (source == 1 && (prevRA4 != RA4)) {
+                event = true;
+            }
+        } else {
+            log.error("TOCS ist " + T0CS + " statt 0 oder 1");
+        }
+
+        prevRA4 = (getRAM(5) & 16) >> 4;
+        if (!event) return;
+
+        // zweiter Multiplexer, entscheidet anhand des PSA-Bit, ob Signal direkt zum Timer oder zunächst zum Prescaler geht
+        if (PSA == 1) {
+            updateTime(2);
+            writeRAM(1, timer+1);
+            helperTimer = 0;
+        } else if (PSA == 0) {
+            helperTimer++;
+            if (helperTimer == Math.pow(2, PSA0_2)) {
+                writeRAM(1, timer+1);
+                helperTimer = 0;
+            }
+        } else {
+            log.error("PSA ist " + PSA + " statt 0 oder 1");
+        }
+
     }
 
 }

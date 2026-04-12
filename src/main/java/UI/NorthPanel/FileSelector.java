@@ -21,11 +21,11 @@ public class FileSelector {
             if(response == JFileChooser.APPROVE_OPTION) {
                 Checkbox.resetBreakpoints();
                 String file_path = file_upload.getSelectedFile().getAbsolutePath();
+                PIC16F84.resetProgramtore();
                 fileUploaded = true;
                 newFileUploaded = true;
                 filePath = file_path;
                 log.info("folgende Datei wurde hochgeladen: " + file_path);
-                PIC16F84.resetProgramtore();
                 PIC16F84.resetProgram();
             }
         });

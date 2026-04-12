@@ -1,6 +1,9 @@
 package UI.EastPanel;
 
 import PIC.PIC16F84;
+import UI.MainFrame;
+import UI.WestPanel.ClockRate;
+import com.sun.tools.javac.Main;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -104,7 +107,11 @@ public class EastPanel {
             try {
                 int value = Integer.parseInt(text, 16) & 0xFF;
                 PIC16F84.writeRAM(addr, value);
-
+                if (addr==2 || addr==130) {
+                    PIC16F84.setProgramCounter(value);
+                    log.info("set Programcounter");
+                }
+                MainFrame.paintWestPanel();
                 String normalized = String.format("%02X", value);
                 if (!normalized.equalsIgnoreCase(text)) {
                     internalUpdate[0] = true;
