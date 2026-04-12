@@ -1,4 +1,4 @@
-package UI;
+package UI.EastPanel;
 
 import PIC.PIC16F84;
 import org.apache.logging.log4j.LogManager;
@@ -9,21 +9,21 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 import java.awt.*;
 
-public class RAM {
-    private static final Logger log = LogManager.getLogger(RAM.class);
+public class EastPanel {
+    private static final Logger log = LogManager.getLogger(EastPanel.class);
     private static final Dimension parentFieldDim = new Dimension(400, 500);
     private static final Dimension subFieldDim = new Dimension(374, 240);
 
-    public static JPanel createFieldEAST() {
+    public static JPanel createEastPanel() {
         JPanel outer = new JPanel();
-        outer.add(createSubFieldEAST());
+        outer.add(createSubEastPanel());
         outer.setPreferredSize(parentFieldDim);
         return outer;
     }
 
-    private static JPanel createSubFieldEAST() {
+    private static JPanel createSubEastPanel() {
         JPanel inner1 = new JPanel(new BorderLayout());
-        JTable table = createRAM();
+        JTable table = createRAMPanel();
         inner1.add(table, BorderLayout.CENTER);
         inner1.add(table.getTableHeader(), BorderLayout.NORTH);
         inner1.setBorder(BorderFactory.createTitledBorder(
@@ -69,7 +69,7 @@ public class RAM {
 //        return RAMList;
 //    }
 
-    private static JTable createRAM() {
+    private static JTable createRAMPanel() {
         String[] cols = {"", "0","1","2","3","4","5","6","7","8","9","A","B","C","D","E","F"};
 
         DefaultTableModel model = new DefaultTableModel(cols, 0) {

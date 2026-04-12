@@ -1,8 +1,7 @@
 package PIC;
 
-import UI.Checkbox;
-import UI.MyFrame;
-import file.MyFileReader;
+import UI.CenterPanel.Checkbox;
+import UI.MainFrame;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -121,6 +120,10 @@ public class PIC16F84 {
 
     public static int getProgramstore(int address) {
         return Programstore[address];
+    }
+
+    public static void resetProgramtore() {
+        Programstore = new int[1024];
     }
 
     public static void writeRAM(int address, int value) {
@@ -315,6 +318,7 @@ public class PIC16F84 {
     }
 
     public static void reset() {
+        RAM = new int[256];
         // set TRIS to input to avoid damage
         writeRAM(133, 255);
         writeRAM(134, 255);
@@ -887,13 +891,12 @@ public class PIC16F84 {
         int command = getProgramstore(Programcounter);
         incrementProgramCounter();
         decode(command);
-        MyFrame.updateFieldWEST();
-        MyFrame.updateListing();
-        MyFrame.updateFieldEAST();
+        MainFrame.paintWestPanel();
+        MainFrame.paintListing();
+        MainFrame.paintEastPanel();
     }
 
     public static void resetProgram() {
-        RAM = new int[256];
         reset();
         is_paused = true;
         Programstore = new int[1024];
@@ -902,10 +905,9 @@ public class PIC16F84 {
         Programcounter = 0;
         timePassed = 0;
         writeWReg(0);
-        MyFileReader.resetProgram();
-        MyFrame.updateFieldWEST();
-        MyFrame.updateFieldEAST();
-        MyFrame.createListing(MyFrame.uploaded_file_path);
+        MainFrame.paintWestPanel();
+        MainFrame.paintEastPanel();
+        MainFrame.paintListing();
     }
 
 }

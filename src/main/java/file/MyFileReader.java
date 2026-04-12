@@ -12,18 +12,19 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 
-import static UI.Checkbox.createCheckbox;
+import static UI.CenterPanel.Checkbox.createCheckbox;
 
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 
 public class MyFileReader {
-    private static int numberOfLines = 0;
+    private static int numberOfLines;
     private static final Logger log = LogManager.getLogger(MyFileReader.class);
-    private static String[] program = new String[1024];
-    private static int[] linesOfProgram = new int[1024];
+    private static String[] program;
+    private static int[] linesOfProgram;
 
     public JPanel createFilePanel(File file) {
+        resetProgram();
         JPanel breakpoint_panel = new JPanel();
         breakpoint_panel.setLayout(new BoxLayout(breakpoint_panel, BoxLayout.Y_AXIS));
 
@@ -37,6 +38,7 @@ public class MyFileReader {
         ) {
             String line;
             while ((line = reader.readLine()) != null) {
+
                 boolean is_command;
                 boolean is_background = false;
                 int intAddress;
@@ -106,9 +108,12 @@ public class MyFileReader {
     public static int getNumberOfLines() {
         return numberOfLines;
     }
+
     public static void resetProgram() {
         numberOfLines = 0;
         linesOfProgram = new int[1024];
         program = new String[1024];
     }
+
+
 }
