@@ -160,6 +160,10 @@ public class PIC16F84 {
             T0SE = (value & 16) >> 4;
             PSA = (value & 8) >> 3;
             PSA0_2 = value & 7;
+            helperTimer = 0;
+        } else if (address == 1) {
+            log.info("Reset helpertimer");
+            helperTimer = 0;
         }
         RAM[address] = value & 255;
     }
@@ -427,7 +431,6 @@ public class PIC16F84 {
             Programcounter += 1;
 
         }
-        incrementTMR0();
         RAM[2] = Programcounter & 255;
         RAM[130] = Programcounter & 255;
     }
@@ -550,6 +553,7 @@ public class PIC16F84 {
         if (value == 0) { 
             NOP();
             incrementProgramCounter();
+            incrementTMR0();
         }
         updateTime(4);
         //log.info("DECFSZ");
@@ -587,6 +591,7 @@ public class PIC16F84 {
         if (value > 255) {
             NOP();
             incrementProgramCounter();
+            incrementTMR0();
         }
         updateTime(4);
         //log.info("INCFSZ");
@@ -635,7 +640,7 @@ public class PIC16F84 {
             writeRAM(addresses.get(i), value);
         };
         updateTime(4);
-        log.info("MOVWF, WReg: " + Integer.toHexString(WReg) + "h, C=" + getCarryFlag() + ", DC=" + getDigitcarryFlag() + ", Z=" + getZeroFlag());
+        //log.info("MOVWF, WReg: " + Integer.toHexString(WReg) + "h, C=" + getCarryFlag() + ", DC=" + getDigitcarryFlag() + ", Z=" + getZeroFlag());
     }
 
     public static void NOP() {
@@ -760,6 +765,7 @@ public class PIC16F84 {
         if (value == 0) {
             NOP();
             incrementProgramCounter();
+            incrementTMR0();
         }
         updateTime(4);
         //log.info("BTFSC");
@@ -772,6 +778,7 @@ public class PIC16F84 {
         if (value == 1) {
             NOP();
             incrementProgramCounter();
+            incrementTMR0();
         }
         updateTime(4);
         //log.info("BTFSS");
@@ -801,8 +808,9 @@ public class PIC16F84 {
 
     public static void CALL(int address) {
         pushStack(Programcounter);
-        PIC16F84.setProgramCounter(address & 1023);
+        setProgramCounter(address & 1023);
         updateTime(8);
+        incrementTMR0();
         //log.info("CALL, return-address=" + (Programcounter) + ", destination-address=" + (address & 1023));
     }
 
@@ -814,6 +822,7 @@ public class PIC16F84 {
     public static void GOTO(int address) {
         PIC16F84.setProgramCounter(address);
         updateTime(8);
+        incrementTMR0();
         //log.info("GOTO, destination-address=" + (address & 1023));
     }
 
@@ -830,7 +839,7 @@ public class PIC16F84 {
     public static void MOVLW(int literal) {
         writeWReg(literal);
         updateTime(4);
-        log.info("MOVLW, WReg: " + Integer.toHexString(WReg) + "h, C=" + getCarryFlag() + ", DC=" + getDigitcarryFlag() + ", Z=" + getZeroFlag());
+        //log.info("MOVLW, WReg: " + Integer.toHexString(WReg) + "h, C=" + getCarryFlag() + ", DC=" + getDigitcarryFlag() + ", Z=" + getZeroFlag());
     }
 
     public static void RETFIE() {
@@ -906,6 +915,7 @@ public class PIC16F84 {
         int command = getProgramstore(Programcounter);
         incrementProgramCounter();
         decode(command);
+        incrementTMR0();
         MainFrame.paintWestPanel();
         MainFrame.paintListing();
         MainFrame.paintEastPanel();
@@ -931,6 +941,8 @@ public class PIC16F84 {
     }
 
     public static void incrementTMR0() {
+        log.info("-----------------------------------");
+        log.info("Helpertimer " + helperTimer);
         int source;
         int timer = getRAM(1);
         boolean event = false;
@@ -951,21 +963,19 @@ public class PIC16F84 {
 
         prevRA4 = (getRAM(5) & 16) >> 4;
         if (!event) return;
-        log.info("Event true");
+        //log.info("Event true");
 
         // zweiter Multiplexer, entscheidet anhand des PSA-Bit, ob Signal direkt zum Timer oder zunächst zum Prescaler geht
         if (PSA == 1) {
             updateTime(2);
+            log.info("PSA = 1, increment Timer");
             writeRAM(1, timer+1);
             helperTimer = 0;
         } else if (PSA == 0) {
             helperTimer++;
             if (helperTimer == Math.pow(2, PSA0_2+1)) {
                 log.info("PSA = 0, increment Timer");
-                if ((timer+1) == 256) {
-                    setZeroFlag();
-                }
-                writeRAM(1, timer+1);
+                writeRAM(1,timer+1);
                 helperTimer = 0;
             }
         } else {
