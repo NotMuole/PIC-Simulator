@@ -16,6 +16,7 @@ public class Register {
         inner.add(RegisterList.createVisibleList());
         inner.add(RegisterList.createInvisibleList());
         inner.add(RegisterList.createStackList());
+        inner.add(RegisterList.createPortAList());
         inner.add(RegisterList.createFlagList());
         inner.add(Portregister.createBitPanel());
         inner.add(ClockRate.createTimeList());

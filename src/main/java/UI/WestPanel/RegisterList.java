@@ -1,6 +1,7 @@
 package UI.WestPanel;
 
 import PIC.PIC16F84;
+import UI.MainFrame;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -81,8 +82,12 @@ public class RegisterList {
         model.addElement(String.format("PC     %04X", programCounter));
         model.addElement(String.format("SP %d", stackPointer));
         model.addElement(String.format("VT     %02X", vorteiler));
-        model.addElement("WDT: " + watchdogEnabled);
-        model.addElement(String.format("WDT   %02f ms", watchdogTimer));
+        if (watchdogEnabled) {
+            model.addElement("WDT aktiv");
+        } else {
+            model.addElement("WDT inaktiv");
+        }
+        model.addElement(String.format("WDT   %.1f ms", watchdogTimer));
 
         JList<String> InvisibleList = new JList<>(model);
         InvisibleList.setBorder(BorderFactory.createTitledBorder(
@@ -92,17 +97,105 @@ public class RegisterList {
         InvisibleList.addListSelectionListener(e -> {
             if (e.getValueIsAdjusting()) return;
             String selected = InvisibleList.getSelectedValue();
-            log.info("selected: " + selected);
             if (selected == null) {
                 return;
             } else if (selected.equals("WDT aktiv") || (selected.equals("WDT inaktiv"))) {
-                log.info("WDT aktiviert/deaktiviert");
+                log.info("change Watchdog from " + watchdogEnabled + " to " + !watchdogEnabled);
+                PIC16F84.watchdogEnabled = !watchdogEnabled;
+                log.info (PIC16F84.watchdogEnabled);
             }
             InvisibleList.clearSelection();
             InvisibleList.setFocusable(false);
+            MainFrame.paintWestPanel();
 
         });
-        InvisibleList.setPreferredSize(new Dimension(80, 110));
+        InvisibleList.setPreferredSize(new Dimension(100, 110));
+        return InvisibleList;
+    }
+
+    public static JList<String> createPortAList() {
+        DefaultListModel<String> model = new DefaultListModel<>();
+
+        //get PortA and set Bits
+        int portA = PIC16F84.getRAM(5);
+        int vRA4 = (portA & 16) >> 4;
+        int vRA3 = (portA & 8) >> 3;
+        int vRA2 = (portA & 4) >> 2;
+        int vRA1 = (portA & 2) >> 1;
+        int vRA0 = (portA & 1);
+
+        //get TrisA and set Text
+        int trisA = PIC16F84.getRAM(133);
+        int dRA4 = (trisA & 16) >> 4;
+        int dRA3 = (trisA & 8) >> 3;
+        int dRA2 = (trisA & 4) >> 2;
+        int dRA1 = (trisA & 2) >> 1;
+        int dRA0 = (trisA & 1);
+        String sRA4 = (dRA4 == 1) ? "I" : "O";
+        String sRA3 = (dRA3 == 1) ? "I" : "O";
+        String sRA2 = (dRA2 == 1) ? "I" : "O";
+        String sRA1 = (dRA1 == 1) ? "I" : "O";
+        String sRA0 = (dRA0 == 1) ? "I" : "O";
+
+        //add text elements to model
+        model.addElement("RA0   " + sRA0 + "    " + vRA0);
+        model.addElement("RA1   " + sRA1 + "    " + vRA1);
+        model.addElement("RA2   " + sRA2 + "    " + vRA2);
+        model.addElement("RA3   " + sRA3 + "    " + vRA3);
+        model.addElement("RA4   " + sRA4 + "    " + vRA4);
+        model.addElement("RA5   I   0");
+        model.addElement("RA6   I   0");
+        model.addElement("RA7   I   0");
+
+        JList<String> InvisibleList = new JList<>(model);
+        InvisibleList.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(Color.GRAY, 1),
+                "Port A"
+        ));
+        InvisibleList.addListSelectionListener(e -> {
+            if (e.getValueIsAdjusting()) return;
+            String selected = InvisibleList.getSelectedValue();
+            if (selected == null) {
+                return;
+            }
+
+            if (selected.startsWith("RA0")) {
+                if (vRA0 == 1) {
+                    PIC16F84.writeRAM(5, portA&254);
+                } else {
+                    PIC16F84.writeRAM(5, portA+1);
+                }
+            } else if (selected.startsWith("RA1")) {
+                if (vRA1 == 1) {
+                    PIC16F84.writeRAM(5, portA&253);
+                } else {
+                    PIC16F84.writeRAM(5, portA+2);
+                }
+            } else if (selected.startsWith("RA2")) {
+                if (vRA2 == 1) {
+                    PIC16F84.writeRAM(5, portA&251);
+                } else {
+                    PIC16F84.writeRAM(5, portA+4);
+                }
+            } else if (selected.startsWith("RA3")) {
+                if (vRA3 == 1) {
+                    PIC16F84.writeRAM(5, portA&247);
+                } else {
+                    PIC16F84.writeRAM(5, portA+8);
+                }
+            } else if (selected.startsWith("RA4")) {
+                if (vRA4 == 4) {
+                    PIC16F84.writeRAM(5, portA&239);
+                } else {
+                    PIC16F84.writeRAM(5, portA+16);
+                }
+            }
+            InvisibleList.clearSelection();
+            InvisibleList.setFocusable(false);
+            MainFrame.paintWestPanel();
+
+        });
+        InvisibleList.setPreferredSize(new Dimension(100, 170));
         return InvisibleList;
     }
 
