@@ -26,10 +26,10 @@ public class PIC16F84 {
     private static double timePassed = 0;
     private static double delay = 300 / clockRate;
     private static int prevRA4;
-    private static int T0SE = 0;
-    private static int T0CS = 0;
-    private static int PSA = 0;
-    private static int PSA0_2 = 0;
+    private static int T0SE = 1;
+    private static int T0CS = 1;
+    private static int PSA = 1;
+    public static int PSA0_2 = 1;
     private static int helperTimer = 0;
     private static final Logger log = LogManager.getLogger(PIC16F84.class);
 
@@ -344,6 +344,7 @@ public class PIC16F84 {
 
         // set STATUS
         writeRAM(3, 24);
+
     }
 
     public static void pushStack(int addresse) {
@@ -426,9 +427,9 @@ public class PIC16F84 {
             Programcounter += 1;
 
         }
+        incrementTMR0();
         RAM[2] = Programcounter & 255;
         RAM[130] = Programcounter & 255;
-        incrementTMR0();
     }
 
     public static void setProgramCounter(int address) {
@@ -634,7 +635,7 @@ public class PIC16F84 {
             writeRAM(addresses.get(i), value);
         };
         updateTime(4);
-        //log.info("MOVWF, WReg: " + Integer.toHexString(WReg) + "h, C=" + getCarryFlag() + ", DC=" + getDigitcarryFlag() + ", Z=" + getZeroFlag());
+        log.info("MOVWF, WReg: " + Integer.toHexString(WReg) + "h, C=" + getCarryFlag() + ", DC=" + getDigitcarryFlag() + ", Z=" + getZeroFlag());
     }
 
     public static void NOP() {
@@ -829,7 +830,7 @@ public class PIC16F84 {
     public static void MOVLW(int literal) {
         writeWReg(literal);
         updateTime(4);
-        //log.info("MOVLW, WReg: " + Integer.toHexString(WReg) + "h, C=" + getCarryFlag() + ", DC=" + getDigitcarryFlag() + ", Z=" + getZeroFlag());
+        log.info("MOVLW, WReg: " + Integer.toHexString(WReg) + "h, C=" + getCarryFlag() + ", DC=" + getDigitcarryFlag() + ", Z=" + getZeroFlag());
     }
 
     public static void RETFIE() {
@@ -917,6 +918,12 @@ public class PIC16F84 {
         StackIndex = 0;
         Programcounter = 0;
         timePassed = 0;
+        helperTimer = 0;
+        PSA = 1;
+        PSA0_2 = 1;
+        T0CS = 1;
+        T0SE = 1;
+        prevRA4 = 0;
         writeWReg(0);
         MainFrame.paintWestPanel();
         MainFrame.paintEastPanel();
@@ -944,6 +951,7 @@ public class PIC16F84 {
 
         prevRA4 = (getRAM(5) & 16) >> 4;
         if (!event) return;
+        log.info("Event true");
 
         // zweiter Multiplexer, entscheidet anhand des PSA-Bit, ob Signal direkt zum Timer oder zunächst zum Prescaler geht
         if (PSA == 1) {
@@ -952,14 +960,17 @@ public class PIC16F84 {
             helperTimer = 0;
         } else if (PSA == 0) {
             helperTimer++;
-            if (helperTimer == Math.pow(2, PSA0_2)) {
+            if (helperTimer == Math.pow(2, PSA0_2+1)) {
+                log.info("PSA = 0, increment Timer");
+                if ((timer+1) == 256) {
+                    setZeroFlag();
+                }
                 writeRAM(1, timer+1);
                 helperTimer = 0;
             }
         } else {
             log.error("PSA ist " + PSA + " statt 0 oder 1");
         }
-
     }
 
 }

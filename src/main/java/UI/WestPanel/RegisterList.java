@@ -73,12 +73,12 @@ public class RegisterList {
 
     public static JList<String> createInvisibleList() {
         DefaultListModel<String> model = new DefaultListModel<>();
-        int test = 0;
         int programCounter = PIC16F84.getActualProgramCounter();
         int stackPointer = PIC16F84.getStackIndex();
+        int vorteiler = PIC16F84.PSA0_2;
         model.addElement(String.format("PC     %04X", programCounter));
         model.addElement(String.format("SP %d", stackPointer));
-        model.addElement(String.format("VT     %02X", test));
+        model.addElement(String.format("VT     %02X", vorteiler));
         model.addElement("WDT aktiv");
         model.addElement("WDT 0.0ms");
 
