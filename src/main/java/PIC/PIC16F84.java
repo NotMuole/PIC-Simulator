@@ -20,11 +20,11 @@ public class PIC16F84 {
     public static int ind = 0;
     private static int dataLatch = 0;
     private static volatile boolean is_paused = true;
-    private static double clockRate = 4.0;
-    private static double timePerClockUs = 1 / clockRate;
-    private static double timePerCycleUs = 4 / clockRate;
-    private static double timePassed = 0;
-    private static double delay = 300 / clockRate;
+    private static float clockRate = 4;
+    private static float timePerClockUs = 1 / clockRate;
+    private static float timePerCycleUs = 4 / clockRate;
+    private static float timePassed = 0;
+    private static float delay = 300 / clockRate;
     private static int prevRA4;
     private static int T0SE = 1;
     private static int T0CS = 1;
@@ -107,7 +107,7 @@ public class PIC16F84 {
         return timePassed;
     }
 
-    public static void setClockRate(double value) {
+    public static void setClockRate(float value) {
         clockRate = value;
         timePerCycleUs = 4 / clockRate;
         timePerClockUs = 1 / clockRate;
@@ -162,7 +162,6 @@ public class PIC16F84 {
             PSA0_2 = value & 7;
             helperTimer = 0;
         } else if (address == 1) {
-            log.info("Reset helpertimer");
             helperTimer = 0;
         }
         RAM[address] = value & 255;
@@ -941,8 +940,6 @@ public class PIC16F84 {
     }
 
     public static void incrementTMR0() {
-        log.info("-----------------------------------");
-        log.info("Helpertimer " + helperTimer);
         int source;
         int timer = getRAM(1);
         boolean event = false;
@@ -968,13 +965,11 @@ public class PIC16F84 {
         // zweiter Multiplexer, entscheidet anhand des PSA-Bit, ob Signal direkt zum Timer oder zunächst zum Prescaler geht
         if (PSA == 1) {
             updateTime(2);
-            log.info("PSA = 1, increment Timer");
             writeRAM(1, timer+1);
             helperTimer = 0;
         } else if (PSA == 0) {
             helperTimer++;
             if (helperTimer == Math.pow(2, PSA0_2+1)) {
-                log.info("PSA = 0, increment Timer");
                 writeRAM(1,timer+1);
                 helperTimer = 0;
             }

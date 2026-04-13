@@ -16,7 +16,7 @@ public class ControlPanel {
     private static Component currentStepButton;
     private static Component currentResetButton;
     private static Component currentTimeButton;
-    private static final Dimension controlPanel = new Dimension(250, 100);
+    private static final Dimension controlPanel = new Dimension(260, 100);
     private static boolean fileUploaded;
 
     public static JPanel createControlPanel() {
@@ -75,20 +75,20 @@ public class ControlPanel {
 
     private static JButton createSelectClockRateButton() {
         JPopupMenu menu = new JPopupMenu();
-        menu.add(createMenuItem(menu, 0.5, false));
-        menu.add(createMenuItem(menu, 1, false));
-        menu.add(createMenuItem(menu, 2, false));
-        menu.add(createMenuItem(menu, 4, false));
-        menu.add(createMenuItem(menu, 8, false));
-        menu.add(createMenuItem(menu, 80, false));
-        menu.add(createMenuItem(menu, 1, true));
+        menu.add(createMenuItem(0.5f, false));
+        menu.add(createMenuItem(1f, false));
+        menu.add(createMenuItem(2f, false));
+        menu.add(createMenuItem(4f, false));
+        menu.add(createMenuItem(8f, false));
+        menu.add(createMenuItem(80f, false));
+        menu.add(createMenuItem(1f, true));
 
         JButton button = new JButton("Set Clockrate ⏱");
         button.addActionListener(e -> menu.show(button, 0, button.getHeight()));
         return button;
     }
 
-    private static JMenuItem createMenuItem(JPopupMenu menu, double value, boolean editable) {
+    private static JMenuItem createMenuItem(float value, boolean editable) {
         String text;
         if (!editable) {
             text = String.format("%.1f MHz", value);

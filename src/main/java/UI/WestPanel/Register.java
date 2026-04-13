@@ -9,7 +9,7 @@ import java.awt.*;
 
 public class Register {
     private static final Logger log = LogManager.getLogger(WestPanel.class);
-    private static final Dimension registerPanel = new Dimension(250, 450);
+    private static final Dimension registerPanel = new Dimension(260, 450);
 
     public static JPanel createRegisterField() {
         JPanel inner = new JPanel();
@@ -17,6 +17,7 @@ public class Register {
         inner.add(RegisterList.createInvisibleList());
         inner.add(RegisterList.createStackList());
         inner.add(RegisterList.createFlagList());
+        inner.add(Portregister.createBitPanel());
         inner.add(ClockRate.createTimeList());
         inner.add(ClockRate.createClockRateField());
         //inner.add(RegisterList.createIndList());

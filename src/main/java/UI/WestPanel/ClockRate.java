@@ -16,7 +16,11 @@ public class ClockRate {
         JList<String> TimeList = new JList<>(model);
         double timePassed = PIC16F84.getTimePassed();
         TimeList.setFont(new Font("Monospaced", Font.PLAIN, 14));
-        model.addElement(String.format("%.1f µs", timePassed));
+        if (timePassed >= 1000) {
+            model.addElement(String.format("%.1f ms", timePassed/1000));
+        } else {
+            model.addElement(String.format("%.1f µs", timePassed));
+        }
         TimeList.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(Color.GRAY, 1),
                 "Laufzeit"
@@ -30,9 +34,14 @@ public class ClockRate {
         double clockRate = PIC16F84.getClockRate();
         double microSecsPerCycle = PIC16F84.getTimePerCycleUs();
 
-        JTextField clockRateField = new JTextField(
-                String.format("%.1fMHz (%.1fµs)", clockRate, microSecsPerCycle)
-        );
+        String textField;
+        if (clockRate > 10) {
+            log.info("größer");
+            textField = String.format("%.1fMHz (%dns)", clockRate, (int)(microSecsPerCycle*1000));
+        } else {
+            textField = String.format("%.1fMHz (%.1fµs)", clockRate, microSecsPerCycle);
+        }
+        JTextField clockRateField = new JTextField(textField);
         clockRateField.setFont(new Font("Monospaced", Font.PLAIN, 14));
         clockRateField.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(Color.GRAY, 1),
@@ -49,7 +58,7 @@ public class ClockRate {
             clockRateField.addActionListener(e -> {
                 try {
                     String eingabe = clockRateField.getText();
-                    double Quarzfrequenz = Double.parseDouble(eingabe);
+                    float Quarzfrequenz = Float.parseFloat(eingabe);
                     if (Quarzfrequenz > 0) {
                         PIC16F84.setClockRate(Quarzfrequenz);
                         clockRateField.setText(String.format("%.1fMHz (%.1fµs)", PIC16F84.getClockRate(), PIC16F84.getTimePerCycleUs()));
@@ -59,7 +68,7 @@ public class ClockRate {
                         PIC16F84.setClockRate(4);
                     }
                 } catch (Exception e2) {
-                    log.error("fehlerhafte Eingabe (kein Double)");
+                    log.error("fehlerhafte Eingabe (kein Float)");
                     clockRateField.setText("Fehler");
                     PIC16F84.setClockRate(4);
                 }
