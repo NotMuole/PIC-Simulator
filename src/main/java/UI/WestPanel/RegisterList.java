@@ -76,11 +76,14 @@ public class RegisterList {
         int programCounter = PIC16F84.getActualProgramCounter();
         int stackPointer = PIC16F84.getStackIndex();
         int vorteiler = PIC16F84.PSA0_2;
+        boolean watchdogEnabled = PIC16F84.watchdogEnabled;
+        float watchdogTimer = PIC16F84.watchdogTimer;
         model.addElement(String.format("PC     %04X", programCounter));
         model.addElement(String.format("SP %d", stackPointer));
         model.addElement(String.format("VT     %02X", vorteiler));
-        model.addElement("WDT 0.0ms");
-        model.addElement("WDT aktiv");
+        model.addElement("WDT: " + watchdogEnabled);
+        model.addElement(String.format("WDT   %02f ms", watchdogTimer));
+
         JList<String> InvisibleList = new JList<>(model);
         InvisibleList.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(Color.GRAY, 1),

@@ -20,16 +20,19 @@ public class PIC16F84 {
     public static int ind = 0;
     private static int dataLatch = 0;
     private static volatile boolean is_paused = true;
-    private static float clockRate = 4;
-    private static float timePerClockUs = 1 / clockRate;
-    private static float timePerCycleUs = 4 / clockRate;
-    private static float timePassed = 0;
-    private static float delay = 300 / clockRate;
+    public static boolean watchdogEnabled = true;
+    private static double clockRate = 4.0;
+    private static double timePerClockUs = 1 / clockRate;
+    private static double timePerCycleUs = 4 / clockRate;
+    private static double timePassed = 0;
+    private static double delay = 300 / clockRate;
     private static int prevRA4;
     private static int T0SE = 1;
     private static int T0CS = 1;
     private static int PSA = 1;
     public static int PSA0_2 = 1;
+    private static int watchdog = 18000;
+    public static float watchdogTimer = 0;
     private static int helperTimer = 0;
     private static final Logger log = LogManager.getLogger(PIC16F84.class);
 
@@ -814,6 +817,7 @@ public class PIC16F84 {
     }
 
     public static void CLRWDT() {
+        watchdogTimer = 0;
         updateTime(4);
         //log.info("TODO: CLRWDT");
     }
@@ -889,7 +893,23 @@ public class PIC16F84 {
     public static void updateTime(int anzahl) {
         for (int i=0; i<anzahl; i++) {
             timePassed += timePerClockUs;
+            if (watchdogEnabled) {
+                watchdogTimer += timePerClockUs;
+
+                if(PSA == 0 && watchdogTimer >= 18000) {
+                    // TODO: interrupt
+                    log.info("1. if");
+                    watchdogTimer = 0;
+                    resetProgram();
+                } else if (PSA == 1 && watchdogTimer >= Math.pow(2, PSA0_2)*18000) {
+                    // TODO: interrupt
+                    log.info("2. if");
+                    watchdogTimer = 0;
+                    resetProgram();
+                }
+            }
         }
+        log.info("Watchdogtimer: " + watchdogTimer);
     }
 
     public static void runProgram() {
