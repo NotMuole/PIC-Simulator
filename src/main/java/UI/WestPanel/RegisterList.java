@@ -8,7 +8,7 @@ import javax.swing.*;
 import java.awt.*;
 
 public class RegisterList {
-    private static final Logger log = LogManager.getLogger(WestPanel.class);
+    private static final Logger log = LogManager.getLogger(RegisterList.class);
 
     public static JList<String> createStackList() {
         DefaultListModel<String> model = new DefaultListModel<>();
@@ -79,32 +79,28 @@ public class RegisterList {
         model.addElement(String.format("PC     %04X", programCounter));
         model.addElement(String.format("SP %d", stackPointer));
         model.addElement(String.format("VT     %02X", vorteiler));
-        model.addElement("WDT aktiv");
         model.addElement("WDT 0.0ms");
-
+        model.addElement("WDT aktiv");
         JList<String> InvisibleList = new JList<>(model);
         InvisibleList.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(Color.GRAY, 1),
                 "versteckt"
         ));
-        InvisibleList.setPreferredSize(new Dimension(80, 110));
-        InvisibleList = disableSelection(InvisibleList);
-        return InvisibleList;
-    }
+        InvisibleList.addListSelectionListener(e -> {
+            if (e.getValueIsAdjusting()) return;
+            String selected = InvisibleList.getSelectedValue();
+            log.info("selected: " + selected);
+            if (selected == null) {
+                return;
+            } else if (selected.equals("WDT aktiv") || (selected.equals("WDT inaktiv"))) {
+                log.info("WDT aktiviert/deaktiviert");
+            }
+            InvisibleList.clearSelection();
+            InvisibleList.setFocusable(false);
 
-    public static JList<String> createIndList() {
-        DefaultListModel<String> model = new DefaultListModel<>();
-        JList<String> TimeList = new JList<>(model);
-        int indirect = PIC16F84.ind;
-        TimeList.setFont(new Font("Monospaced", Font.PLAIN, 14));
-        model.addElement(String.format("%X", indirect));
-        TimeList.setBorder(BorderFactory.createTitledBorder(
-                BorderFactory.createLineBorder(Color.GRAY, 1),
-                "Indirect"
-        ));
-        TimeList.setPreferredSize(new Dimension(80, 50));
-        TimeList = disableSelection(TimeList);
-        return TimeList;
+        });
+        InvisibleList.setPreferredSize(new Dimension(80, 110));
+        return InvisibleList;
     }
 
     private static JList<String> disableSelection(JList<String> list) {

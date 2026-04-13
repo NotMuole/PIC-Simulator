@@ -20,7 +20,6 @@ public class Register {
         inner.add(Portregister.createBitPanel());
         inner.add(ClockRate.createTimeList());
         inner.add(ClockRate.createClockRateField());
-        //inner.add(RegisterList.createIndList());
         inner.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(Color.GRAY, 1),
                 "Spezialfunktionsregister"
