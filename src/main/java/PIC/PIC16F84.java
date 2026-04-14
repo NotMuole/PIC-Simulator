@@ -25,7 +25,7 @@ public class PIC16F84 {
     private static double timePerClockUs = 1 / clockRate;
     private static double timePerCycleUs = 4 / clockRate;
     private static double timePassed = 0;
-    private static double delay = 300 / clockRate;
+    private static double delay = 5 / clockRate;
     private static int prevRA4;
     private static int T0SE = 1;
     private static int T0CS = 1;
@@ -891,32 +891,26 @@ public class PIC16F84 {
 
     public static void updateTime(int anzahl) {
         for (int i=0; i<anzahl; i++) {
+            if (is_paused) {
+                return;
+            }
             timePassed += timePerClockUs;
             if (watchdogEnabled) {
                 watchdogTimer += timePerClockUs;
                 if(PSA == 0 && watchdogTimer >= 18000) {
                     // TODO: interrupt
-                    watchdogTimer = 0;
-                    is_paused = true;
-                    try {
-                        Thread.sleep((long) delay*2);
-                    } catch (InterruptedException e) {
-                        Thread.currentThread().interrupt();
-                    }
-                    resetProgram();
+                    watchdogOverflow();
                 } else if (PSA == 1 && watchdogTimer >= Math.pow(2, PSA0_2)*18000) {
                     // TODO: interrupt
-                    watchdogTimer = 0;
-                    is_paused = true;
-                    try {
-                        Thread.sleep((long)delay*2);
-                    } catch (InterruptedException e) {
-                        Thread.currentThread().interrupt();
-                    }
-                    resetProgram();
+                    watchdogOverflow();
                 }
             }
         }
+    }
+
+    public static void watchdogOverflow() {
+        is_paused = true;
+        MainFrame.createPopUp();
     }
 
     public static void runProgram() {
@@ -945,11 +939,12 @@ public class PIC16F84 {
         MainFrame.paintWestPanel();
         MainFrame.paintListing();
         MainFrame.paintEastPanel();
+
     }
 
     public static void resetProgram() {
-        reset();
         is_paused = true;
+        reset();
         Stack = new int[8];
         StackIndex = 0;
         Programcounter = 0;

@@ -87,7 +87,11 @@ public class RegisterList {
         } else {
             model.addElement("WDT inaktiv");
         }
-        model.addElement(String.format("WDT   %.1f ms", watchdogTimer));
+        if (watchdogTimer >= 1000) {
+            model.addElement(String.format("%.1f ms", watchdogTimer/1000));
+        } else {
+            model.addElement(String.format("%.1f µs", watchdogTimer));
+        }
 
         JList<String> InvisibleList = new JList<>(model);
         InvisibleList.setBorder(BorderFactory.createTitledBorder(
@@ -101,6 +105,9 @@ public class RegisterList {
                 return;
             } else if (selected.equals("WDT aktiv") || (selected.equals("WDT inaktiv"))) {
                 PIC16F84.watchdogEnabled = !watchdogEnabled;
+                if (selected.equals("WDT inaktiv")) {
+                    PIC16F84.watchdogTimer = 0;
+                }
             }
             InvisibleList.clearSelection();
             InvisibleList.setFocusable(false);

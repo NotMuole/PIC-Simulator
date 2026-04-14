@@ -1,9 +1,11 @@
 package UI;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.net.URL;
 
+import PIC.PIC16F84;
 import UI.CenterPanel.Listing;
 import UI.NorthPanel.FileSelector;
 import UI.EastPanel.EastPanel;
@@ -80,6 +82,35 @@ public class MainFrame extends JFrame {
         frame.remove(currentRAM);
         currentRAM = new_panel;
         frame.add(currentRAM, BorderLayout.EAST);
+        frame.revalidate();
+        frame.repaint();
+    }
+
+    public static void createPopUp() {
+        JDialog dialog = new JDialog(frame, "Info", true); // true = modal
+        dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+
+        JLabel label = new JLabel("Der Watchdog-Timer hat das Limit erreicht. Das Programm wurde zurückgesetzt.");
+        label.setBorder(new EmptyBorder(12, 12, 12, 12));
+
+        JButton ok = new JButton("OK");
+        ok.addActionListener(e -> {
+            PIC16F84.resetProgram();
+            dialog.dispose();
+        });
+
+        JPanel content = new JPanel(new BorderLayout(10, 10));
+        content.setBorder(new EmptyBorder(10, 10, 10, 10));
+        content.add(label, BorderLayout.CENTER);
+        JPanel buttons = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
+        buttons.add(ok);
+        content.add(buttons, BorderLayout.SOUTH);
+
+        dialog.setContentPane(content);
+        dialog.pack();
+        dialog.setLocationRelativeTo(frame);
+        dialog.setResizable(false);
+        dialog.setVisible(true);
         frame.revalidate();
         frame.repaint();
     }
