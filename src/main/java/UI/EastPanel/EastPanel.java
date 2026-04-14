@@ -109,7 +109,6 @@ public class EastPanel {
                 PIC16F84.writeRAM(addr, value);
                 if (addr==2 || addr==130) {
                     PIC16F84.setProgramCounter(value);
-                    log.info("set Programcounter");
                 }
                 MainFrame.paintWestPanel();
                 String normalized = String.format("%02X", value);

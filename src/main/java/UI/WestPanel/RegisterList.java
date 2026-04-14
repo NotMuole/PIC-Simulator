@@ -100,9 +100,7 @@ public class RegisterList {
             if (selected == null) {
                 return;
             } else if (selected.equals("WDT aktiv") || (selected.equals("WDT inaktiv"))) {
-                log.info("change Watchdog from " + watchdogEnabled + " to " + !watchdogEnabled);
                 PIC16F84.watchdogEnabled = !watchdogEnabled;
-                log.info (PIC16F84.watchdogEnabled);
             }
             InvisibleList.clearSelection();
             InvisibleList.setFocusable(false);

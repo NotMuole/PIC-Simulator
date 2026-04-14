@@ -30,8 +30,7 @@ public class PIC16F84 {
     private static int T0SE = 1;
     private static int T0CS = 1;
     private static int PSA = 1;
-    public static int PSA0_2 = 1;
-    private static int watchdog = 18000;
+    public static int PSA0_2 = 7;
     public static float watchdogTimer = 0;
     private static int helperTimer = 0;
     private static final Logger log = LogManager.getLogger(PIC16F84.class);
@@ -895,21 +894,29 @@ public class PIC16F84 {
             timePassed += timePerClockUs;
             if (watchdogEnabled) {
                 watchdogTimer += timePerClockUs;
-
                 if(PSA == 0 && watchdogTimer >= 18000) {
                     // TODO: interrupt
-                    log.info("1. if");
                     watchdogTimer = 0;
+                    is_paused = true;
+                    try {
+                        Thread.sleep((long) delay*2);
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                    }
                     resetProgram();
                 } else if (PSA == 1 && watchdogTimer >= Math.pow(2, PSA0_2)*18000) {
                     // TODO: interrupt
-                    log.info("2. if");
                     watchdogTimer = 0;
+                    is_paused = true;
+                    try {
+                        Thread.sleep((long)delay*2);
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                    }
                     resetProgram();
                 }
             }
         }
-        log.info("Watchdogtimer: " + watchdogTimer);
     }
 
     public static void runProgram() {
@@ -946,13 +953,14 @@ public class PIC16F84 {
         Stack = new int[8];
         StackIndex = 0;
         Programcounter = 0;
-        timePassed = 0;
-        helperTimer = 0;
         PSA = 1;
-        PSA0_2 = 1;
+        PSA0_2 = 7;
         T0CS = 1;
         T0SE = 1;
         prevRA4 = 0;
+        helperTimer = 0;
+        timePassed = 0;
+        watchdogTimer = 0;
         writeWReg(0);
         MainFrame.paintWestPanel();
         MainFrame.paintEastPanel();

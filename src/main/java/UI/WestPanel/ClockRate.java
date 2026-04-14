@@ -36,7 +36,6 @@ public class ClockRate {
 
         String textField;
         if (clockRate > 10) {
-            log.info("größer");
             textField = String.format("%.1fMHz (%dns)", clockRate, (int)(microSecsPerCycle*1000));
         } else {
             textField = String.format("%.1fMHz (%.1fµs)", clockRate, microSecsPerCycle);
