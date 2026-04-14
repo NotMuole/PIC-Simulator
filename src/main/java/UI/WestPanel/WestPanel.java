@@ -1,6 +1,5 @@
 package UI.WestPanel;
 
-import PIC.PIC16F84;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -9,7 +8,7 @@ import java.awt.*;
 
 public class WestPanel {
     private static final Logger log = LogManager.getLogger(WestPanel.class);
-    private static final Dimension parentFieldDim = new Dimension(260, 550);
+    private static final Dimension parentFieldDim = new Dimension(300, 630);
 
     public static JPanel createFieldWEST() {
         JPanel outer = new JPanel();

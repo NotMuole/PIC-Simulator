@@ -38,9 +38,9 @@ public class RegisterList {
         int rp0 = (PIC16F84.getRAM(3) & 32) >> 5;
         int to = (PIC16F84.getRAM(3) & 16) >> 4;
         int pd = (PIC16F84.getRAM(3) & 8) >> 3;
-        FlagList.setFont(new Font("Monospaced", Font.PLAIN, 14));
         model.addElement("IRP RP RP0 TO PD Z DC C");
         model.addElement(String.format("%01d   %01d  %01d   %01d  %01d  %01d %01d  %01d", irp, rp, rp0, to, pd, zeroFlag, digitCarryFlag, carryFlag));
+        FlagList.setFont(new Font("Monospaced", Font.PLAIN, 14));
         FlagList.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(Color.GRAY, 1),
                 "Flags"
@@ -152,6 +152,7 @@ public class RegisterList {
                 BorderFactory.createLineBorder(Color.GRAY, 1),
                 "Port A"
         ));
+
         InvisibleList.addListSelectionListener(e -> {
             if (e.getValueIsAdjusting()) return;
             String selected = InvisibleList.getSelectedValue();
@@ -184,10 +185,124 @@ public class RegisterList {
                     PIC16F84.writeRAM(5, portA+8);
                 }
             } else if (selected.startsWith("RA4")) {
-                if (vRA4 == 4) {
+                if (vRA4 == 1) {
                     PIC16F84.writeRAM(5, portA&239);
                 } else {
                     PIC16F84.writeRAM(5, portA+16);
+                }
+            }
+            InvisibleList.clearSelection();
+            InvisibleList.setFocusable(false);
+            MainFrame.paintWestPanel();
+
+        });
+        InvisibleList.setPreferredSize(new Dimension(100, 170));
+        return InvisibleList;
+    }
+
+    public static JList<String> createPortBList() {
+        DefaultListModel<String> model = new DefaultListModel<>();
+
+        //get PortB and set Bits
+        int portB = PIC16F84.getRAM(6);
+        int vRB7 = (portB & 128) >> 7;
+        int vRB6 = (portB & 64) >> 6;
+        int vRB5 = (portB & 32) >> 5;
+        int vRB4 = (portB & 16) >> 4;
+        int vRB3 = (portB & 8) >> 3;
+        int vRB2 = (portB & 4) >> 2;
+        int vRB1 = (portB & 2) >> 1;
+        int vRB0 = (portB & 1);
+
+        //get TrisB and set Text
+        int trisB = PIC16F84.getRAM(134);
+        int dRB7 = (trisB & 128) >> 7;
+        int dRB6 = (trisB & 64) >> 6;
+        int dRB5 = (trisB & 32) >> 5;
+        int dRB4 = (trisB & 16) >> 4;
+        int dRB3 = (trisB & 8) >> 3;
+        int dRB2 = (trisB & 4) >> 2;
+        int dRB1 = (trisB & 2) >> 1;
+        int dRB0 = (trisB & 1);
+        String sRB7 = (dRB7 == 1) ? "I" : "O";
+        String sRB6 = (dRB6 == 1) ? "I" : "O";
+        String sRB5 = (dRB5 == 1) ? "I" : "O";
+        String sRB4 = (dRB4 == 1) ? "I" : "O";
+        String sRB3 = (dRB3 == 1) ? "I" : "O";
+        String sRB2 = (dRB2 == 1) ? "I" : "O";
+        String sRB1 = (dRB1 == 1) ? "I" : "O";
+        String sRB0 = (dRB0 == 1) ? "I" : "O";
+
+        //add text elements to model
+        model.addElement("RB0   " + sRB0 + "    " + vRB0);
+        model.addElement("RB1   " + sRB1 + "    " + vRB1);
+        model.addElement("RB2   " + sRB2 + "    " + vRB2);
+        model.addElement("RB3   " + sRB3 + "    " + vRB3);
+        model.addElement("RB4   " + sRB4 + "    " + vRB4);
+        model.addElement("RB5   " + sRB5 + "    " + vRB5);
+        model.addElement("RB6   " + sRB6 + "    " + vRB6);
+        model.addElement("RB7   " + sRB7 + "    " + vRB7);
+
+        JList<String> InvisibleList = new JList<>(model);
+        InvisibleList.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(Color.GRAY, 1),
+                "Port B"
+        ));
+
+        InvisibleList.addListSelectionListener(e -> {
+            if (e.getValueIsAdjusting()) return;
+            String selected = InvisibleList.getSelectedValue();
+            if (selected == null) {
+                return;
+            }
+
+            if (selected.startsWith("RB0")) {
+                if (vRB0 == 1) {
+                    PIC16F84.writeRAM(6, portB&254);
+                } else {
+                    PIC16F84.writeRAM(6, portB+1);
+                }
+            } else if (selected.startsWith("RB1")) {
+                if (vRB1 == 1) {
+                    PIC16F84.writeRAM(6, portB&253);
+                } else {
+                    PIC16F84.writeRAM(6, portB+2);
+                }
+            } else if (selected.startsWith("RB2")) {
+                if (vRB2 == 1) {
+                    PIC16F84.writeRAM(6, portB&251);
+                } else {
+                    PIC16F84.writeRAM(6, portB+4);
+                }
+            } else if (selected.startsWith("RB3")) {
+                if (vRB3 == 1) {
+                    PIC16F84.writeRAM(6, portB&247);
+                } else {
+                    PIC16F84.writeRAM(6, portB+8);
+                }
+            } else if (selected.startsWith("RB4")) {
+                if (vRB4 == 1) {
+                    PIC16F84.writeRAM(6, portB&239);
+                } else {
+                    PIC16F84.writeRAM(6, portB+16);
+                }
+            } else if (selected.startsWith("RB5")) {
+                if (vRB5 == 1) {
+                    PIC16F84.writeRAM(6, portB & 223);
+                } else {
+                    PIC16F84.writeRAM(6, portB + 32);
+                }
+            } else if (selected.startsWith("RB6")) {
+                if (vRB6 == 1) {
+                    PIC16F84.writeRAM(6, portB & 191);
+                } else {
+                    PIC16F84.writeRAM(6, portB + 64);
+                }
+            } else if (selected.startsWith("RB7")) {
+                if (vRB7 == 1) {
+                    PIC16F84.writeRAM(6, portB & 127);
+                } else {
+                    PIC16F84.writeRAM(6, portB + 128);
                 }
             }
             InvisibleList.clearSelection();

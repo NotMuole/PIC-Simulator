@@ -42,7 +42,6 @@ public class ClockRate {
             textField = String.format("%.1fMHz (%.1fµs)", clockRate, microSecsPerCycle);
         }
         JTextField clockRateField = new JTextField(textField);
-        clockRateField.setFont(new Font("Monospaced", Font.PLAIN, 14));
         clockRateField.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(Color.GRAY, 1),
                 "Quarzfrequenz"
