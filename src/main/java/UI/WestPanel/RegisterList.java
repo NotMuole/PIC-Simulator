@@ -1,6 +1,7 @@
 package UI.WestPanel;
 
 import PIC.PIC16F84;
+import Service.Dataservice;
 import UI.MainFrame;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -52,7 +53,7 @@ public class RegisterList {
 
     public static JList<String> createVisibleList() {
         DefaultListModel<String> model = new DefaultListModel<>();
-        int wReg = PIC16F84.getWReg();
+        int wReg = Dataservice.getWReg();
         int PCL = PIC16F84.getProgramCounter();
         int Status = PIC16F84.getRAM(3);
         int FSR = PIC16F84.getRAM(4);

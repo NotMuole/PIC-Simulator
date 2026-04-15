@@ -1,5 +1,6 @@
 package PIC;
 
+import Service.Dataservice;
 import UI.CenterPanel.Checkbox;
 import UI.MainFrame;
 import org.apache.logging.log4j.LogManager;
@@ -9,13 +10,13 @@ import java.util.List;
 import java.util.ArrayList;
 
 public class PIC16F84 {
-
     private static int[] Programstore = new int[1024];
     private static int[] RAM = new int[256];
     private static int[] Stack = new int[8];
     private static int StackIndex = 0;
     private static int Programcounter = 0;
-    private static int WReg = 0;
+    private static Dataservice data;
+    private static Register wReg = new Register(0);
     private static int rp0 = 0;
     public static int ind = 0;
     private static int dataLatch = 0;
@@ -35,7 +36,9 @@ public class PIC16F84 {
     private static int helperTimer = 0;
     private static final Logger log = LogManager.getLogger(PIC16F84.class);
 
-    public PIC16F84() {}
+    public PIC16F84(Dataservice data) {
+        this.data = data;
+    }
 
     public static List<Integer> decodeAddress(int address) {
         if (rp0 == 1 && address < 128) address += 128;
@@ -83,14 +86,6 @@ public class PIC16F84 {
             addresses.add(address);
         }
         return addresses;
-    }
-
-    public static void writeWReg(int value) {
-        WReg = value & 255;
-    }
-
-    public static int getWReg() {
-        return WReg;
     }
 
     public static void toggleIsPaused() {
@@ -375,6 +370,22 @@ public class PIC16F84 {
         return StackIndex;
     }
 
+    public static int getGlobalInterruptEnable() {
+        return ((getRAM(11) & 128) >> 7);
+    }
+
+    public static void setGlobalInterruptEnable() {
+        int INTCON = getRAM(11);
+        int GIE = getGlobalInterruptEnable();
+        if (GIE == 1) {
+            GIE = 0;
+            writeRAM(11, (INTCON & 127));
+        } else {
+            GIE = 1;
+            writeRAM(11, (INTCON + 128));
+        }
+    }
+
     public static void setZeroFlag() {
         RAM[3] = RAM[3] | 4;
         RAM[131] = RAM[131] | 4;
@@ -450,14 +461,15 @@ public class PIC16F84 {
 
     public static void ADDWF(int file_address, int destination) {
         List<Integer> addresses = decodeAddress(file_address);
-        int value = WReg + getRAM(addresses.get(0));
+        int value = wReg.getValue() + getRAM(addresses.get(0));
 
         if (value == 0) setZeroFlag(); else clearZeroFlag();
         if (value > 255) setCarryFlag(); else clearCarryFlag();
-        if ((getRAM(addresses.get(0)) & 15) + (WReg & 15) > 15) setDigitcarryFlag(); else clearDigitcarryFlag();
+        if ((getRAM(addresses.get(0)) & 15) + (wReg.getValue() & 15) > 15) setDigitcarryFlag(); else clearDigitcarryFlag();
         
         if (destination == 0) {
-            writeWReg(value);
+            wReg.setValue(value);
+            data.setWReg(value);
         } else {
             for (int i = 0; i < addresses.size(); i ++) {
                 writeRAM(addresses.get(i), value);
@@ -469,13 +481,13 @@ public class PIC16F84 {
 
     public static void ANDWF(int file_address, int destination) {
         List<Integer> addresses = decodeAddress(file_address);
-        int value = WReg & getRAM(addresses.get(0));
+        int value = wReg.getValue() & getRAM(addresses.get(0));
 
         if (value == 0) setZeroFlag(); else clearZeroFlag();
 
         if (destination == 0) {
-            writeWReg(value);
-
+            wReg.setValue(value);
+            data.setWReg(value);
         } else {
             for (int i = 0; i < addresses.size(); i ++) {
                 writeRAM(addresses.get(i), value);
@@ -500,7 +512,8 @@ public class PIC16F84 {
     public static void CLRW() {
         setZeroFlag();
 
-        writeWReg(0);
+        wReg.setValue(0);
+        data.setWReg(0);
         updateTime(4);
         //log.info("CLRW");
     }
@@ -512,7 +525,8 @@ public class PIC16F84 {
         if (value == 0) setZeroFlag(); else clearZeroFlag();
 
         if (destination == 0) {
-            writeWReg(value);
+            wReg.setValue(value);
+            data.setWReg(value);
         } else {
             for (int i = 0; i < addresses.size(); i ++) {
                 writeRAM(addresses.get(i), value);
@@ -529,7 +543,8 @@ public class PIC16F84 {
         if (value == 0) setZeroFlag(); else clearZeroFlag();
 
         if (destination == 0) {
-            writeWReg(value);
+            wReg.setValue(value);
+            data.setWReg(value);
         } else {
             for (int i = 0; i < addresses.size(); i ++) {
                 writeRAM(addresses.get(i), value);
@@ -544,7 +559,8 @@ public class PIC16F84 {
         int value = getRAM(addresses.get(0)) - 1;
 
         if (destination == 0) {
-            writeWReg(value);
+            wReg.setValue(value);
+            data.setWReg(value);
         } else {
             for (int i = 0; i < addresses.size(); i ++) {
                 writeRAM(addresses.get(i), value);
@@ -567,7 +583,8 @@ public class PIC16F84 {
         if (value > 255) setZeroFlag(); else clearZeroFlag();
 
         if (destination == 0) {
-            writeWReg(value);
+            wReg.setValue(value);
+            data.setWReg(value);
         } else {
             for (int i = 0; i < addresses.size(); i ++) {
                 writeRAM(addresses.get(i), value);
@@ -582,7 +599,8 @@ public class PIC16F84 {
         int value = getRAM(addresses.get(0)) + 1;
 
         if (destination == 0) {
-            writeWReg(value);
+            wReg.setValue(value);
+            data.setWReg(value);
         } else {
             for (int i = 0; i < addresses.size(); i ++) {
                 writeRAM(addresses.get(i), value);
@@ -600,12 +618,13 @@ public class PIC16F84 {
 
     public static void IORWF(int file_address, int destination) {
         List<Integer> addresses = decodeAddress(file_address);
-        int value = WReg | getRAM(addresses.get(0));
+        int value = wReg.getValue() | getRAM(addresses.get(0));
 
         if (value == 0) setZeroFlag(); else clearZeroFlag();
 
         if (destination == 0) {
-            writeWReg(value);
+            wReg.setValue(value);
+            data.setWReg(value);
         } else {
              for (int i = 0; i < addresses.size(); i ++) {
                 writeRAM(addresses.get(i), value);
@@ -623,7 +642,8 @@ public class PIC16F84 {
         if (value == 0) setZeroFlag(); else clearZeroFlag();
 
         if (destination == 0) {
-            writeWReg(value);
+            wReg.setValue(value);
+            data.setWReg(value);
         } else {
             for (int i = 0; i < addresses.size(); i ++) {
                 writeRAM(addresses.get(i), value);
@@ -635,7 +655,7 @@ public class PIC16F84 {
 
     public static void MOVWF(int file_address) {
         List<Integer> addresses = decodeAddress(file_address);
-        int value = getWReg();
+        int value = wReg.getValue();
 
         for (int i = 0; i < addresses.size(); i ++) {
             writeRAM(addresses.get(i), value);
@@ -657,7 +677,8 @@ public class PIC16F84 {
         if (carry == 1) setCarryFlag(); else clearCarryFlag();
 
         if (destination == 0) {
-            writeWReg(value);
+            wReg.setValue(value);
+            data.setWReg(value);
         } else {
             for (int i = 0; i < addresses.size(); i ++) {
                 writeRAM(addresses.get(i), value);
@@ -675,7 +696,8 @@ public class PIC16F84 {
         if (carry == 1) setCarryFlag(); else clearCarryFlag();
 
         if (destination == 0) {
-            writeWReg(value);
+            wReg.setValue(value);
+            data.setWReg(value);
         } else {
             for (int i = 0; i < addresses.size(); i ++) {
                 writeRAM(addresses.get(i), value);
@@ -687,14 +709,15 @@ public class PIC16F84 {
 
     public static void SUBWF(int file_address, int destination) {
         List<Integer> addresses = decodeAddress(file_address);
-        int value = getRAM(addresses.get(0)) - WReg;
+        int value = getRAM(addresses.get(0)) - wReg.getValue();
 
         if (value == 0) setZeroFlag(); else clearZeroFlag();
-        if (getRAM(addresses.get(0)) >= WReg) setCarryFlag(); else clearCarryFlag();
-        if ((getRAM(addresses.get(0)) & 15) >= (WReg & 15)) setDigitcarryFlag(); else clearDigitcarryFlag();
+        if (getRAM(addresses.get(0)) >= wReg.getValue()) setCarryFlag(); else clearCarryFlag();
+        if ((getRAM(addresses.get(0)) & 15) >= (wReg.getValue() & 15)) setDigitcarryFlag(); else clearDigitcarryFlag();
 
         if (destination == 0) {
-            writeWReg(value);
+            wReg.setValue(value);
+            data.setWReg(value);
         } else {
             for (int i = 0; i < addresses.size(); i ++) {
                 writeRAM(addresses.get(i), value);
@@ -710,7 +733,8 @@ public class PIC16F84 {
         int value = (getRAM(addresses.get(0)) << 4) + topNibbles;
 
         if (destination == 0) {
-            writeWReg(value);
+            wReg.setValue(value);
+            data.setWReg(value);
         } else {
             for (int i = 0; i < addresses.size(); i ++) {
                 writeRAM(addresses.get(i), value);
@@ -722,12 +746,13 @@ public class PIC16F84 {
 
     public static void XORWF(int file_address, int destination) {
         List<Integer> addresses = decodeAddress(file_address);
-        int value = WReg ^ getRAM(addresses.get(0));
+        int value = wReg.getValue() ^ getRAM(addresses.get(0));
 
         if (value == 0) setZeroFlag(); else clearZeroFlag();
 
         if (destination == 0) {
-            writeWReg(value);
+            wReg.setValue(value);
+            data.setWReg(value);
         } else {
             for (int i = 0; i < addresses.size(); i ++) {
                 writeRAM(addresses.get(i), value);
@@ -786,23 +811,25 @@ public class PIC16F84 {
     }
 
     public static void ADDLW(int literal) {
-        int value = literal + WReg;
+        int value = literal + wReg.getValue();
 
         if (value == 0) setZeroFlag(); else clearZeroFlag();
         if (value > 255) setCarryFlag(); else clearCarryFlag();
-        if ((literal & 15) + (WReg & 15) > 15) setDigitcarryFlag(); else clearDigitcarryFlag();
+        if ((literal & 15) + (wReg.getValue() & 15) > 15) setDigitcarryFlag(); else clearDigitcarryFlag();
 
-        writeWReg(value);
+        wReg.setValue(value);
+        data.setWReg(value);
         updateTime(4);
         //log.info("ADDLW, WReg: " + Integer.toHexString(WReg) + "h, C=" + getCarryFlag() + ", DC=" + getDigitcarryFlag() + ", Z=" + getZeroFlag());
     }
 
     public static void ANDLW(int literal) {
-        int value = WReg & literal;
+        int value = wReg.getValue()& literal;
 
         if (value == 0) setZeroFlag(); else clearZeroFlag();
 
-        writeWReg(value);
+        wReg.setValue(value);
+        data.setWReg(value);
         updateTime(4);
         //log.info("ANDLW, WReg: " + Integer.toHexString(WReg) + "h, C=" + getCarryFlag() + ", DC=" + getDigitcarryFlag() + ", Z=" + getZeroFlag());
     }
@@ -829,17 +856,19 @@ public class PIC16F84 {
     }
 
     public static void IORLW(int literal) {
-        int value = WReg | literal;
+        int value = wReg.getValue()| literal;
 
         if (value == 0 ) setZeroFlag(); else clearZeroFlag();
 
-        writeWReg(value);
+        wReg.setValue(value);
+        data.setWReg(value);
         updateTime(4);
         //log.info("IORLW, WReg: " + Integer.toHexString(WReg) + "h, C=" + getCarryFlag() + ", DC=" + getDigitcarryFlag() + ", Z=" + getZeroFlag());
     }
 
     public static void MOVLW(int literal) {
-        writeWReg(literal);
+        wReg.setValue(literal);
+        data.setWReg(literal);
         updateTime(4);
         //log.info("MOVLW, WReg: " + Integer.toHexString(WReg) + "h, C=" + getCarryFlag() + ", DC=" + getDigitcarryFlag() + ", Z=" + getZeroFlag());
     }
@@ -850,7 +879,8 @@ public class PIC16F84 {
     }
 
     public static void RETLW(int literal) {
-        writeWReg(literal);
+        wReg.setValue(literal);
+        data.setWReg(literal);
         Programcounter = popStack();
         updateTime(8);
         //log.info("RETLW, return-address=" + Programcounter + ", W=" + Integer.toHexString(WReg) + "h");
@@ -868,23 +898,26 @@ public class PIC16F84 {
     }
 
     public static void SUBLW(int literal) {
-        int value = literal - WReg;
+        int value = literal - wReg.getValue();
 
         if (value == 0) setZeroFlag(); else clearZeroFlag();
-        if (literal >= WReg) setCarryFlag(); else clearCarryFlag();
-        if ((literal & 15) >= (WReg & 15)) setDigitcarryFlag(); else clearDigitcarryFlag();
+        if (literal >= wReg.getValue()) setCarryFlag(); else clearCarryFlag();
+        if ((literal & 15) >= (wReg.getValue()& 15)) setDigitcarryFlag(); else clearDigitcarryFlag();
 
-        writeWReg(value);
+        wReg.setValue(value);
+        data.setWReg(value);
+
         updateTime(4);
-        //log.info("SUBLW, WReg: " + Integer.toHexString(WReg) + "h, C=" + getCarryFlag() + ", DC=" + getDigitcarryFlag() + ", Z=" + getZeroFlag());
+        //log.info("SUBLW, WReg: " + Integer.toHexString(wReg.getValue() + "h, C=" + getCarryFlag() + ", DC=" + getDigitcarryFlag() + ", Z=" + getZeroFlag());
     }
 
     public static void XORLW(int literal) {
-        int value = literal ^ WReg;
+        int value = literal ^ wReg.getValue();
 
         if (value == 0) setZeroFlag(); else clearZeroFlag();
         
-        writeWReg(value);
+        wReg.setValue(value);
+        data.setWReg(value);
         updateTime(4);
         //log.info("XORLW, WReg: " + Integer.toHexString(WReg) + "h, C=" + getCarryFlag() + ", DC=" + getDigitcarryFlag() + ", Z=" + getZeroFlag());
     }
@@ -911,6 +944,10 @@ public class PIC16F84 {
     public static void watchdogOverflow() {
         is_paused = true;
         MainFrame.createPopUp();
+    }
+
+    public static void checkForInterrupt(int interruptSourceAddress, int interruptSourceDigit, int interruptEnableAddress, int interruptEnableDigit) {
+
     }
 
     public static void runProgram() {
@@ -956,7 +993,8 @@ public class PIC16F84 {
         helperTimer = 0;
         timePassed = 0;
         watchdogTimer = 0;
-        writeWReg(0);
+        wReg.setValue(0);
+        data.setWReg(0);
         MainFrame.paintWestPanel();
         MainFrame.paintEastPanel();
         MainFrame.paintListing();
