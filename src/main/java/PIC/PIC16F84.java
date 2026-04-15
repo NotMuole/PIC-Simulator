@@ -33,6 +33,15 @@ public class PIC16F84 {
     public static int PSA0_2 = 7;
     public static float watchdogTimer = 0;
     private static int helperTimer = 0;
+    public static int GIE = 0;
+    public static int EEIE = 0;
+    public static int T0IE = 0;
+    public static int INTE = 0;
+    public static int RBIE = 0;
+    public static int T0IF = 0;
+    public static int INTF = 0;
+    public static int RBIF = 0;
+    public static int INTEDG = 1;
     private static final Logger log = LogManager.getLogger(PIC16F84.class);
 
     public PIC16F84() {}
@@ -151,6 +160,8 @@ public class PIC16F84 {
             int TRISB = RAM[134];
             dataLatch = value & (~TRISB & 255);
             value = value & TRISB;
+            setINTF(value & 1);
+            setRBIF(value & 240);
         } else if (address == 133) {
             int PORTA = RAM[5] + (dataLatch & RAM[133]);
             RAM[5] = PORTA;
@@ -158,6 +169,7 @@ public class PIC16F84 {
             int PORTB = RAM[6] + (dataLatch & RAM[134]);
             RAM[6] = PORTB;
         } else if (address == 129) {
+            INTEDG = (value & 64) >> 6;
             T0CS = (value & 32) >> 5;
             T0SE = (value & 16) >> 4;
             PSA = (value & 8) >> 3;
@@ -165,7 +177,26 @@ public class PIC16F84 {
             helperTimer = 0;
         } else if (address == 1) {
             helperTimer = 0;
+            if (value > 255) {
+                T0IF = 1;
+                int newValue = getRAM(11) + 4;
+                writeRAM(11, newValue);
+                writeRAM(139, newValue);
+                if (GIE == 1 && T0IE == 1) {
+                    interrupt();
+                }
+            }
+        } else if (address == 11 || address == 139) {
+            GIE = (value & 128) >> 7;
+            EEIE = (value & 64) >> 6;
+            T0IE = (value & 32) >> 5;
+            INTE = (value & 16) >> 4;
+            RBIE = (value & 8) >> 3;
+            T0IF = (value & 4) >> 2;
+            INTF = (value & 2) >> 1;
+            RBIF = (value & 1);
         }
+
         RAM[address] = value & 255;
     }
 
@@ -818,7 +849,7 @@ public class PIC16F84 {
     public static void CLRWDT() {
         watchdogTimer = 0;
         updateTime(4);
-        //log.info("TODO: CLRWDT");
+        //log.info("CLRWDT");
     }
 
     public static void GOTO(int address) {
@@ -845,6 +876,7 @@ public class PIC16F84 {
     }
 
     public static void RETFIE() {
+        Programcounter = popStack();
         updateTime(8);
         //log.info("TODO: RETFIE");
     }
@@ -898,10 +930,8 @@ public class PIC16F84 {
             if (watchdogEnabled) {
                 watchdogTimer += timePerClockUs;
                 if(PSA == 0 && watchdogTimer >= 18000) {
-                    // TODO: interrupt
                     watchdogOverflow();
                 } else if (PSA == 1 && watchdogTimer >= Math.pow(2, PSA0_2)*18000) {
-                    // TODO: interrupt
                     watchdogOverflow();
                 }
             }
@@ -911,6 +941,45 @@ public class PIC16F84 {
     public static void watchdogOverflow() {
         is_paused = true;
         MainFrame.createPopUp();
+    }
+
+    public static void setRBIF(int currentValue) {
+        int previousValue = (getRAM(6) & 240);
+        if (currentValue == previousValue) {
+            return;
+        } else {
+            RBIF = 1;
+            int value = getRAM(11) + 1;
+            writeRAM(11, value);
+            writeRAM(139, value);
+            if (GIE == 1 && RBIE == 1) {
+                interrupt();
+            }
+        }
+    }
+
+    public static void setINTF(int currentValue) {
+        int previousValue = (getRAM(6) & 1);
+        if (currentValue == previousValue) {
+            return;
+        } if (currentValue == INTEDG) {
+            INTF = 1;
+            int value = getRAM(11) + 2;
+            writeRAM(11, value);
+            writeRAM(139, value);
+            if (GIE == 1 && INTE == 1) {
+                interrupt();
+            }
+        } else {
+            INTF = 0;
+            int value = (getRAM(11) & 253);
+            writeRAM(11, value);
+            writeRAM(139, value);
+        }
+    }
+
+    public static void interrupt() {
+        CALL(4);
     }
 
     public static void runProgram() {
@@ -956,6 +1025,15 @@ public class PIC16F84 {
         helperTimer = 0;
         timePassed = 0;
         watchdogTimer = 0;
+        GIE = 0;
+        EEIE = 0;
+        T0IE = 0;
+        INTE = 0;
+        RBIE = 0;
+        T0IF = 0;
+        INTF = 0;
+        RBIF = 0;
+        INTEDG = 1;
         writeWReg(0);
         MainFrame.paintWestPanel();
         MainFrame.paintEastPanel();

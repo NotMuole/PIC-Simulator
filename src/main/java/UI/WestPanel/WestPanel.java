@@ -8,7 +8,7 @@ import java.awt.*;
 
 public class WestPanel {
     private static final Logger log = LogManager.getLogger(WestPanel.class);
-    private static final Dimension parentFieldDim = new Dimension(300, 630);
+    private static final Dimension parentFieldDim = new Dimension(300, 730);
 
     public static JPanel createFieldWEST() {
         JPanel outer = new JPanel();

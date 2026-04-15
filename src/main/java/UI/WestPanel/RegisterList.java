@@ -50,6 +50,29 @@ public class RegisterList {
         return FlagList;
     }
 
+    public static JList<String> createINTCONList() {
+        DefaultListModel<String> model = new DefaultListModel<>();
+        JList<String> FlagList = new JList<>(model);
+        int gie = PIC16F84.GIE;
+        int eeie = PIC16F84.EEIE;
+        int t0ie = PIC16F84.T0IE;
+        int inte = PIC16F84.INTE;
+        int rbie = PIC16F84.RBIE;
+        int t0if = PIC16F84.T0IF;
+        int intf = PIC16F84.INTF;
+        int rbif = PIC16F84.RBIF;
+        model.addElement("GIE EEIE T0IE T0IF RBIE T0IF INTF RBIF");
+        model.addElement(String.format("%01d   %01d    %01d    %01d    %01d    %01d    %01d    %01d", gie, eeie, t0ie, inte, rbie, t0if, intf, rbif));
+        FlagList.setFont(new Font("Monospaced", Font.PLAIN, 14));
+        FlagList.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(Color.GRAY, 1),
+                "INTCON"
+        ));
+        FlagList.setPreferredSize(new Dimension(300, 70));
+        FlagList = disableSelection(FlagList);
+        return FlagList;
+    }
+
     public static JList<String> createVisibleList() {
         DefaultListModel<String> model = new DefaultListModel<>();
         int wReg = PIC16F84.getWReg();
@@ -122,7 +145,7 @@ public class RegisterList {
         DefaultListModel<String> model = new DefaultListModel<>();
 
         //get PortA and set Bits
-        int portA = PIC16F84.getRAM(5);
+        int portA = PIC16F84.getVisualizedRAM(5);
         int vRA4 = (portA & 16) >> 4;
         int vRA3 = (portA & 8) >> 3;
         int vRA2 = (portA & 4) >> 2;
@@ -130,7 +153,7 @@ public class RegisterList {
         int vRA0 = (portA & 1);
 
         //get TrisA and set Text
-        int trisA = PIC16F84.getRAM(133);
+        int trisA = PIC16F84.getVisualizedRAM(133);
         int dRA4 = (trisA & 16) >> 4;
         int dRA3 = (trisA & 8) >> 3;
         int dRA2 = (trisA & 4) >> 2;
@@ -209,7 +232,7 @@ public class RegisterList {
         DefaultListModel<String> model = new DefaultListModel<>();
 
         //get PortB and set Bits
-        int portB = PIC16F84.getRAM(6);
+        int portB = PIC16F84.getVisualizedRAM(6);
         int vRB7 = (portB & 128) >> 7;
         int vRB6 = (portB & 64) >> 6;
         int vRB5 = (portB & 32) >> 5;
@@ -220,7 +243,7 @@ public class RegisterList {
         int vRB0 = (portB & 1);
 
         //get TrisB and set Text
-        int trisB = PIC16F84.getRAM(134);
+        int trisB = PIC16F84.getVisualizedRAM(134);
         int dRB7 = (trisB & 128) >> 7;
         int dRB6 = (trisB & 64) >> 6;
         int dRB5 = (trisB & 32) >> 5;
@@ -313,6 +336,7 @@ public class RegisterList {
             InvisibleList.clearSelection();
             InvisibleList.setFocusable(false);
             MainFrame.paintWestPanel();
+            MainFrame.paintEastPanel();
 
         });
         InvisibleList.setPreferredSize(new Dimension(100, 170));
