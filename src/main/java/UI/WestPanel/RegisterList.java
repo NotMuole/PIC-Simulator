@@ -61,7 +61,7 @@ public class RegisterList {
         int t0if = PIC16F84.T0IF;
         int intf = PIC16F84.INTF;
         int rbif = PIC16F84.RBIF;
-        model.addElement("GIE EEIE T0IE T0IF RBIE T0IF INTF RBIF");
+        model.addElement("GIE EEIE T0IE INTE RBIE T0IF INTF RBIF");
         model.addElement(String.format("%01d   %01d    %01d    %01d    %01d    %01d    %01d    %01d", gie, eeie, t0ie, inte, rbie, t0if, intf, rbif));
         FlagList.setFont(new Font("Monospaced", Font.PLAIN, 14));
         FlagList.setBorder(BorderFactory.createTitledBorder(
@@ -189,30 +189,35 @@ public class RegisterList {
             }
 
             if (selected.startsWith("RA0")) {
+                PIC16F84.ui = true;
                 if (vRA0 == 1) {
                     PIC16F84.writeRAM(5, portA&254);
                 } else {
                     PIC16F84.writeRAM(5, portA+1);
                 }
             } else if (selected.startsWith("RA1")) {
+                PIC16F84.ui = true;
                 if (vRA1 == 1) {
                     PIC16F84.writeRAM(5, portA&253);
                 } else {
                     PIC16F84.writeRAM(5, portA+2);
                 }
             } else if (selected.startsWith("RA2")) {
+                PIC16F84.ui = true;
                 if (vRA2 == 1) {
                     PIC16F84.writeRAM(5, portA&251);
                 } else {
                     PIC16F84.writeRAM(5, portA+4);
                 }
             } else if (selected.startsWith("RA3")) {
+                PIC16F84.ui = true;
                 if (vRA3 == 1) {
                     PIC16F84.writeRAM(5, portA&247);
                 } else {
                     PIC16F84.writeRAM(5, portA+8);
                 }
             } else if (selected.startsWith("RA4")) {
+                PIC16F84.ui = true;
                 if (vRA4 == 1) {
                     PIC16F84.writeRAM(5, portA&239);
                 } else {
@@ -285,48 +290,56 @@ public class RegisterList {
             }
 
             if (selected.startsWith("RB0")) {
+                PIC16F84.ui = true;
                 if (vRB0 == 1) {
                     PIC16F84.writeRAM(6, portB&254);
                 } else {
                     PIC16F84.writeRAM(6, portB+1);
                 }
             } else if (selected.startsWith("RB1")) {
+                PIC16F84.ui = true;
                 if (vRB1 == 1) {
                     PIC16F84.writeRAM(6, portB&253);
                 } else {
                     PIC16F84.writeRAM(6, portB+2);
                 }
             } else if (selected.startsWith("RB2")) {
+                PIC16F84.ui = true;
                 if (vRB2 == 1) {
                     PIC16F84.writeRAM(6, portB&251);
                 } else {
                     PIC16F84.writeRAM(6, portB+4);
                 }
             } else if (selected.startsWith("RB3")) {
+                PIC16F84.ui = true;
                 if (vRB3 == 1) {
                     PIC16F84.writeRAM(6, portB&247);
                 } else {
                     PIC16F84.writeRAM(6, portB+8);
                 }
             } else if (selected.startsWith("RB4")) {
+                PIC16F84.ui = true;
                 if (vRB4 == 1) {
                     PIC16F84.writeRAM(6, portB&239);
                 } else {
                     PIC16F84.writeRAM(6, portB+16);
                 }
             } else if (selected.startsWith("RB5")) {
+                PIC16F84.ui = true;
                 if (vRB5 == 1) {
                     PIC16F84.writeRAM(6, portB & 223);
                 } else {
                     PIC16F84.writeRAM(6, portB + 32);
                 }
             } else if (selected.startsWith("RB6")) {
+                PIC16F84.ui = true;
                 if (vRB6 == 1) {
                     PIC16F84.writeRAM(6, portB & 191);
                 } else {
                     PIC16F84.writeRAM(6, portB + 64);
                 }
             } else if (selected.startsWith("RB7")) {
+                PIC16F84.ui = true;
                 if (vRB7 == 1) {
                     PIC16F84.writeRAM(6, portB & 127);
                 } else {

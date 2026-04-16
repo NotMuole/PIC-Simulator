@@ -106,6 +106,7 @@ public class EastPanel {
 
             try {
                 int value = Integer.parseInt(text, 16) & 0xFF;
+                PIC16F84.ui = true;
                 PIC16F84.writeRAM(addr, value);
                 if (addr==2 || addr==130) {
                     PIC16F84.setProgramCounter(value);

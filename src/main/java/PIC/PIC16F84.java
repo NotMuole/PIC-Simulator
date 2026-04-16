@@ -21,6 +21,7 @@ public class PIC16F84 {
     private static int dataLatch = 0;
     private static volatile boolean is_paused = true;
     public static boolean watchdogEnabled = true;
+    public static boolean ui = false;
     private static double clockRate = 4.0;
     private static double timePerClockUs = 1 / clockRate;
     private static double timePerCycleUs = 4 / clockRate;
@@ -152,21 +153,29 @@ public class PIC16F84 {
             value = 0;
         } else if (address == 4 || address == 132) {
             ind = value;
-        } else if (address == 5) {
+        } else if (address == 5 && ui) {
             int TRISA = RAM[133];
-            dataLatch = value & (~TRISA & 255);
-            value = value & TRISA;
-        } else if (address == 6) {
+            int PORTA = RAM[5];
+            dataLatch = value;
+            value = ((~TRISA & PORTA) | (TRISA & value));
+            ui = false;
+        } else if (address == 6 && ui) {
             int TRISB = RAM[134];
-            dataLatch = value & (~TRISB & 255);
-            value = value & TRISB;
+            int PORTB = RAM[6];
+            dataLatch = value;
+            value = ((~TRISB & PORTB) | (TRISB & value));
+            ui = false;
             setINTF(value & 1);
             setRBIF(value & 240);
         } else if (address == 133) {
-            int PORTA = RAM[5] + (dataLatch & RAM[133]);
+            int TRISA = RAM[133];
+            int PORTA = RAM[5];
+            PORTA = ((dataLatch & TRISA) | PORTA);
             RAM[5] = PORTA;
         } else if (address == 134) {
-            int PORTB = RAM[6] + (dataLatch & RAM[134]);
+            int TRISB = RAM[134];
+            int PORTB = RAM[6];
+            PORTB = ((dataLatch & TRISB) | PORTB);
             RAM[6] = PORTB;
         } else if (address == 129) {
             INTEDG = (value & 64) >> 6;
@@ -179,7 +188,7 @@ public class PIC16F84 {
             helperTimer = 0;
             if (value > 255) {
                 T0IF = 1;
-                int newValue = getRAM(11) + 4;
+                int newValue = getRAM(11) | 4;
                 writeRAM(11, newValue);
                 writeRAM(139, newValue);
                 if (GIE == 1 && T0IE == 1) {
@@ -196,7 +205,6 @@ public class PIC16F84 {
             INTF = (value & 2) >> 1;
             RBIF = (value & 1);
         }
-
         RAM[address] = value & 255;
     }
 
@@ -949,7 +957,7 @@ public class PIC16F84 {
             return;
         } else {
             RBIF = 1;
-            int value = getRAM(11) + 1;
+            int value = getRAM(11) | 1;
             writeRAM(11, value);
             writeRAM(139, value);
             if (GIE == 1 && RBIE == 1) {
@@ -964,7 +972,7 @@ public class PIC16F84 {
             return;
         } if (currentValue == INTEDG) {
             INTF = 1;
-            int value = getRAM(11) + 2;
+            int value = getRAM(11) | 2;
             writeRAM(11, value);
             writeRAM(139, value);
             if (GIE == 1 && INTE == 1) {
@@ -1014,6 +1022,7 @@ public class PIC16F84 {
     public static void resetProgram() {
         is_paused = true;
         reset();
+        ui = false;
         Stack = new int[8];
         StackIndex = 0;
         Programcounter = 0;
@@ -1025,6 +1034,7 @@ public class PIC16F84 {
         helperTimer = 0;
         timePassed = 0;
         watchdogTimer = 0;
+        dataLatch = 0;
         GIE = 0;
         EEIE = 0;
         T0IE = 0;

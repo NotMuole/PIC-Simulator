@@ -8,7 +8,7 @@ import java.awt.*;
 
 public class Register {
     private static final Logger log = LogManager.getLogger(WestPanel.class);
-    private static final Dimension registerPanel = new Dimension(300, 620);
+    private static final Dimension registerPanel = new Dimension(330, 620);
 
     public static JPanel createRegisterField() {
         JPanel inner = new JPanel();

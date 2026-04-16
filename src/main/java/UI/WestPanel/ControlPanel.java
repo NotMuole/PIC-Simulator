@@ -15,7 +15,7 @@ public class ControlPanel {
     private static Component currentStepButton;
     private static Component currentResetButton;
     private static Component currentTimeButton;
-    private static final Dimension controlPanel = new Dimension(300, 100);
+    private static final Dimension controlPanel = new Dimension(330, 100);
     private static boolean fileUploaded;
 
     public static JPanel createControlPanel() {
