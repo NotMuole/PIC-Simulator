@@ -33,6 +33,7 @@ public class PIC16F84 {
     private static int PSA = 1;
     public static int PSA0_2 = 7;
     public static float watchdogTimer = 0;
+    private static boolean watchdogOverflow = false;
     private static int helperTimer = 0;
     public static int GIE = 0;
     public static int EEIE = 0;
@@ -931,7 +932,7 @@ public class PIC16F84 {
 
     public static void updateTime(int anzahl) {
         for (int i=0; i<anzahl; i++) {
-            if (is_paused) {
+            if (watchdogOverflow) {
                 return;
             }
             timePassed += timePerClockUs;
@@ -948,6 +949,7 @@ public class PIC16F84 {
 
     public static void watchdogOverflow() {
         is_paused = true;
+        watchdogOverflow = true;
         MainFrame.createPopUp();
     }
 
@@ -1009,6 +1011,8 @@ public class PIC16F84 {
     }
 
     private static void executeProgram() {
+        log.info("executeProgram");
+        log.info(timePassed);
         int command = getProgramstore(Programcounter);
         incrementProgramCounter();
         decode(command);
@@ -1020,6 +1024,7 @@ public class PIC16F84 {
     }
 
     public static void resetProgram() {
+        watchdogOverflow = false;
         is_paused = true;
         reset();
         ui = false;
