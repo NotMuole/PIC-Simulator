@@ -43,6 +43,9 @@ public class PIC16F84 {
     public static int INTF = 0;
     public static int RBIF = 0;
     public static int INTEDG = 1;
+    public static int TO = 1;
+    public static int PD = 1;
+    public static boolean isSleep = false;
     private static final Logger log = LogManager.getLogger(PIC16F84.class);
 
     public PIC16F84() {}
@@ -903,8 +906,20 @@ public class PIC16F84 {
     }
 
     public static void SLEEP() {
+        watchdogTimer = 0;
+
+        PSA0_2 = 0;
+        writeRAM(129,getRAM(129) & 248);
+
+        TO = 1;
+        PD = 0;
+        int value = (getRAM(3) | 16) & 247; 
+        writeRAM(3, value);
+        writeRAM(131, value);
+        
+        isSleep = true;
         updateTime(4);
-        //log.info("TODO: SLEEP");
+        //log.info("SLEEP");
     }
 
     public static void SUBLW(int literal) {
@@ -947,8 +962,13 @@ public class PIC16F84 {
     }
 
     public static void watchdogOverflow() {
-        is_paused = true;
-        MainFrame.createPopUp();
+        if (!isSleep) {
+            is_paused = true;
+            MainFrame.createPopUp();
+        } else {
+            isSleep = false;
+            incrementProgramCounter();
+        }
     }
 
     public static void setRBIF(int currentValue) {
@@ -987,6 +1007,7 @@ public class PIC16F84 {
     }
 
     public static void interrupt() {
+        isSleep = false;
         CALL(4);
     }
 
@@ -1009,17 +1030,22 @@ public class PIC16F84 {
     }
 
     private static void executeProgram() {
+        if (isSleep) {
+            updateTime(4);   
+            updateUI();
+            return;
+        }
+
         int command = getProgramstore(Programcounter);
         incrementProgramCounter();
         decode(command);
         incrementTMR0();
-        MainFrame.paintWestPanel();
-        MainFrame.paintListing();
-        MainFrame.paintEastPanel();
+        updateUI();
 
     }
 
     public static void resetProgram() {
+        isSleep = false;
         is_paused = true;
         reset();
         ui = false;
@@ -1033,7 +1059,7 @@ public class PIC16F84 {
         prevRA4 = 0;
         helperTimer = 0;
         timePassed = 0;
-        watchdogTimer = 0;
+        watchdogTimer = 2250000;
         dataLatch = 0;
         GIE = 0;
         EEIE = 0;
@@ -1044,10 +1070,10 @@ public class PIC16F84 {
         INTF = 0;
         RBIF = 0;
         INTEDG = 1;
+        TO = 1;
+        PD = 1;
         writeWReg(0);
-        MainFrame.paintWestPanel();
-        MainFrame.paintEastPanel();
-        MainFrame.paintListing();
+        updateUI();
     }
 
     public static void incrementTMR0() {
@@ -1087,6 +1113,12 @@ public class PIC16F84 {
         } else {
             log.error("PSA ist " + PSA + " statt 0 oder 1");
         }
+    }
+
+    public static void updateUI() {
+        MainFrame.paintWestPanel();
+        MainFrame.paintEastPanel();
+        MainFrame.paintListing();
     }
 
 }
