@@ -44,6 +44,9 @@ public class PIC16F84 {
     public static int INTF = 0;
     public static int RBIF = 0;
     public static int INTEDG = 1;
+    public static int TO = 1;
+    public static int PD = 1;
+    public static boolean isSleep = false;
     private static final Logger log = LogManager.getLogger(PIC16F84.class);
 
     public PIC16F84() {}
@@ -503,6 +506,7 @@ public class PIC16F84 {
                 writeRAM(addresses.get(i), value);
             }
         }
+        incrementProgramCounter();
         updateTime(4);
         //log.info("ADDWF, WReg: \" + Integer.toHexString(WReg) + \"h, C=\" + getCarryFlag() + \", DC=\" + getDigitcarryFlag() + \", Z=\" + getZeroFlag()");
     }
@@ -521,6 +525,7 @@ public class PIC16F84 {
                 writeRAM(addresses.get(i), value);
             }
         }
+        incrementProgramCounter();
         updateTime(4);
         //log.info("ANDWF, WReg: \" + Integer.toHexString(WReg) + \"h, C=\" + getCarryFlag() + \", DC=\" + getDigitcarryFlag() + \", Z=\" + getZeroFlag()");
     }
@@ -533,6 +538,7 @@ public class PIC16F84 {
         for (int i = 0; i < addresses.size(); i ++) {
             writeRAM(addresses.get(i), 0);
         }
+        incrementProgramCounter();
         updateTime(4);
         //log.info("CLRF");
     }
@@ -541,6 +547,7 @@ public class PIC16F84 {
         setZeroFlag();
 
         writeWReg(0);
+        incrementProgramCounter();
         updateTime(4);
         //log.info("CLRW");
     }
@@ -558,6 +565,7 @@ public class PIC16F84 {
                 writeRAM(addresses.get(i), value);
             }
         }
+        incrementProgramCounter();
         updateTime(4);
         //log.info("COMF");
     }
@@ -575,6 +583,7 @@ public class PIC16F84 {
                 writeRAM(addresses.get(i), value);
             }
         }
+        incrementProgramCounter();
         updateTime(4);
         //log.info("DECF");
     }
@@ -596,6 +605,7 @@ public class PIC16F84 {
             incrementProgramCounter();
             incrementTMR0();
         }
+        incrementProgramCounter();
         updateTime(4);
         //log.info("DECFSZ");
     }
@@ -613,6 +623,7 @@ public class PIC16F84 {
                 writeRAM(addresses.get(i), value);
             };
         }
+        incrementProgramCounter();
         updateTime(4);
         //log.info("INCF");
     }
@@ -634,6 +645,7 @@ public class PIC16F84 {
             incrementProgramCounter();
             incrementTMR0();
         }
+        incrementProgramCounter();
         updateTime(4);
         //log.info("INCFSZ");
     }
@@ -652,6 +664,7 @@ public class PIC16F84 {
             };
         }
 
+        incrementProgramCounter();
         updateTime(4);
         //log.info("IORWF");
     }
@@ -669,6 +682,7 @@ public class PIC16F84 {
                 writeRAM(addresses.get(i), value);
             };
         }
+        incrementProgramCounter();
         updateTime(4);
         //log.info("MOVF");
     }
@@ -680,11 +694,13 @@ public class PIC16F84 {
         for (int i = 0; i < addresses.size(); i ++) {
             writeRAM(addresses.get(i), value);
         };
+        incrementProgramCounter();
         updateTime(4);
         //log.info("MOVWF, WReg: " + Integer.toHexString(WReg) + "h, C=" + getCarryFlag() + ", DC=" + getDigitcarryFlag() + ", Z=" + getZeroFlag());
     }
 
     public static void NOP() {
+        incrementProgramCounter();
         updateTime(4);
         //log.info("NOP, WReg: " + Integer.toHexString(WReg) + "h, C=" + getCarryFlag() + ", DC=" + getDigitcarryFlag() + ", Z=" + getZeroFlag());
     }
@@ -703,6 +719,7 @@ public class PIC16F84 {
                 writeRAM(addresses.get(i), value);
             };
         }
+        incrementProgramCounter();
         updateTime(4);
         //log.info("RLF");
     }
@@ -721,6 +738,7 @@ public class PIC16F84 {
                 writeRAM(addresses.get(i), value);
             };
         }
+        incrementProgramCounter();
         updateTime(4);
         //log.info("RRF");
     }
@@ -740,6 +758,7 @@ public class PIC16F84 {
                 writeRAM(addresses.get(i), value);
             };
         }
+        incrementProgramCounter();
         updateTime(4);
         //log.info("SUBWF");
     }
@@ -756,6 +775,7 @@ public class PIC16F84 {
                 writeRAM(addresses.get(i), value);
             };
         }
+        incrementProgramCounter();
         updateTime(4);
         //log.info("SWAPF");
     }
@@ -773,6 +793,7 @@ public class PIC16F84 {
                 writeRAM(addresses.get(i), value);
             };
         }
+        incrementProgramCounter();
         updateTime(4);
         //log.info("XORWF");
     }
@@ -784,6 +805,7 @@ public class PIC16F84 {
         for (int i = 0; i < addresses.size(); i ++) {
             writeRAM(addresses.get(i), value);
         };
+        incrementProgramCounter();
         updateTime(4);
         //log.info("BCF");
     }
@@ -795,6 +817,7 @@ public class PIC16F84 {
         for (int i = 0; i < addresses.size(); i ++) {
             writeRAM(addresses.get(i), value);
         };
+        incrementProgramCounter();
         updateTime(4);
         //log.info("BSF");
     }
@@ -808,6 +831,7 @@ public class PIC16F84 {
             incrementProgramCounter();
             incrementTMR0();
         }
+        incrementProgramCounter();
         updateTime(4);
         //log.info("BTFSC");
     }
@@ -821,6 +845,7 @@ public class PIC16F84 {
             incrementProgramCounter();
             incrementTMR0();
         }
+        incrementProgramCounter();
         updateTime(4);
         //log.info("BTFSS");
     }
@@ -833,6 +858,7 @@ public class PIC16F84 {
         if ((literal & 15) + (WReg & 15) > 15) setDigitcarryFlag(); else clearDigitcarryFlag();
 
         writeWReg(value);
+        incrementProgramCounter();
         updateTime(4);
         //log.info("ADDLW, WReg: " + Integer.toHexString(WReg) + "h, C=" + getCarryFlag() + ", DC=" + getDigitcarryFlag() + ", Z=" + getZeroFlag());
     }
@@ -843,11 +869,13 @@ public class PIC16F84 {
         if (value == 0) setZeroFlag(); else clearZeroFlag();
 
         writeWReg(value);
+        incrementProgramCounter();
         updateTime(4);
         //log.info("ANDLW, WReg: " + Integer.toHexString(WReg) + "h, C=" + getCarryFlag() + ", DC=" + getDigitcarryFlag() + ", Z=" + getZeroFlag());
     }
 
     public static void CALL(int address) {
+        incrementProgramCounter();
         pushStack(Programcounter);
         setProgramCounter(address & 1023);
         updateTime(8);
@@ -857,11 +885,13 @@ public class PIC16F84 {
 
     public static void CLRWDT() {
         watchdogTimer = 0;
+        incrementProgramCounter();
         updateTime(4);
         //log.info("CLRWDT");
     }
 
     public static void GOTO(int address) {
+        incrementProgramCounter();
         PIC16F84.setProgramCounter(address);
         updateTime(8);
         incrementTMR0();
@@ -874,17 +904,20 @@ public class PIC16F84 {
         if (value == 0 ) setZeroFlag(); else clearZeroFlag();
 
         writeWReg(value);
+        incrementProgramCounter();
         updateTime(4);
         //log.info("IORLW, WReg: " + Integer.toHexString(WReg) + "h, C=" + getCarryFlag() + ", DC=" + getDigitcarryFlag() + ", Z=" + getZeroFlag());
     }
 
     public static void MOVLW(int literal) {
         writeWReg(literal);
+        incrementProgramCounter();
         updateTime(4);
         //log.info("MOVLW, WReg: " + Integer.toHexString(WReg) + "h, C=" + getCarryFlag() + ", DC=" + getDigitcarryFlag() + ", Z=" + getZeroFlag());
     }
 
     public static void RETFIE() {
+        incrementProgramCounter();
         Programcounter = popStack();
         updateTime(8);
         //log.info("TODO: RETFIE");
@@ -893,19 +926,33 @@ public class PIC16F84 {
     public static void RETLW(int literal) {
         writeWReg(literal);
         Programcounter = popStack();
+        incrementProgramCounter();
         updateTime(8);
         //log.info("RETLW, return-address=" + Programcounter + ", W=" + Integer.toHexString(WReg) + "h");
     }
 
     public static void RETURN() {
+        incrementProgramCounter();
         Programcounter = popStack();
         updateTime(8);
         //log.info("RETURN");
     }
 
     public static void SLEEP() {
+        //watchdogTimer = 0;
+
+        //PSA0_2 = 0;
+        //writeRAM(129,getRAM(129) & 248);
+
+        TO = 1;
+        PD = 0;
+        int value = (getRAM(3) | 16) & 247; 
+        writeRAM(3, value);
+        writeRAM(131, value);
+        
+        isSleep = true;
         updateTime(4);
-        //log.info("TODO: SLEEP");
+        //log.info("SLEEP");
     }
 
     public static void SUBLW(int literal) {
@@ -916,6 +963,7 @@ public class PIC16F84 {
         if ((literal & 15) >= (WReg & 15)) setDigitcarryFlag(); else clearDigitcarryFlag();
 
         writeWReg(value);
+        incrementProgramCounter();
         updateTime(4);
         //log.info("SUBLW, WReg: " + Integer.toHexString(WReg) + "h, C=" + getCarryFlag() + ", DC=" + getDigitcarryFlag() + ", Z=" + getZeroFlag());
     }
@@ -926,6 +974,7 @@ public class PIC16F84 {
         if (value == 0) setZeroFlag(); else clearZeroFlag();
         
         writeWReg(value);
+        incrementProgramCounter();
         updateTime(4);
         //log.info("XORLW, WReg: " + Integer.toHexString(WReg) + "h, C=" + getCarryFlag() + ", DC=" + getDigitcarryFlag() + ", Z=" + getZeroFlag());
     }
@@ -945,12 +994,23 @@ public class PIC16F84 {
                 }
             }
         }
+        log.info("update Time");
     }
 
     public static void watchdogOverflow() {
-        is_paused = true;
+        log.info("Watchdog Overflow");
         watchdogOverflow = true;
-        MainFrame.createPopUp();
+        log.info(isSleep);
+        if (!isSleep) {
+            is_paused = true;
+            MainFrame.createPopUp();
+        } else {
+            log.info("reset Sleep");
+            isSleep = false;
+            watchdogOverflow = false;
+            watchdogTimer = 0;
+            incrementProgramCounter();
+        }
     }
 
     public static void setRBIF(int currentValue) {
@@ -989,6 +1049,7 @@ public class PIC16F84 {
     }
 
     public static void interrupt() {
+        isSleep = false;
         CALL(4);
     }
 
@@ -1011,20 +1072,26 @@ public class PIC16F84 {
     }
 
     private static void executeProgram() {
-        log.info("executeProgram");
-        log.info(timePassed);
+        if (isSleep) {
+            updateTime(4);   
+            updateUI();
+            return;
+        }
+
         int command = getProgramstore(Programcounter);
-        incrementProgramCounter();
-        decode(command);
+        log.info(isSleep);
+        if (!isSleep) {
+            decode(command);
+        }
+        //incrementProgramCounter();
         incrementTMR0();
-        MainFrame.paintWestPanel();
-        MainFrame.paintListing();
-        MainFrame.paintEastPanel();
+        updateUI();
 
     }
 
     public static void resetProgram() {
         watchdogOverflow = false;
+        isSleep = false;
         is_paused = true;
         reset();
         ui = false;
@@ -1038,7 +1105,7 @@ public class PIC16F84 {
         prevRA4 = 0;
         helperTimer = 0;
         timePassed = 0;
-        watchdogTimer = 0;
+        watchdogTimer = 2302000;
         dataLatch = 0;
         GIE = 0;
         EEIE = 0;
@@ -1049,10 +1116,10 @@ public class PIC16F84 {
         INTF = 0;
         RBIF = 0;
         INTEDG = 1;
+        TO = 1;
+        PD = 1;
         writeWReg(0);
-        MainFrame.paintWestPanel();
-        MainFrame.paintEastPanel();
-        MainFrame.paintListing();
+        updateUI();
     }
 
     public static void incrementTMR0() {
@@ -1076,7 +1143,7 @@ public class PIC16F84 {
 
         prevRA4 = (getRAM(5) & 16) >> 4;
         if (!event) return;
-        //log.info("Event true");
+        log.info("Event true");
 
         // zweiter Multiplexer, entscheidet anhand des PSA-Bit, ob Signal direkt zum Timer oder zunächst zum Prescaler geht
         if (PSA == 1) {
@@ -1092,6 +1159,14 @@ public class PIC16F84 {
         } else {
             log.error("PSA ist " + PSA + " statt 0 oder 1");
         }
+    }
+
+    public static void updateUI() {
+        if (!isSleep) {
+            MainFrame.paintListing();
+        }
+        MainFrame.paintWestPanel();
+        MainFrame.paintEastPanel();
     }
 
 }
