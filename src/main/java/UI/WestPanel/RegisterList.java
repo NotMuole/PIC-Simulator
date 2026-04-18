@@ -50,29 +50,6 @@ public class RegisterList {
         return FlagList;
     }
 
-    public static JList<String> createINTCONList() {
-        DefaultListModel<String> model = new DefaultListModel<>();
-        JList<String> FlagList = new JList<>(model);
-        int gie = PIC16F84.GIE;
-        int eeie = PIC16F84.EEIE;
-        int t0ie = PIC16F84.T0IE;
-        int inte = PIC16F84.INTE;
-        int rbie = PIC16F84.RBIE;
-        int t0if = PIC16F84.T0IF;
-        int intf = PIC16F84.INTF;
-        int rbif = PIC16F84.RBIF;
-        model.addElement("GIE EEIE T0IE INTE RBIE T0IF INTF RBIF");
-        model.addElement(String.format("%01d   %01d    %01d    %01d    %01d    %01d    %01d    %01d", gie, eeie, t0ie, inte, rbie, t0if, intf, rbif));
-        FlagList.setFont(new Font("Monospaced", Font.PLAIN, 14));
-        FlagList.setBorder(BorderFactory.createTitledBorder(
-                BorderFactory.createLineBorder(Color.GRAY, 1),
-                "INTCON"
-        ));
-        FlagList.setPreferredSize(new Dimension(300, 70));
-        FlagList = disableSelection(FlagList);
-        return FlagList;
-    }
-
     public static JList<String> createVisibleList() {
         DefaultListModel<String> model = new DefaultListModel<>();
         int wReg = PIC16F84.getWReg();

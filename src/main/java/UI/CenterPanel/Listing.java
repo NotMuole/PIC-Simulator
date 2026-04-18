@@ -61,8 +61,12 @@ public class Listing {
         SwingUtilities.invokeLater(() -> {
             JScrollBar bar = scrollPane.getVerticalScrollBar();
             if (newValue < maxValue) {
+                try {
                 bar.setMaximum(maxValue);
                 bar.setValue(newValue);
+                } catch (Exception e) {
+                    log.error("Fehler beim setzen der Scrollbar");
+                }
             }
         });
 

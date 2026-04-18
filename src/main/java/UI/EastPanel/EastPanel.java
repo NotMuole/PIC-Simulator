@@ -20,8 +20,46 @@ public class EastPanel {
     public static JPanel createEastPanel() {
         JPanel outer = new JPanel();
         outer.add(createSubEastPanel());
+        outer.add(createINTCONList());
+        outer.add(createLight());
         outer.setPreferredSize(parentFieldDim);
         return outer;
+    }
+
+    public static JList<String> createINTCONList() {
+        DefaultListModel<String> model = new DefaultListModel<>();
+        JList<String> FlagList = new JList<>(model);
+        int gie = PIC16F84.GIE;
+        int eeie = PIC16F84.EEIE;
+        int t0ie = PIC16F84.T0IE;
+        int inte = PIC16F84.INTE;
+        int rbie = PIC16F84.RBIE;
+        int t0if = PIC16F84.T0IF;
+        int intf = PIC16F84.INTF;
+        int rbif = PIC16F84.RBIF;
+        model.addElement("GIE EEIE T0IE INTE RBIE T0IF INTF RBIF");
+        model.addElement(String.format("%01d   %01d    %01d    %01d    %01d    %01d    %01d    %01d", gie, eeie, t0ie, inte, rbie, t0if, intf, rbif));
+        FlagList.setFont(new Font("Monospaced", Font.PLAIN, 14));
+        FlagList.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(Color.GRAY, 1),
+                "INTCON"
+        ));
+        FlagList.setPreferredSize(new Dimension(374, 70));
+        FlagList = disableSelection(FlagList);
+        return FlagList;
+    }
+
+    private static JPanel createLight() {
+        JPanel inner = new JPanel();
+        inner.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(Color.GRAY, 1),
+                "LED-Array"
+        ));
+        inner.setPreferredSize(new Dimension(374, 50));
+        for (int i=7; i>=0; i--) {
+            inner.add(PortCheckbox.createCheckbox(i));
+        }
+        return inner;
     }
 
     private static JPanel createSubEastPanel() {
@@ -35,6 +73,14 @@ public class EastPanel {
         ));
         inner1.setMaximumSize(subFieldDim);
         return inner1;
+    }
+
+    private static JList<String> disableSelection(JList<String> list) {
+        list.setSelectionModel(new DefaultListSelectionModel() {
+            @Override public void setSelectionInterval(int index0, int index1) { /* no-op */ }
+            @Override public void addSelectionInterval(int index0, int index1) { /* no-op */ }
+        });
+        return list;
     }
 
 //    private static JTable createRAM() {
@@ -145,5 +191,4 @@ public class EastPanel {
         RAMList.setRowSelectionAllowed(false);
         return RAMList;
     }
-
 }
