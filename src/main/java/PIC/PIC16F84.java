@@ -27,7 +27,7 @@ public class PIC16F84 {
     private static double timePerClockUs = 1 / clockRate;
     private static double timePerCycleUs = 4 / clockRate;
     private static double timePassed = 0;
-    private static double delay = 5 / clockRate;
+    private static double delay = 300 / clockRate;
     private static int prevRA4;
     private static int T0SE = 1;
     private static int T0CS = 1;
@@ -48,7 +48,7 @@ public class PIC16F84 {
     public static int INTEDG = 1;
     public static int TO = 1;
     public static int PD = 1;
-    public static int eepromStage = 0;
+    public volatile static int eepromStage = 0;
     public static boolean isSleep = false;
     private static final Logger log = LogManager.getLogger(PIC16F84.class);
 
@@ -212,31 +212,29 @@ public class PIC16F84 {
             INTF = (value & 2) >> 1;
             RBIF = (value & 1);
         } else if (address == 137) {
-            log.info("EECON2");
             if (value == 85) {
                 eepromStage = 1;
-                log.info("eeprom: " + eepromStage);
             } else if (value == 170 && eepromStage == 1) {
                 eepromStage = 2;
-                log.info("eeprom: " + eepromStage);
             } else {
                 eepromStage = 0;
             }
         } else if (address == 136) {
-            log.info("eecon1");
             int wrBit = (value >> 1) & 1;
+            int rdBit = value & 1;
             if (eepromStage == 2 && wrBit == 1) {
-                log.info("eeprom: " + eepromStage);
                 eepromStage = 3;
                 Thread executionThread = new Thread(PIC16F84::writeEEPROM);
                 executionThread.start();
+            } else if (rdBit == 1) {
+                readEEPROM();
+                value = value & 30;
             } else {
                 eepromStage = 0;
             }
         } else if (address == 9) {
             value = value & 63;
         }
-        log.info("RAM - Adresse: " + address + "Wert: " + value);
         RAM[address] = value & 255;
     }
 
@@ -1201,11 +1199,9 @@ public class PIC16F84 {
     }
 
     public static void writeEEPROM() {
-        log.info("--------------------");
-        int eepromData = getRAM(8);
-        int eepromAddress = getRAM(9);
+        int eepromData = getVisualizedRAM(8);
+        int eepromAddress = getVisualizedRAM(9);
         double initialTime = timePassed;
-        log.info("initial Time: " + initialTime);
         double currentTime;
         do {
             try {
@@ -1215,18 +1211,21 @@ public class PIC16F84 {
             }
             currentTime = timePassed;
 
-            log.info(currentTime);
-            log.info(currentTime < (initialTime + 1000));
         } while (currentTime < (initialTime + 1000));
 
-        log.info("EEPROM-Adresse: " + eepromAddress);
         EEPROM[eepromAddress] = eepromData;
-        int eecon1 = getRAM(136);
+        int eecon1 = getRAM(136) & 29;
         writeRAM(136, (eecon1 | 16));
-        writeRAM(136, (eecon1 & 29));
+        eepromStage = 0;
         if (GIE == 1 && EEIE == 1) {
             interrupt();
         }
+    }
+
+    public static void readEEPROM() {
+        int address = getVisualizedRAM(9);
+        int newValue = EEPROM[address];
+        writeRAM(8, newValue);
     }
 
     public static void updateUI() {

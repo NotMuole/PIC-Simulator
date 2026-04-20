@@ -81,7 +81,7 @@ public class RegisterList {
         float watchdogTimer = PIC16F84.watchdogTimer;
         model.addElement(String.format("PC     %04X", programCounter));
         model.addElement(String.format("SP %d", stackPointer));
-        model.addElement(String.format("VT     %02X", vorteiler));
+        model.addElement(String.format("VT     %03d", (int)Math.pow(2, vorteiler)));
         if (watchdogEnabled) {
             model.addElement("WDT aktiv");
         } else {

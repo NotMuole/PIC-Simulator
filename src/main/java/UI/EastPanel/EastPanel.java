@@ -14,13 +14,14 @@ import java.awt.*;
 
 public class EastPanel {
     private static final Logger log = LogManager.getLogger(EastPanel.class);
-    private static final Dimension parentFieldDim = new Dimension(400, 500);
+    private static final Dimension parentFieldDim = new Dimension(400, 570);
     private static final Dimension subFieldDim = new Dimension(374, 240);
 
     public static JPanel createEastPanel() {
         JPanel outer = new JPanel();
         outer.add(createSubEastPanel());
         outer.add(createINTCONList());
+        outer.add(createEECON1List());
         outer.add(createLight());
         outer.setPreferredSize(parentFieldDim);
         return outer;
@@ -47,6 +48,27 @@ public class EastPanel {
         FlagList.setPreferredSize(new Dimension(374, 70));
         FlagList = disableSelection(FlagList);
         return FlagList;
+    }
+
+    public static JList<String> createEECON1List() {
+        DefaultListModel<String> model = new DefaultListModel<>();
+        JList<String> eecon1 = new JList<>(model);
+        int eecon1Value = PIC16F84.getVisualizedRAM(136);
+        int EEIF = (eecon1Value >> 4) & 1;
+        int WRERR = (eecon1Value >> 3) & 1;
+        int WREN = (eecon1Value >> 2) & 1;
+        int WR = (eecon1Value >> 1) & 1;
+        int RD = eecon1Value & 1;
+        model.addElement("-    -    -    EEIF WRERR WREN WR   RD");
+        model.addElement(String.format("-    -    -    %01d    %01d     %01d    %01d    %01d", EEIF, WRERR, WREN, WR, RD));
+        eecon1.setFont(new Font("Monospaced", Font.PLAIN, 14));
+        eecon1.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(Color.GRAY, 1),
+                "EECON1"
+        ));
+        eecon1.setPreferredSize(new Dimension(374, 70));
+        eecon1 = disableSelection(eecon1);
+        return eecon1;
     }
 
     private static JPanel createLight() {
