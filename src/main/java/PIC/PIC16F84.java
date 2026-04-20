@@ -13,6 +13,7 @@ public class PIC16F84 {
     private static int[] Programstore = new int[1024];
     private static int[] RAM = new int[256];
     private static int[] Stack = new int[8];
+    private static int[] EEPROM = new int[64];
     private static int StackIndex = 0;
     private static int Programcounter = 0;
     private static int WReg = 0;
@@ -34,6 +35,7 @@ public class PIC16F84 {
     public static int PSA0_2 = 7;
     public static float watchdogTimer = 0;
     private static boolean watchdogOverflow = false;
+    private static int watchdogPrescaler = 0;
     private static int helperTimer = 0;
     public static int GIE = 0;
     public static int EEIE = 0;
@@ -46,6 +48,7 @@ public class PIC16F84 {
     public static int INTEDG = 1;
     public static int TO = 1;
     public static int PD = 1;
+    public static int eepromStage = 0;
     public static boolean isSleep = false;
     private static final Logger log = LogManager.getLogger(PIC16F84.class);
 
@@ -208,7 +211,32 @@ public class PIC16F84 {
             T0IF = (value & 4) >> 2;
             INTF = (value & 2) >> 1;
             RBIF = (value & 1);
+        } else if (address == 137) {
+            log.info("EECON2");
+            if (value == 85) {
+                eepromStage = 1;
+                log.info("eeprom: " + eepromStage);
+            } else if (value == 170 && eepromStage == 1) {
+                eepromStage = 2;
+                log.info("eeprom: " + eepromStage);
+            } else {
+                eepromStage = 0;
+            }
+        } else if (address == 136) {
+            log.info("eecon1");
+            int wrBit = (value >> 1) & 1;
+            if (eepromStage == 2 && wrBit == 1) {
+                log.info("eeprom: " + eepromStage);
+                eepromStage = 3;
+                Thread executionThread = new Thread(PIC16F84::writeEEPROM);
+                executionThread.start();
+            } else {
+                eepromStage = 0;
+            }
+        } else if (address == 9) {
+            value = value & 63;
         }
+        log.info("RAM - Adresse: " + address + "Wert: " + value);
         RAM[address] = value & 255;
     }
 
@@ -828,7 +856,6 @@ public class PIC16F84 {
 
         if (value == 0) {
             NOP();
-            incrementProgramCounter();
             incrementTMR0();
         }
         incrementProgramCounter();
@@ -842,7 +869,6 @@ public class PIC16F84 {
 
         if (value == 1) {
             NOP();
-            incrementProgramCounter();
             incrementTMR0();
         }
         incrementProgramCounter();
@@ -886,6 +912,7 @@ public class PIC16F84 {
     public static void CLRWDT() {
         //set Bits & Variables
         watchdogTimer = 0;
+        watchdogPrescaler = 0;
         PSA0_2 = 0;
         int optionReg = getRAM(129);
         int newOptionReg = (optionReg & 248);
@@ -952,8 +979,7 @@ public class PIC16F84 {
 
     public static void SLEEP() {
         watchdogTimer = 0;
-        PSA0_2 = 0;
-        writeRAM(129,getRAM(129) & 248);
+
 
         TO = 1;
         PD = 0;
@@ -998,9 +1024,13 @@ public class PIC16F84 {
             timePassed += timePerClockUs;
             if (watchdogEnabled) {
                 watchdogTimer += timePerClockUs;
-                if(PSA == 0 && watchdogTimer >= 18000) {
+                if (watchdogTimer >= 18000) {
+                    watchdogPrescaler += 1;
+                    watchdogTimer = 0;
+                }
+                    if(PSA == 0 && watchdogPrescaler == 1) {
                     watchdogOverflow();
-                } else if (PSA == 1 && watchdogTimer >= Math.pow(2, PSA0_2)*18000) {
+                } else if (PSA == 1 && watchdogPrescaler == Math.pow(2, PSA0_2)) {
                     watchdogOverflow();
                 }
             }
@@ -1016,6 +1046,7 @@ public class PIC16F84 {
             isSleep = false;
             watchdogOverflow = false;
             watchdogTimer = 0;
+            watchdogPrescaler = 0;
             incrementProgramCounter();
         }
     }
@@ -1096,12 +1127,15 @@ public class PIC16F84 {
     }
 
     public static void resetProgram() {
+        eepromStage = 0;
+        watchdogPrescaler = 0;
         watchdogOverflow = false;
         isSleep = false;
         is_paused = true;
         reset();
         ui = false;
         Stack = new int[8];
+        EEPROM = new int[64];
         StackIndex = 0;
         Programcounter = 0;
         PSA = 1;
@@ -1111,7 +1145,7 @@ public class PIC16F84 {
         prevRA4 = 0;
         helperTimer = 0;
         timePassed = 0;
-        watchdogTimer = 2302000;
+        watchdogTimer = 0;
         dataLatch = 0;
         GIE = 0;
         EEIE = 0;
@@ -1163,6 +1197,35 @@ public class PIC16F84 {
             }
         } else {
             log.error("PSA ist " + PSA + " statt 0 oder 1");
+        }
+    }
+
+    public static void writeEEPROM() {
+        log.info("--------------------");
+        int eepromData = getRAM(8);
+        int eepromAddress = getRAM(9);
+        double initialTime = timePassed;
+        log.info("initial Time: " + initialTime);
+        double currentTime;
+        do {
+            try {
+                Thread.sleep((long) 50);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+            currentTime = timePassed;
+
+            log.info(currentTime);
+            log.info(currentTime < (initialTime + 1000));
+        } while (currentTime < (initialTime + 1000));
+
+        log.info("EEPROM-Adresse: " + eepromAddress);
+        EEPROM[eepromAddress] = eepromData;
+        int eecon1 = getRAM(136);
+        writeRAM(136, (eecon1 | 16));
+        writeRAM(136, (eecon1 & 29));
+        if (GIE == 1 && EEIE == 1) {
+            interrupt();
         }
     }
 
