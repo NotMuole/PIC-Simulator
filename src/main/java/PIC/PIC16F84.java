@@ -884,7 +884,19 @@ public class PIC16F84 {
     }
 
     public static void CLRWDT() {
+        //set Bits & Variables
         watchdogTimer = 0;
+        PSA0_2 = 0;
+        int optionReg = getRAM(129);
+        int newOptionReg = (optionReg & 248);
+        writeRAM(129, newOptionReg);
+        TO = 1;
+        PD = 1;
+        int statusReg = getRAM(3);
+        int newStatusReg = (statusReg | 24);
+        writeRAM(3, newStatusReg);
+        writeRAM(131, newStatusReg);
+
         incrementProgramCounter();
         updateTime(4);
         //log.info("CLRWDT");
@@ -939,10 +951,9 @@ public class PIC16F84 {
     }
 
     public static void SLEEP() {
-        //watchdogTimer = 0;
-
-        //PSA0_2 = 0;
-        //writeRAM(129,getRAM(129) & 248);
+        watchdogTimer = 0;
+        PSA0_2 = 0;
+        writeRAM(129,getRAM(129) & 248);
 
         TO = 1;
         PD = 0;
@@ -994,18 +1005,14 @@ public class PIC16F84 {
                 }
             }
         }
-        log.info("update Time");
     }
 
     public static void watchdogOverflow() {
-        log.info("Watchdog Overflow");
         watchdogOverflow = true;
-        log.info(isSleep);
         if (!isSleep) {
             is_paused = true;
             MainFrame.createPopUp();
         } else {
-            log.info("reset Sleep");
             isSleep = false;
             watchdogOverflow = false;
             watchdogTimer = 0;
@@ -1079,7 +1086,6 @@ public class PIC16F84 {
         }
 
         int command = getProgramstore(Programcounter);
-        log.info(isSleep);
         if (!isSleep) {
             decode(command);
         }
@@ -1143,7 +1149,6 @@ public class PIC16F84 {
 
         prevRA4 = (getRAM(5) & 16) >> 4;
         if (!event) return;
-        log.info("Event true");
 
         // zweiter Multiplexer, entscheidet anhand des PSA-Bit, ob Signal direkt zum Timer oder zunächst zum Prescaler geht
         if (PSA == 1) {
