@@ -628,7 +628,6 @@ public class PIC16F84 {
 
         if (value == 0) { 
             NOP();
-            incrementProgramCounter();
             incrementTMR0();
         }
         incrementProgramCounter();
@@ -668,7 +667,6 @@ public class PIC16F84 {
 
         if (value > 255) {
             NOP();
-            incrementProgramCounter();
             incrementTMR0();
         }
         incrementProgramCounter();
@@ -963,7 +961,6 @@ public class PIC16F84 {
     public static void RETLW(int literal) {
         writeWReg(literal);
         Programcounter = popStack();
-        incrementProgramCounter();
         updateTime(8);
         //log.info("RETLW, return-address=" + Programcounter + ", W=" + Integer.toHexString(WReg) + "h");
     }
