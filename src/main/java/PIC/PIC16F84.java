@@ -234,6 +234,9 @@ public class PIC16F84 {
             }
         } else if (address == 9) {
             value = value & 63;
+        } else if (address == 2 || address == 130) {
+            int PCLATH = getRAM(10);
+            Programcounter = (PCLATH << 8) | (value & 255);
         }
         RAM[address] = value & 255;
     }
@@ -530,6 +533,9 @@ public class PIC16F84 {
         } else {
             for (int i = 0; i < addresses.size(); i ++) {
                 writeRAM(addresses.get(i), value);
+            }
+            if ((file_address == 2 || file_address == 130)) {
+                updateTime(4);
             }
         }
         incrementProgramCounter();
@@ -974,8 +980,6 @@ public class PIC16F84 {
 
     public static void SLEEP() {
         watchdogTimer = 0;
-
-
         TO = 1;
         PD = 0;
         int value = (getRAM(3) | 16) & 247; 
@@ -1023,7 +1027,7 @@ public class PIC16F84 {
                     watchdogPrescaler += 1;
                     watchdogTimer = 0;
                 }
-                    if(PSA == 0 && watchdogPrescaler == 1) {
+                if(PSA == 0 && watchdogPrescaler == 1) {
                     watchdogOverflow();
                 } else if (PSA == 1 && watchdogPrescaler == Math.pow(2, PSA0_2)) {
                     watchdogOverflow();
@@ -1033,11 +1037,16 @@ public class PIC16F84 {
     }
 
     public static void watchdogOverflow() {
+        log.info("watchdogoverflow");
         watchdogOverflow = true;
         if (!isSleep) {
             is_paused = true;
             MainFrame.createPopUp();
         } else {
+            TO = 0;
+            int newValue = getRAM(3) & 239;
+            writeRAM(3, newValue);
+            writeRAM(131, newValue);
             isSleep = false;
             watchdogOverflow = false;
             watchdogTimer = 0;
@@ -1083,6 +1092,10 @@ public class PIC16F84 {
 
     public static void interrupt() {
         isSleep = false;
+        GIE = 0;
+        int newValue = getRAM(11) & 127;
+        writeRAM(11, newValue);
+        writeRAM(139, newValue);
         CALL(4);
     }
 
