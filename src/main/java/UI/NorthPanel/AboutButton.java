@@ -47,12 +47,8 @@ public class AboutButton {
                 }
 
                 Path tempFile = Files.createTempFile("PicSimu_Dokumentation-", ".pdf");
-
                 Files.copy(in, tempFile, StandardCopyOption.REPLACE_EXISTING);
-
-                // Beim Beenden der JVM löschen
                 tempFile.toFile().deleteOnExit();
-
                 Desktop.getDesktop().open(tempFile.toFile());
 
             } catch (Exception ex) {
