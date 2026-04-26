@@ -6,6 +6,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.swing.*;
+import java.awt.*;
 
 public class FileSelector {
     private static final Logger log = LogManager.getLogger(FileSelector.class);
@@ -14,8 +15,11 @@ public class FileSelector {
     private static boolean newFileUploaded;
 
     public static JButton createFileUploader() {
-        JButton upload_button = new JButton("Upload file");
-        upload_button.addActionListener(e -> {
+        JButton uploadButton = new JButton("Upload file ⭱");
+        uploadButton.setPreferredSize(new Dimension(1920/2, 40));
+        uploadButton.setMaximumSize(new Dimension(1920/2, 40));
+        uploadButton.setMinimumSize(new Dimension(1920/2, 40));
+        uploadButton.addActionListener(e -> {
             JFileChooser file_upload = new JFileChooser();
             int response = file_upload.showOpenDialog(null);
             if(response == JFileChooser.APPROVE_OPTION) {
@@ -29,7 +33,7 @@ public class FileSelector {
                 PIC16F84.resetProgram();
             }
         });
-        return upload_button;
+        return uploadButton;
     }
 
     public static String getFilePath() {

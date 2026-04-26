@@ -7,8 +7,10 @@ import java.net.URL;
 
 import PIC.PIC16F84;
 import UI.CenterPanel.Listing;
+import UI.NorthPanel.AboutButton;
 import UI.NorthPanel.FileSelector;
 import UI.EastPanel.EastPanel;
+import UI.NorthPanel.NorthPanel;
 import UI.WestPanel.WestPanel;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -40,7 +42,7 @@ public class MainFrame extends JFrame {
     }
 
     private static void addPanels() {
-        frame.add(FileSelector.createFileUploader(), BorderLayout.NORTH);
+        frame.add(NorthPanel.createNorthPanel(), BorderLayout.NORTH);
         currentFieldWEST = WestPanel.createFieldWEST();
         frame.add(currentFieldWEST, BorderLayout.WEST);
         currentRAM = EastPanel.createEastPanel();
