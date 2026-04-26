@@ -4,8 +4,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.awt.*;
-import java.io.File;
-import java.net.URL;
 import javax.swing.*;
 import java.awt.Desktop;
 import java.io.InputStream;
