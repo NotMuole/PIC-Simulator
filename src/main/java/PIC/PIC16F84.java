@@ -5,6 +5,8 @@ import UI.MainFrame;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import Hardwareansteuerung.Hardwareansteuerung;
+
 import java.util.List;
 import java.util.ArrayList;
 
@@ -52,7 +54,10 @@ public class PIC16F84 {
     public static boolean isSleep = false;
     private static final Logger log = LogManager.getLogger(PIC16F84.class);
 
-    public PIC16F84() {}
+    public PIC16F84() {
+        Hardwareansteuerung.initialize();
+        Hardwareansteuerung.print(0, 0, 31, 0);
+    }
 
     public static List<Integer> decodeAddress(int address) {
         if (rp0 == 1 && address < 128) address += 128;
