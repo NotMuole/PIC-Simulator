@@ -21,7 +21,8 @@ public class PIC16F84 {
     private static int WReg = 0;
     private static int rp0 = 0;
     public static int ind = 0;
-    private static int dataLatch = 0;
+    private static int dataLatchA = 0;
+    private static int dataLatchB = 0;
     private static volatile boolean is_paused = true;
     public static boolean watchdogEnabled = true;
     public static boolean ui = false;
@@ -165,30 +166,40 @@ public class PIC16F84 {
             value = 0;
         } else if (address == 4 || address == 132) {
             ind = value;
-        } else if (address == 5 && ui) {
+        } else if (address == 5) {
             int TRISA = RAM[133];
             int PORTA = RAM[5];
-            dataLatch = value;
-            value = ((~TRISA & PORTA) | (TRISA & value));
-            ui = false;
-        } else if (address == 6 && ui) {
+            dataLatchA = value;
+            if (ui) {
+                value = ((~TRISA & PORTA) | (TRISA & value));
+                ui = false;
+            } else {
+                value = ((TRISA & PORTA) | (~TRISA & value));
+            }
+        } else if (address == 6) {
             int TRISB = RAM[134];
             int PORTB = RAM[6];
-            dataLatch = value;
-            value = ((~TRISB & PORTB) | (TRISB & value));
-            ui = false;
+            dataLatchB = value;
+            if (ui) {
+                value = ((~TRISB & PORTB) | (TRISB & value));
+                ui = false;
+            } else {
+                value = ((TRISB & PORTB) | (~TRISB & value));
+            }
             setINTF(value & 1);
             setRBIF(value & 240);
         } else if (address == 133) {
-            int TRISA = RAM[133];
+            int TRISA = value;
             int PORTA = RAM[5];
-            PORTA = ((dataLatch & TRISA) | PORTA);
+            PORTA = (PORTA & TRISA) | (dataLatchA & ~TRISA);
             RAM[5] = PORTA;
+            RAM[133] = value;
         } else if (address == 134) {
-            int TRISB = RAM[134];
+            int TRISB = value;
             int PORTB = RAM[6];
-            PORTB = ((dataLatch & TRISB) | PORTB);
+            PORTB = (PORTB & TRISB) | (dataLatchB & ~TRISB);
             RAM[6] = PORTB;
+            RAM[134] = value;
         } else if (address == 129) {
             INTEDG = (value & 64) >> 6;
             T0CS = (value & 32) >> 5;
@@ -1159,7 +1170,8 @@ public class PIC16F84 {
         helperTimer = 0;
         timePassed = 0;
         watchdogTimer = 0;
-        dataLatch = 0;
+        dataLatchA = 0;
+        dataLatchB = 0;
         GIE = 0;
         EEIE = 0;
         T0IE = 0;
