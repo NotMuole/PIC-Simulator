@@ -22,7 +22,7 @@ public class AboutButton {
         aboutButton.setMinimumSize(new Dimension(1920/2, 40));
 
         aboutButton.addActionListener(e -> {
-            try (InputStream in = AboutButton.class.getResourceAsStream("/PicSimu_Dokumentation.pdf")) {
+            try (InputStream in = AboutButton.class.getResourceAsStream("/PicSimu_Dokumentation_Deckblatt.pdf")) {
 
                 if (in == null) {
                     JOptionPane.showMessageDialog(
