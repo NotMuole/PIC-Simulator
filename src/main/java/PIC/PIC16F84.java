@@ -921,7 +921,7 @@ public class PIC16F84 {
     public static void CALL(int address) {
         incrementProgramCounter();
         pushStack(Programcounter);
-        setProgramCounter(address & 1023);
+        setProgramCounter(((getRAM(10) & 24) << 8) | (address & 2047));
         updateTime(8);
         incrementTMR0();
         //log.info("CALL, return-address=" + (Programcounter) + ", destination-address=" + (address & 1023));
@@ -948,8 +948,7 @@ public class PIC16F84 {
     }
 
     public static void GOTO(int address) {
-        incrementProgramCounter();
-        PIC16F84.setProgramCounter(address);
+        PIC16F84.setProgramCounter(((getRAM(10) & 24) << 8) | (address & 2047));
         updateTime(8);
         incrementTMR0();
         //log.info("GOTO, destination-address=" + (address & 1023));
@@ -976,8 +975,11 @@ public class PIC16F84 {
     public static void RETFIE() {
         incrementProgramCounter();
         Programcounter = popStack();
+        GIE = 1;
+        int newValue = getRAM(11) | 128;
+        writeRAM(11, newValue);
+        writeRAM(139, newValue);
         updateTime(8);
-        //log.info("TODO: RETFIE");
     }
 
     public static void RETLW(int literal) {
@@ -1194,7 +1196,6 @@ public class PIC16F84 {
 
         // erster Multiplexer, entscheidet anhand des T0CS-Bit über die Source
         if (T0CS == 0) {
-            //source = CLKOUT TODO: verwende CLK als source
             event = true;
         } else if (T0CS == 1) {
             int RA4 = ((getRAM(5) & 16) >> 4);
