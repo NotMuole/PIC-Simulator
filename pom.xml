@@ -30,11 +30,6 @@
             <artifactId>log4j-core</artifactId>
             <version>${lo4j-core.version}</version>
         </dependency>
-        <dependency>
-            <groupId>com.fazecast</groupId>
-            <artifactId>jSerialComm</artifactId>
-            <version>[2.0.0,3.0.0]</version>
-        </dependency>
     </dependencies>
 
     <build>
@@ -73,6 +68,35 @@
                                     <mainClass>Main</mainClass>
                                 </transformer>
                             </transformers>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>com.akathist.maven.plugins.launch4j</groupId>
+                <artifactId>launch4j-maven-plugin</artifactId>
+                <version>2.5.1</version>
+                <executions>
+                    <execution>
+                        <id>l4j-clui</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>launch4j</goal>
+                        </goals>
+                        <configuration>
+                            <headerType>gui</headerType> <!-- Nutze 'console', falls es ein reines Textprogramm ist -->
+                            <outfile>target/pic-simulator.exe</outfile>
+                            <jar>target/${project.build.finalName}.jar</jar>
+                            <errTitle>PIC Simulator Fehler</errTitle>
+                            <classPath>
+                                <mainClass>Main</mainClass>
+                                <addDependencies>false</addDependencies>
+                            </classPath>
+                            <jre>
+                                <minVersion>21</minVersion>
+                                <path>%JAVA_HOME%</path>
+                                <runtimeBits>64</runtimeBits>
+                            </jre>
                         </configuration>
                     </execution>
                 </executions>
