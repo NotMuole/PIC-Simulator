@@ -556,7 +556,6 @@ public class PIC16F84 {
         }
         incrementProgramCounter();
         updateTime(4);
-        //log.info("ADDWF, WReg: \" + Integer.toHexString(WReg) + \"h, C=\" + getCarryFlag() + \", DC=\" + getDigitcarryFlag() + \", Z=\" + getZeroFlag()");
     }
 
     public static void ANDWF(int file_address, int destination) {
@@ -575,7 +574,6 @@ public class PIC16F84 {
         }
         incrementProgramCounter();
         updateTime(4);
-        //log.info("ANDWF, WReg: \" + Integer.toHexString(WReg) + \"h, C=\" + getCarryFlag() + \", DC=\" + getDigitcarryFlag() + \", Z=\" + getZeroFlag()");
     }
 
     public static void CLRF(int file_address) {
@@ -588,7 +586,6 @@ public class PIC16F84 {
         }
         incrementProgramCounter();
         updateTime(4);
-        //log.info("CLRF");
     }
 
     public static void CLRW() {
@@ -597,7 +594,6 @@ public class PIC16F84 {
         writeWReg(0);
         incrementProgramCounter();
         updateTime(4);
-        //log.info("CLRW");
     }
 
     public static void COMF(int file_address, int destination) {
@@ -615,7 +611,6 @@ public class PIC16F84 {
         }
         incrementProgramCounter();
         updateTime(4);
-        //log.info("COMF");
     }
 
     public static void DECF(int file_address, int destination) {
@@ -633,7 +628,6 @@ public class PIC16F84 {
         }
         incrementProgramCounter();
         updateTime(4);
-        //log.info("DECF");
     }
 
     public static void DECFSZ(int file_address, int destination) {
@@ -654,7 +648,6 @@ public class PIC16F84 {
         }
         incrementProgramCounter();
         updateTime(4);
-        //log.info("DECFSZ");
     }
 
     public static void INCF(int file_address, int destination) {
@@ -672,7 +665,6 @@ public class PIC16F84 {
         }
         incrementProgramCounter();
         updateTime(4);
-        //log.info("INCF");
     }
 
     public static void INCFSZ(int file_address, int destination) {
@@ -693,7 +685,6 @@ public class PIC16F84 {
         }
         incrementProgramCounter();
         updateTime(4);
-        //log.info("INCFSZ");
     }
 
     public static void IORWF(int file_address, int destination) {
@@ -712,7 +703,6 @@ public class PIC16F84 {
 
         incrementProgramCounter();
         updateTime(4);
-        //log.info("IORWF");
     }
 
     public static void MOVF(int file_address, int destination) {
@@ -730,7 +720,6 @@ public class PIC16F84 {
         }
         incrementProgramCounter();
         updateTime(4);
-        //log.info("MOVF");
     }
 
     public static void MOVWF(int file_address) {
@@ -742,13 +731,11 @@ public class PIC16F84 {
         };
         incrementProgramCounter();
         updateTime(4);
-        //log.info("MOVWF, WReg: " + Integer.toHexString(WReg) + "h, C=" + getCarryFlag() + ", DC=" + getDigitcarryFlag() + ", Z=" + getZeroFlag());
     }
 
     public static void NOP() {
         incrementProgramCounter();
         updateTime(4);
-        //log.info("NOP, WReg: " + Integer.toHexString(WReg) + "h, C=" + getCarryFlag() + ", DC=" + getDigitcarryFlag() + ", Z=" + getZeroFlag());
     }
 
     public static void RLF(int file_address, int destination) {
@@ -767,7 +754,6 @@ public class PIC16F84 {
         }
         incrementProgramCounter();
         updateTime(4);
-        //log.info("RLF");
     }
 
     public static void RRF(int file_address, int destination) {
@@ -786,7 +772,6 @@ public class PIC16F84 {
         }
         incrementProgramCounter();
         updateTime(4);
-        //log.info("RRF");
     }
 
     public static void SUBWF(int file_address, int destination) {
@@ -806,7 +791,6 @@ public class PIC16F84 {
         }
         incrementProgramCounter();
         updateTime(4);
-        //log.info("SUBWF");
     }
 
     public static void SWAPF(int file_address, int destination) {
@@ -823,7 +807,6 @@ public class PIC16F84 {
         }
         incrementProgramCounter();
         updateTime(4);
-        //log.info("SWAPF");
     }
 
     public static void XORWF(int file_address, int destination) {
@@ -841,7 +824,6 @@ public class PIC16F84 {
         }
         incrementProgramCounter();
         updateTime(4);
-        //log.info("XORWF");
     }
 
     public static void BCF(int file_address, int bit) {
@@ -853,7 +835,6 @@ public class PIC16F84 {
         };
         incrementProgramCounter();
         updateTime(4);
-        //log.info("BCF");
     }
 
     public static void BSF(int file_address, int bit) {
@@ -865,7 +846,6 @@ public class PIC16F84 {
         };
         incrementProgramCounter();
         updateTime(4);
-        //log.info("BSF");
     }
 
     public static void BTFSC(int file_address, int bit) {
@@ -878,7 +858,6 @@ public class PIC16F84 {
         }
         incrementProgramCounter();
         updateTime(4);
-        //log.info("BTFSC");
     }
 
     public static void BTFSS(int file_address, int bit) {
@@ -891,7 +870,6 @@ public class PIC16F84 {
         }
         incrementProgramCounter();
         updateTime(4);
-        //log.info("BTFSS");
     }
 
     public static void ADDLW(int literal) {
@@ -904,7 +882,6 @@ public class PIC16F84 {
         writeWReg(value);
         incrementProgramCounter();
         updateTime(4);
-        //log.info("ADDLW, WReg: " + Integer.toHexString(WReg) + "h, C=" + getCarryFlag() + ", DC=" + getDigitcarryFlag() + ", Z=" + getZeroFlag());
     }
 
     public static void ANDLW(int literal) {
@@ -915,7 +892,6 @@ public class PIC16F84 {
         writeWReg(value);
         incrementProgramCounter();
         updateTime(4);
-        //log.info("ANDLW, WReg: " + Integer.toHexString(WReg) + "h, C=" + getCarryFlag() + ", DC=" + getDigitcarryFlag() + ", Z=" + getZeroFlag());
     }
 
     public static void CALL(int address) {
@@ -924,7 +900,6 @@ public class PIC16F84 {
         setProgramCounter(((getRAM(10) & 24) << 8) | (address & 2047));
         updateTime(8);
         incrementTMR0();
-        //log.info("CALL, return-address=" + (Programcounter) + ", destination-address=" + (address & 1023));
     }
 
     public static void CLRWDT() {
@@ -944,14 +919,12 @@ public class PIC16F84 {
 
         incrementProgramCounter();
         updateTime(4);
-        //log.info("CLRWDT");
     }
 
     public static void GOTO(int address) {
         PIC16F84.setProgramCounter(((getRAM(10) & 24) << 8) | (address & 2047));
         updateTime(8);
         incrementTMR0();
-        //log.info("GOTO, destination-address=" + (address & 1023));
     }
 
     public static void IORLW(int literal) {
@@ -962,14 +935,12 @@ public class PIC16F84 {
         writeWReg(value);
         incrementProgramCounter();
         updateTime(4);
-        //log.info("IORLW, WReg: " + Integer.toHexString(WReg) + "h, C=" + getCarryFlag() + ", DC=" + getDigitcarryFlag() + ", Z=" + getZeroFlag());
     }
 
     public static void MOVLW(int literal) {
         writeWReg(literal);
         incrementProgramCounter();
         updateTime(4);
-        //log.info("MOVLW, WReg: " + Integer.toHexString(WReg) + "h, C=" + getCarryFlag() + ", DC=" + getDigitcarryFlag() + ", Z=" + getZeroFlag());
     }
 
     public static void RETFIE() {
@@ -986,14 +957,12 @@ public class PIC16F84 {
         writeWReg(literal);
         Programcounter = popStack();
         updateTime(8);
-        //log.info("RETLW, return-address=" + Programcounter + ", W=" + Integer.toHexString(WReg) + "h");
     }
 
     public static void RETURN() {
         incrementProgramCounter();
         Programcounter = popStack();
         updateTime(8);
-        //log.info("RETURN");
     }
 
     public static void SLEEP() {
@@ -1006,7 +975,6 @@ public class PIC16F84 {
         
         isSleep = true;
         updateTime(4);
-        //log.info("SLEEP");
     }
 
     public static void SUBLW(int literal) {
@@ -1019,7 +987,6 @@ public class PIC16F84 {
         writeWReg(value);
         incrementProgramCounter();
         updateTime(4);
-        //log.info("SUBLW, WReg: " + Integer.toHexString(WReg) + "h, C=" + getCarryFlag() + ", DC=" + getDigitcarryFlag() + ", Z=" + getZeroFlag());
     }
 
     public static void XORLW(int literal) {
@@ -1030,7 +997,6 @@ public class PIC16F84 {
         writeWReg(value);
         incrementProgramCounter();
         updateTime(4);
-        //log.info("XORLW, WReg: " + Integer.toHexString(WReg) + "h, C=" + getCarryFlag() + ", DC=" + getDigitcarryFlag() + ", Z=" + getZeroFlag());
     }
 
     public static void updateTime(int anzahl) {
@@ -1055,7 +1021,6 @@ public class PIC16F84 {
     }
 
     public static void watchdogOverflow() {
-        log.info("watchdogoverflow");
         watchdogOverflow = true;
         if (!isSleep) {
             is_paused = true;
